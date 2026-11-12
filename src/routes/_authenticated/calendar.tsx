@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/app/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import type { CampaignPlan } from "@/lib/campaign-types";
 import { doneKeys, taskKey } from "@/lib/task-progress";
+import { ACTIVITY_LABEL, activityType, dayNumberOf, isQuickActivity, purposeLabel } from "@/lib/schedule";
 
 export const Route = createFileRoute("/_authenticated/calendar")({
   head: () => ({
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/calendar")({
   component: CalendarPage,
 });
 
-type Ev = { key: string; campaignId: string; campaign: string; text: string; channel: string; timing: string; done: boolean };
+type Ev = { key: string; campaignId: string; campaign: string; text: string; channel: string; timing: string; done: boolean; quick: boolean; kind: string; purpose: string };
 const TONES = ["bg-accent/15 text-accent", "bg-primary/10 text-primary", "bg-highlight/40 text-highlight-foreground"];
 const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
@@ -57,11 +58,12 @@ function CalendarPage() {
       const m = sd && /^(\d{4})-(\d{2})-(\d{2})$/.exec(sd);
       const start = m ? new Date(+m[1]!, +m[2]! - 1, +m[3]!) : new Date(c.created_at);
       (plan.calendar ?? []).forEach((item, i) => {
-        const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + ((Number(/\d+/.exec(item.day ?? "")?.[0]) || i + 1) - 1));
+        const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + (dayNumberOf(item.day, i) - 1));
         (byDay[dayKey(d)] ??= []).push({
           key: `${c.id}-${i}`, campaignId: c.id, campaign: c.title,
           text: item.theme || item.action, channel: item.channel, timing: item.timing,
           done: finished.has(taskKey(c.id, i)),
+          quick: isQuickActivity(item.type), kind: ACTIVITY_LABEL[activityType(item.type)], purpose: purposeLabel(item.purpose),
         });
       });
     });
@@ -99,8 +101,8 @@ function CalendarPage() {
                     <div className={`mb-1 inline-grid size-6 place-items-center rounded-full text-xs ${isToday ? "bg-accent font-bold text-accent-foreground" : "text-muted-foreground"}`}>{d.getDate()}</div>
                     {byDay[dayKey(d)]?.map((e) => (
                       <Link key={e.key} to="/campaigns/$id" params={{ id: e.campaignId }}
-                        title={`${e.campaign} · ${e.channel}${e.timing ? ` · ${e.timing}` : ""}${e.done ? " · completed" : ""}\n${e.text}`}
-                        className={`mb-1 block truncate rounded-md px-2 py-1 text-xs font-medium hover:opacity-80 ${e.done ? "bg-muted text-muted-foreground line-through decoration-muted-foreground/70" : toneOf[e.campaignId]}`}>
+                        title={`${e.campaign} · ${e.kind}${e.purpose ? ` · ${e.purpose}` : ""} · ${e.channel}${e.timing ? ` · ${e.timing}` : ""}${e.done ? " · completed" : ""}\n${e.text}`}
+                        className={`mb-1 block truncate rounded-md px-2 py-1 text-xs font-medium hover:opacity-80 ${e.done ? "bg-muted text-muted-foreground line-through decoration-muted-foreground/70" : `${toneOf[e.campaignId]}${e.quick ? " border border-dashed border-border" : ""}`}`}>
                         {e.channel ? `${e.channel}: ` : ""}{e.text}
                       </Link>
                     ))}

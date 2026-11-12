@@ -2,6 +2,8 @@ import { Target, Users, Compass, MessageCircle, Megaphone, Gift, PieChart, Trend
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { TaskTracker } from "@/components/campaign/TaskTracker";
+import { CadenceNote } from "@/components/campaign/CadenceNote";
+import { ACTIVITY_LABEL, activityType, purposeLabel } from "@/lib/schedule";
 import type { CampaignPlan } from "@/lib/campaign-types";
 import { PosterStudio, type SavedPoster } from "@/components/studio/PosterStudio";
 
@@ -48,14 +50,15 @@ export function PlanView({ plan, businessName, businessType, brand, campaignId, 
         <h3 className="pt-4 text-2xl font-semibold">Social media posts</h3>
         <div className="grid gap-4 md:grid-cols-3">{plan.socialPosts.map((p, i) => <PostCard key={i} p={p} />)}</div>
       </>}
-      {!!plan.calendar?.length && campaignId && <TaskTracker campaignId={campaignId} items={plan.calendar} />}
+      {!!plan.calendar?.length && campaignId && <TaskTracker campaignId={campaignId} items={plan.calendar} plan={plan} />}
       {!!plan.calendar?.length && !campaignId && <>
         <h3 className="flex items-center gap-2 pt-4 text-2xl font-semibold"><CalendarDays className="size-5 text-primary" />Posting schedule</h3>
+        <CadenceNote plan={plan} items={plan.calendar} />
         <div className="panel divide-y">{plan.calendar.map((d, i) => (
           <div key={i} className="grid gap-2 p-4 text-sm sm:grid-cols-[110px_1fr_auto]">
             <div className="font-semibold text-primary">{d.day}</div>
             <div><b>{d.theme}</b><p className="text-muted-foreground">{d.action}</p></div>
-            <div className="text-right text-xs text-muted-foreground"><span className="rounded-full bg-secondary px-2 py-1 font-medium text-foreground">{d.channel}</span><div className="mt-1">{d.timing}</div>{(d.impact || d.effort) && <div className="mt-1">Impact {d.impact ?? "–"} · Effort {d.effort ?? "–"}</div>}</div>
+            <div className="text-right text-xs text-muted-foreground"><span className="rounded-full bg-secondary px-2 py-1 font-medium text-foreground">{d.channel}</span><div className="mt-1">{d.timing}</div><div className="mt-1 flex flex-wrap justify-end gap-1"><span className="rounded-full bg-primary/10 px-2 py-1 font-medium text-primary">{ACTIVITY_LABEL[activityType(d.type)]}</span>{purposeLabel(d.purpose) && <span className="rounded-full bg-secondary px-2 py-1">{purposeLabel(d.purpose)}</span>}</div>{(d.impact || d.effort) && <div className="mt-1">Impact {d.impact ?? "–"} · Effort {d.effort ?? "–"}</div>}</div>
           </div>
         ))}</div>
       </>}
