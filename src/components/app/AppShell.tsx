@@ -97,7 +97,7 @@ function UserMenu() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setEmail(data.user?.email ?? "");
-      setName((data.user?.user_metadata?.full_name as string | undefined) ?? "");
+      setName((data.user?.user_metadata?.["full_name"] as string | undefined) ?? "");
     });
   }, []);
   const initials = (name || email || "?").split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("");
