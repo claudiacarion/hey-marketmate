@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
 import { Loader2, AlertCircle, Target, Users, Compass, MessageCircle, Megaphone, Gift, PieChart, TrendingUp, Sparkles, Instagram, Mail, Facebook, MessageSquare, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/app/AppShell";
-import { generateCampaign, type CampaignPlan } from "@/lib/campaign.functions";
+import type { CampaignPlan } from "@/lib/campaign.functions";
 import { defaultProfile, loadProfile } from "@/lib/business-profile";
 
 export const Route = createFileRoute("/studio")({
@@ -45,16 +45,25 @@ function Studio() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [plan, setPlan] = useState<CampaignPlan | null>(null);
-  const generate = useServerFn(generateCampaign);
   useEffect(() => setProfile(loadProfile()), []);
 
   const run = async () => {
     setLoading(true); setError(null);
     try {
       const names = channels.filter((c) => picked.includes(c.id)).map((c) => c.label);
-      const res = await generate({ data: { business: profile, brief: { goal, channels: names, budget, timing, notes } } });
-      if (res.error) { setError(res.error); toast.error(res.error); }
-      else if (res.plan) { setPlan(res.plan); setTimeout(() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth" }), 50); }
+      const business = { name: profile.name, type: profile.type, location: profile.location, audience: profile.audience, voice: profile.voice };
+      const { data, error: fnError } = await supabase.functions.invoke<{ plan?: CampaignPlan; error?: string }>("generate-campaign", { body: { business, brief: { goal, channels: names, budget, timing, notes } } });
+      let msg: string | null = null;
+      if (fnError) {
+        msg = "The campaign service couldn't be reached. Please try again.";
+        const ctx = (fnError as { context?: Response }).context;
+        if (ctx && typeof ctx.json === "function") {
+          try { const body = await ctx.json(); if (body?.error) msg = String(body.error); } catch { /* keep default */ }
+        }
+      } else if (data?.error) msg = data.error;
+      else if (!data?.plan) msg = "The AI returned an unexpected answer. Please try again.";
+      if (msg) { setError(msg); toast.error(msg); }
+      else if (data?.plan) { setPlan(data.plan); setTimeout(() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth" }), 50); }
     } catch (e) {
       console.error(e);
       const msg = "Something went wrong while generating. Please check your connection and try again.";
