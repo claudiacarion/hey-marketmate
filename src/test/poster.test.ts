@@ -52,3 +52,22 @@ describe("poster design templates", () => {
     expect(isTemplate("retro")).toBe(true);
   });
 });
+
+import { COLOUR_STYLES, isColourStyle, mix } from "@/lib/poster/colour-styles";
+import { sanitizeSpec } from "@/lib/poster/ai-design";
+describe("colour-only styles and AI design spec", () => {
+  it("offers exactly the 8 requested colour-only styles", () => {
+    expect(Object.values(COLOUR_STYLES).map((s) => s.label)).toEqual(["Modern Minimal", "Colour Block", "Gradient Flow", "Editorial", "Bold Typography", "Soft & Elegant", "Retro Modern", "Luxury Minimal"]);
+    expect(isColourStyle("c-block")).toBe(true); expect(isColourStyle("minimal")).toBe(false);
+  });
+  it("mix blends colours", () => { expect(mix("#000000", "#ffffff", 0.5)).toBe("#808080"); });
+  it("sanitizeSpec rejects bad colours and clamps positions", () => {
+    const s = sanitizeSpec({ background: { type: "linear", colors: ["red", "#112233"] }, headline: { x: 5, y: -1, align: "weird" }, panels: new Array(9).fill({}) }, { primary: "#1f4f3f", accent: "#e8735a" });
+    expect(s.background.colors).toEqual(["#112233"]);
+    expect(s.headline.x).toBe(0.9); expect(s.headline.y).toBe(0); expect(s.headline.align).toBe("left");
+    expect(s.panels.length).toBe(4);
+  });
+  it("sanitizeSpec falls back to the user's colours when the AI gives none", () => {
+    expect(sanitizeSpec(null, { primary: "#123456", accent: "#abcdef" }).background.colors).toEqual(["#123456", "#abcdef"]);
+  });
+});

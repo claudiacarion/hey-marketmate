@@ -7,6 +7,7 @@ import type { CampaignPlan } from "@/lib/campaign-types";
 import { ensurePosterFonts, FORMATS, LAYOUTS, type PosterFormat, type PosterLayout } from "@/lib/poster/render";
 import { drawDesign, ensureDesignFonts, FONT_STYLES, isTemplate, PALETTES, TEMPLATES, type DesignContent, type FontStyle, type TemplateId } from "@/lib/poster/templates";
 import { COLOUR_STYLES, isColourStyle, type ColourStyleId } from "@/lib/poster/colour-styles";
+import { loadProfile } from "@/lib/business-profile";
 import { sanitizeSpec, type AiDesignSpec } from "@/lib/poster/ai-design";
 import { creditLine, licenseLabel, requiresCredit, stockPhotos, suggestPhotos, type StockPhoto } from "@/lib/poster/photos";
 
@@ -136,7 +137,7 @@ export function PosterStudio({ promo, businessName, businessType, brand, busines
     setAiBusy(true);
     try {
       const { data, error } = await supabase.functions.invoke<{ spec?: unknown; error?: string }>("design-poster", { body: {
-        business: business ?? { name: businessName, category: businessType }, text: txt, format, variation: aiCount + 1, previous: aiSpec?.name ?? null,
+        business: business ?? (() => { const p = loadProfile(); return { name: businessName || p.name, category: p.category || businessType, subcategory: p.subcategory, otherDescription: p.otherDescription, salesChannels: p.salesChannels, audience: p.audience, voice: p.voice, location: p.location }; })(), text: txt, format, variation: aiCount + 1, previous: aiSpec?.name ?? null,
         colours: { primary, accent, keep: keepColours } } });
       let msg: string | null = null;
       if (error) { msg = "The AI designer couldn't be reached. Please try again."; const ctx = (error as { context?: Response }).context;
