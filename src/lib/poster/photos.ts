@@ -1,13 +1,13 @@
 import library from "./photo-library.json";
 
-export type PhotoCategory = "cafe" | "restaurant" | "salon" | "fitness" | "shop" | "consultant" | "general";
+export type PhotoCategory = "cafe" | "restaurant" | "salon" | "fitness" | "shop" | "consultant" | "handmade" | "education" | "home" | "events" | "general";
 export type StockPhoto = {
   id: string; url: string; category: PhotoCategory; title: string; creator: string; creatorUrl?: string | null;
   source: string; provider?: string | null; license: string; licenseVersion?: string | null; licenseUrl?: string | null;
 };
 export const stockPhotos = library as StockPhoto[];
 export const CATEGORY_LABELS: Record<PhotoCategory, string> = {
-  cafe: "Coffee & café", restaurant: "Food", salon: "Hair & beauty", fitness: "Fitness", shop: "Shop & products", consultant: "Office & business", general: "General",
+  cafe: "Coffee & café", restaurant: "Food", salon: "Hair & beauty", fitness: "Fitness", shop: "Shop & products", consultant: "Office & business", handmade: "Handmade & crafts", education: "Learning & digital", home: "Home services", events: "Events", general: "General",
 };
 
 const KEYWORDS: Record<PhotoCategory, string[]> = {
@@ -17,12 +17,16 @@ const KEYWORDS: Record<PhotoCategory, string[]> = {
   fitness: ["gym", "fitness", "workout", "yoga", "class", "training", "pilates", "strength", "run", "sweat"],
   shop: ["shop", "store", "collection", "sale", "product", "gift", "order", "shipping", "boutique", "bundle"],
   consultant: ["consult", "strategy", "coaching", "advice", "business", "session", "client", "workshop", "expert"],
+  handmade: ["handmade", "handcrafted", "etsy", "ceramic", "pottery", "jewellery", "jewelry", "candle", "knit", "craft", "maker", "artisan"],
+  education: ["course", "learn", "lesson", "tutor", "ebook", "download", "template", "class", "student", "study", "webinar"],
+  home: ["cleaning", "garden", "plumb", "repair", "renovation", "maintenance", "home", "house", "handyman"],
+  events: ["event", "wedding", "party", "concert", "festival", "celebration", "ticket", "venue", "birthday"],
   general: [],
 };
 const TYPE_TO_CATEGORY: Record<string, PhotoCategory> = {
   "Restaurant / Café": "restaurant", "Salon / Beauty": "salon", "Online shop": "shop", "Fitness studio": "fitness", Consultant: "consultant",
-  "Food & Hospitality": "restaurant", "Beauty & Personal Care": "salon", "Retail & Online Shops": "shop", "Handmade & Creative Businesses": "shop",
-  "Professional Services": "consultant", "Health, Fitness & Wellness": "fitness", "Education & Digital Products": "consultant",
+  "Food & Hospitality": "restaurant", "Beauty & Personal Care": "salon", "Retail & Online Shops": "shop", "Handmade & Creative Businesses": "handmade",
+  "Professional Services": "consultant", "Health, Fitness & Wellness": "fitness", "Education & Digital Products": "education", "Home & Local Services": "home", "Events & Experiences": "events",
 };
 
 /** Categories ranked by relevance to the business type and campaign wording. */

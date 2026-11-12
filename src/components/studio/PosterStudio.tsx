@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Download, ImagePlus, Loader2, Save, ExternalLink } from "lucide-react";
+import { Download, ImagePlus, Trash2, Loader2, Save, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -149,6 +149,15 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
     finally { setBusy(null); }
   };
 
+  const removeUpload = async (path: string) => {
+    if (!window.confirm("Delete this photo from your uploads?")) return;
+    const { error } = await supabase.storage.from(BUCKET).remove([path]);
+    if (error) { console.error(error); toast.error("Couldn't delete the photo. Please try again."); return; }
+    setUploads((x) => x.filter((u) => u.path !== path));
+    if (photo?.kind === "upload" && photo.path === path) setPhoto(suggestions[0] ? { kind: "stock", id: suggestions[0].id } : null);
+    toast.success("Photo deleted");
+  };
+
   const thumbs: StockPhoto[] = showAll ? suggestions : suggestions.slice(0, 8);
   const sel = "ring-2 ring-accent ring-offset-2 ring-offset-background";
   const chip = (on: boolean) => `rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${on ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-secondary"}`;
@@ -196,7 +205,10 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
           {uploads.length > 0 && <>
             <p className="text-xs text-muted-foreground">Your photos</p>
             <div className="grid grid-cols-4 gap-2">{uploads.map((u) => (
-              <button key={u.path} type="button" onClick={() => setPhoto({ kind: "upload", path: u.path })} className={`aspect-square overflow-hidden rounded-lg ${photo?.kind === "upload" && photo.path === u.path ? sel : ""}`}><img src={u.url} alt="Your upload" className="size-full object-cover" /></button>
+              <div key={u.path} className="relative">
+                <button type="button" onClick={() => setPhoto({ kind: "upload", path: u.path })} className={`block aspect-square w-full overflow-hidden rounded-lg ${photo?.kind === "upload" && photo.path === u.path ? sel : ""}`}><img src={u.url} alt="Your upload" className="size-full object-cover" /></button>
+                <button type="button" aria-label="Delete photo" title="Delete photo" onClick={() => removeUpload(u.path)} className="absolute -right-1.5 -top-1.5 grid size-6 place-items-center rounded-full border bg-card text-destructive shadow-soft hover:bg-destructive hover:text-destructive-foreground"><Trash2 className="size-3.5" /></button>
+              </div>
             ))}</div>
           </>}
           <p className="text-xs text-muted-foreground">Suggested free photos</p>
@@ -211,7 +223,7 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
             <span>Show photo credit on poster{mustCredit ? " (required by this photo's licence)" : ""}</span>
           </label>
         )}
-        <p className="flex items-center gap-1 text-xs text-muted-foreground"><ExternalLink className="size-3" />Free photos come from Openverse under CC0, public domain or CC BY licences.</p>
+        <p className="flex items-center gap-1 text-xs text-muted-foreground"><ExternalLink className="size-3" />Free photos come from Openverse and Wikimedia Commons under CC0, public domain or CC BY licences.</p>
       </div>
     </div>
   );
