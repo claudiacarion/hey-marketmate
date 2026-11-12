@@ -3,7 +3,9 @@ import { ArrowUpRight, Sparkles, TrendingUp, Users, MousePointerClick, Megaphone
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/app/AppShell";
-import { campaigns, weekly } from "@/lib/sample-data";
+import { weekly } from "@/lib/sample-data";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
@@ -33,6 +35,16 @@ const ideas = [
 ];
 
 function Dashboard() {
+  const { data: campaigns, isLoading } = useQuery({
+    queryKey: ["campaigns", "dashboard"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("campaigns").select("id,title,status,brief,created_at").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+  const active = (campaigns ?? []).filter((c) => c.status === "Live" || c.status === "Scheduled").length;
+  const liveStats = stats.map((s) => s.label === "Active campaigns" ? { ...s, value: isLoading ? "…" : String(active), delta: `${campaigns?.length ?? 0} in total` } : s);
   return (
     <div className="mx-auto max-w-7xl space-y-8">
       <section className="relative overflow-hidden rounded-3xl bg-hero p-8 text-primary-foreground shadow-lift rise md:p-10">
@@ -46,7 +58,7 @@ function Dashboard() {
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map(({ label, value, delta, icon: Icon }, i) => (
+        {liveStats.map(({ label, value, delta, icon: Icon }, i) => (
           <div key={label} className="panel p-5 rise" style={{ animationDelay: `${i * 60}ms` }}>
             <div className="flex items-center justify-between text-sm text-muted-foreground">{label}<Icon className="size-4" /></div>
             <div className="mt-3 font-display text-3xl font-semibold">{value}</div>
@@ -94,13 +106,18 @@ function Dashboard() {
           <Link to="/campaigns" className="text-sm font-medium text-primary hover:underline">See all</Link>
         </div>
         <div className="divide-y">
-          {campaigns.slice(0, 4).map((c) => (
-            <div key={c.id} className="flex flex-wrap items-center gap-4 py-3.5">
-              <div className="min-w-48 flex-1"><div className="font-medium">{c.name}</div><div className="text-xs text-muted-foreground">{c.channel}</div></div>
-              <StatusPill status={c.status} />
-              <div className="w-28 text-right text-sm text-muted-foreground">Ends {c.ends}</div>
-            </div>
-          ))}
+          {isLoading ? <p className="py-3.5 text-sm text-muted-foreground">Loading…</p>
+          : !campaigns?.length ? <p className="py-3.5 text-sm text-muted-foreground">No campaigns yet. <Link to="/studio" className="font-medium text-primary underline">Plan your first one</Link>.</p>
+          : campaigns.slice(0, 4).map((c) => {
+            const b = (c.brief ?? {}) as { channels?: string[] };
+            return (
+              <Link key={c.id} to="/campaigns/$id" params={{ id: c.id }} className="flex flex-wrap items-center gap-4 py-3.5 hover:opacity-80">
+                <div className="min-w-48 flex-1"><div className="font-medium">{c.title}</div><div className="text-xs text-muted-foreground">{(b.channels ?? []).join(" · ")}</div></div>
+                <StatusPill status={c.status} />
+                <div className="w-28 text-right text-sm text-muted-foreground">{new Date(c.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</div>
+              </Link>
+            );
+          })}
         </div>
       </section>
     </div>
