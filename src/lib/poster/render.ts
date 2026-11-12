@@ -1,12 +1,12 @@
 // Canvas poster renderer — draws a real image from a photo + campaign copy.
 export type PosterFormat = "social" | "story" | "print";
-export type PosterLayout = "overlay" | "split" | "frame";
+export type PosterLayout = "overlay" | "split" | "frame" | "graphic";
 export const FORMATS: Record<PosterFormat, { label: string; hint: string; w: number; h: number }> = {
   social: { label: "Social portrait", hint: "1080×1350 · Instagram / Facebook feed", w: 1080, h: 1350 },
   story: { label: "Story", hint: "1080×1920 · Stories & Reels", w: 1080, h: 1920 },
   print: { label: "Print A4", hint: "2480×3508 · 300 dpi poster", w: 2480, h: 3508 },
 };
-export const LAYOUTS: Record<PosterLayout, string> = { overlay: "Full photo", split: "Photo + colour panel", frame: "Framed photo" };
+export const LAYOUTS: Record<PosterLayout, string> = { overlay: "Full photo", split: "Photo + colour panel", frame: "Framed photo", graphic: "Colour design (no photo)" };
 
 export type PosterContent = { businessName: string; offer: string; headline: string; supportingCopy: string; callToAction: string; credit?: string | undefined };
 export type PosterStyle = { format: PosterFormat; layout: PosterLayout; primary: string; accent: string };
@@ -88,7 +88,20 @@ export function drawPoster(canvas: HTMLCanvasElement, img: (CanvasImageSource & 
   const brand = (color: string, y: number) => { ctx.font = `700 ${28 * u}px ${SANS}`; spaced(ctx, 6 * u); ctx.fillStyle = color; ctx.fillText(c.businessName.toUpperCase().slice(0, 40), pad, y); spaced(ctx, 0); };
   const credit = (color: string) => { if (!c.credit) return; ctx.font = `500 ${17 * u}px ${SANS}`; ctx.fillStyle = color; ctx.textAlign = "right"; ctx.fillText(c.credit.slice(0, 120), W - 28 * u, H - 24 * u); ctx.textAlign = "left"; };
 
-  if (st.layout === "overlay") {
+  if (st.layout === "graphic") {
+    const fg = textOn(st.primary);
+    const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, st.primary); g.addColorStop(1, rgba(st.accent, 0.55));
+    ctx.fillStyle = st.primary; ctx.fillRect(0, 0, W, H); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    // Decorative shapes in brand colours
+    ctx.fillStyle = st.accent; ctx.beginPath(); ctx.arc(W * 0.92, H * 0.12, 300 * u, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = rgba(fg, 0.25); ctx.lineWidth = 6 * u; ctx.beginPath(); ctx.arc(W * 0.92, H * 0.12, 380 * u, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = rgba(fg, 0.08); ctx.beginPath(); ctx.arc(W * 0.05, H * 0.5, 420 * u, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = rgba(st.accent, 0.9);
+    for (let i = 0; i < 5; i++) for (let j = 0; j < 4; j++) { ctx.beginPath(); ctx.arc(W - pad - i * 34 * u, H * 0.36 + j * 34 * u, 6 * u, 0, Math.PI * 2); ctx.fill(); }
+    brand(fg, pad + 20 * u);
+    ctx.fillStyle = st.accent; ctx.fillRect(pad, pad + 48 * u, 90 * u, 8 * u);
+    stack(H * 0.3, H - pad - 30 * u, fg === "#ffffff" ? "rgba(255,255,255,0.9)" : "rgba(20,20,20,0.85)", fg, st.accent, accentFg, true);
+  } else if (st.layout === "overlay") {
     photo(0, 0, W, H);
     const g = ctx.createLinearGradient(0, H * 0.25, 0, H); g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(0.55, "rgba(0,0,0,0.55)"); g.addColorStop(1, "rgba(0,0,0,0.88)");
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
