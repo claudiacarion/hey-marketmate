@@ -53,9 +53,8 @@ export function isEtsySeller(p: Pick<BusinessProfile, "category" | "salesChannel
 
 export function normalizeProfile(raw: Record<string, unknown>): BusinessProfile {
   const p = { ...defaultProfile, ...raw } as BusinessProfile & { type?: string };
-  if (!raw.category && typeof p.type === "string" && LEGACY[p.type]) {
-    const [c, s] = LEGACY[p.type]; p.category = c; p.subcategory = s;
-  }
+  const legacy = typeof p.type === "string" ? LEGACY[p.type] : undefined;
+  if (!raw["category"] && legacy) { p.category = legacy[0]; p.subcategory = legacy[1]; }
   if (!businessCategories[p.category]) p.category = "Other";
   if (!Array.isArray(p.salesChannels)) p.salesChannels = [];
   p.etsyDetails = { ...emptyEtsy, ...(p.etsyDetails ?? {}) };
