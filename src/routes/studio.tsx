@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/app/AppShell";
 import type { CampaignPlan } from "@/lib/campaign-types";
 import { defaultProfile, loadProfile } from "@/lib/business-profile";
+import { PromoPoster } from "@/components/studio/PromoPoster";
 
 export const Route = createFileRoute("/studio")({
   head: () => ({
@@ -111,7 +112,7 @@ function Studio() {
         </aside>
       </div>
       {loading && !plan && <div className="panel mt-6 flex items-center gap-3 p-6 text-muted-foreground"><Loader2 className="size-5 animate-spin text-primary" />Your strategist is thinking. Drafting strategy, posts, schedule and promo, then reviewing quality — about 15–30 seconds.</div>}
-      {plan && <PlanView plan={plan} />}
+      {plan && <PlanView plan={plan} businessName={profile.name} />}
     </div>
   );
 }
@@ -125,7 +126,7 @@ function Block({ icon: Icon, title, children }: { icon: typeof Target; title: st
   );
 }
 
-function PlanView({ plan }: { plan: CampaignPlan }) {
+function PlanView({ plan, businessName }: { plan: CampaignPlan; businessName: string }) {
   return (
     <section id="plan" className="mt-8 space-y-4">
       <div className="rounded-2xl bg-hero p-7 text-primary-foreground shadow-lift">
@@ -171,13 +172,8 @@ function PlanView({ plan }: { plan: CampaignPlan }) {
       </>}
       {plan.promotionalMaterial && <>
         <h3 className="pt-4 text-2xl font-semibold">Promotional material</h3>
-        <div className="grid gap-4 md:grid-cols-[1.2fr_1fr]">
-          <div className="rounded-2xl bg-warm p-7 shadow-soft">
-            <span className="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">{plan.promotionalMaterial.offer}</span>
-            <h4 className="mt-4 text-3xl font-semibold">{plan.promotionalMaterial.headline}</h4>
-            <p className="mt-3 text-sm leading-relaxed">{plan.promotionalMaterial.supportingCopy}</p>
-            <p className="mt-5 inline-block rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{plan.promotionalMaterial.callToAction}</p>
-          </div>
+        <div className="grid gap-4 md:grid-cols-[1.2fr_1fr] md:items-start">
+          <PromoPoster promo={plan.promotionalMaterial} businessName={businessName} />
           <Block icon={ImageIcon} title="Poster / graphic design">{plan.promotionalMaterial.designConcept}</Block>
         </div>
       </>}
