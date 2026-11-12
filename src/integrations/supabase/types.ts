@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      campaign_tasks: {
+        Row: {
+          campaign_id: string
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          id: string
+          task_index: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          task_index: number
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          campaign_id?: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          task_index?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_tasks_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaigns: {
         Row: {
           brief: Json
