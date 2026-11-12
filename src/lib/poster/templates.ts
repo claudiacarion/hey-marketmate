@@ -84,7 +84,7 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
   switch (st.layout) {
     case "minimal": {
       const bg = "#fbfaf7"; ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
-      const pad = 90 * u, ph = H * (tall > 1.2 ? 0.46 : 0.42);
+      const pad = 90 * u, ph = H * (tall > 1.2 ? 0.46 : 0.36);
       photo(pad, pad + 60 * u, W - pad * 2, ph, 8 * u);
       text(name.toUpperCase(), pad, pad + 20 * u, `600 ${22 * u}px ${SANS}`, "#6b6b6b", "left", 8 * u);
       if (offer) text(offer.toUpperCase(), W - pad, pad + 20 * u, `700 ${22 * u}px ${SANS}`, A === bg ? P : A, "right", 4 * u);
@@ -114,14 +114,14 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
     }
     case "bold": {
       ctx.fillStyle = P; ctx.fillRect(0, 0, W, H);
-      const ph = H * 0.45; photo(0, 0, W, ph);
+      const ph = H * (tall > 1.2 ? 0.45 : 0.34); photo(0, 0, W, ph);
       ctx.fillStyle = P; ctx.beginPath(); ctx.moveTo(0, ph - 120 * u); ctx.lineTo(W, ph + 40 * u); ctx.lineTo(W, ph + 200 * u); ctx.lineTo(0, ph + 200 * u); ctx.fill();
       ctx.fillStyle = A; ctx.beginPath(); ctx.moveTo(0, ph - 120 * u); ctx.lineTo(W, ph + 40 * u); ctx.lineTo(W, ph + 64 * u); ctx.lineTo(0, ph - 96 * u); ctx.fill();
       const pad = 70 * u;
       ctx.fillStyle = A; ctx.fillRect(pad, pad, 0, 0);
       text(name.toUpperCase(), pad, pad + 24 * u, `800 ${26 * u}px ${SANS}`, img ? "#ffffff" : pFg, "left", 4 * u);
       let y = ph + 80 * u;
-      y = block(c.headline.toUpperCase(), pad, y, W - pad * 2, (s) => HF(s), pFg, (tall > 1.3 ? 120 : 100) * u, 50 * u, 4, 0.98);
+      y = block(c.headline.toUpperCase(), pad, y, W - pad * 2, (s) => HF(s), pFg, (tall > 1.3 ? 120 : 84) * u, 46 * u, tall > 1.2 ? 4 : 3, 0.98);
       y = block(c.supportingCopy, pad, y + 30 * u, W - pad * 2, (s) => `600 ${s}px ${SANS}`, soft(pFg), 30 * u, 22 * u, 3, 1.35);
       const by = H - pad - 80 * u; button(cta, pad, by, 32 * u, A, aFg, "left", 0);
       if (offer) { ctx.save(); ctx.translate(W - pad - 10 * u, pad + 70 * u); ctx.rotate(-0.12); ctx.font = `800 ${34 * u}px ${SANS}`; const w = ctx.measureText(offer.toUpperCase()).width + 60 * u;
@@ -133,7 +133,7 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
       const fg = textOn(P === "#ffffff" ? bg : P);
       const m = 40 * u; ctx.strokeStyle = gold; ctx.lineWidth = 2 * u; ctx.strokeRect(m, m, W - m * 2, H - m * 2); ctx.strokeRect(m + 12 * u, m + 12 * u, W - m * 2 - 24 * u, H - m * 2 - 24 * u);
       text(name.toUpperCase(), W / 2, m + 90 * u, `500 ${22 * u}px ${SANS}`, gold, "center", 12 * u);
-      const pw = W * 0.56, ph = Math.min(H * 0.42, pw * 1.25), px = (W - pw) / 2, py = m + 130 * u;
+      const pw = W * (tall > 1.2 ? 0.56 : 0.36), ph = Math.min(H * 0.42, pw * 1.25), px = (W - pw) / 2, py = m + 130 * u;
       ctx.save(); ctx.beginPath(); ctx.moveTo(px, py + ph); ctx.lineTo(px, py + pw / 2); ctx.arc(px + pw / 2, py + pw / 2, pw / 2, Math.PI, 0); ctx.lineTo(px + pw, py + ph); ctx.closePath(); ctx.clip(); photo(px, py, pw, ph); ctx.restore();
       ctx.strokeStyle = gold; ctx.beginPath(); ctx.moveTo(px - 14 * u, py + ph + 14 * u); ctx.lineTo(px - 14 * u, py + pw / 2); ctx.arc(px + pw / 2, py + pw / 2, pw / 2 + 14 * u, Math.PI, 0); ctx.lineTo(px + pw + 14 * u, py + ph + 14 * u); ctx.stroke();
       let y = py + ph + 60 * u; const cw = W - 220 * u;
@@ -150,7 +150,7 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
       const shapes: [string, number, number, number][] = [[P, 0.1, 0.08, 180], ["#ffffff", 0.95, 0.2, 120], [P, 0.88, 0.95, 220], ["#ffffff", 0.05, 0.75, 90]];
       for (const [col, x, y, r] of shapes) { ctx.fillStyle = rgba(col, col === P ? 0.85 : 0.5); ctx.beginPath(); ctx.arc(W * x, H * y, r * u, 0, Math.PI * 2); ctx.fill(); }
       ctx.strokeStyle = P; ctx.lineWidth = 10 * u; ctx.lineCap = "round"; ctx.beginPath(); for (let i = 0; i <= 6; i++) { const x = W * 0.55 + i * 40 * u, y = 110 * u + (i % 2 ? 26 : -26) * u; if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); } ctx.stroke();
-      const pad = 70 * u, r = Math.min(W, H) * 0.29, cy = 140 * u + r;
+      const pad = 70 * u, r = Math.min(W, H) * (tall > 1.2 ? 0.29 : 0.2), cy = 140 * u + r;
       ctx.save(); ctx.translate(W / 2, cy); ctx.rotate(-0.05); ctx.fillStyle = P; ctx.beginPath(); ctx.roundRect(-r - 16 * u, -r - 16 * u, r * 2 + 32 * u, r * 2 + 32 * u, 90 * u); ctx.fill(); ctx.restore();
       ctx.save(); ctx.translate(W / 2, cy); ctx.rotate(0.04); photo(-r, -r, r * 2, r * 2, 80 * u); ctx.restore();
       text(name, pad, 80 * u, `800 ${30 * u}px ${SANS}`, aFg);
@@ -169,7 +169,7 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
       const cx = W / 2, top = H * 0.08; const ray = Math.max(W, H);
       ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H * 0.55); ctx.clip(); ctx.translate(cx, H * 0.55);
       for (let i = 0; i < 18; i++) { ctx.fillStyle = i % 2 ? rgba(A, 0.35) : "rgba(0,0,0,0)"; ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, ray, Math.PI + (i * Math.PI) / 18, Math.PI + ((i + 1) * Math.PI) / 18); ctx.fill(); } ctx.restore();
-      const r = W * 0.3; ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(cx, top + r + 30 * u, r + 18 * u, 0, Math.PI * 2); ctx.fill();
+      const r = W * (tall > 1.2 ? 0.25 : 0.17); ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(cx, top + r + 30 * u, r + 18 * u, 0, Math.PI * 2); ctx.fill();
       blobPhoto(cx, top + r + 30 * u, r);
       const m = 30 * u; ctx.strokeStyle = ink; ctx.lineWidth = 6 * u; ctx.strokeRect(m, m, W - m * 2, H - m * 2);
       for (const [x, y] of [[m, m], [W - m, m], [m, H - m], [W - m, H - m]] as const) { ctx.fillStyle = A; ctx.beginPath(); ctx.arc(x, y, 18 * u, 0, Math.PI * 2); ctx.fill(); }
@@ -186,7 +186,7 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
       const bg = "#f1ebdf"; ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
       const wave = (y0: number, amp: number, col: string) => { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(0, H); ctx.lineTo(0, y0); ctx.bezierCurveTo(W * 0.3, y0 - amp, W * 0.6, y0 + amp, W, y0 - amp * 0.4); ctx.lineTo(W, H); ctx.fill(); };
       ctx.fillStyle = rgba(A, 0.45); ctx.beginPath(); ctx.ellipse(W * 0.85, H * 0.12, 260 * u, 200 * u, 0.4, 0, Math.PI * 2); ctx.fill();
-      const r = W * 0.32, cx = W * 0.5, cy = H * 0.08 + r * 1.1;
+      const r = W * (tall > 1.2 ? 0.26 : 0.18), cx = W * 0.5, cy = H * 0.07 + r * 1.1;
       ctx.save(); ctx.beginPath(); ctx.moveTo(cx, cy - r * 1.1); ctx.bezierCurveTo(cx + r * 1.2, cy - r * 1.2, cx + r * 1.2, cy + r, cx + r * 0.2, cy + r * 1.05); ctx.bezierCurveTo(cx - r * 0.8, cy + r * 1.2, cx - r * 1.25, cy + r * 0.2, cx - r * 0.9, cy - r * 0.5); ctx.bezierCurveTo(cx - r * 0.7, cy - r, cx - r * 0.3, cy - r * 1.1, cx, cy - r * 1.1); ctx.clip();
       photo(cx - r * 1.3, cy - r * 1.2, r * 2.6, r * 2.4); ctx.restore();
       const wy = cy + r * 1.05; wave(wy + 40 * u, 60 * u, rgba(P, 0.25)); wave(wy + 80 * u, 50 * u, P);
@@ -203,7 +203,7 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
     case "spotlight": {
       const fg = pFg; ctx.fillStyle = P; ctx.fillRect(0, 0, W, H);
       const g = ctx.createRadialGradient(W / 2, H * 0.36, 40 * u, W / 2, H * 0.36, W * 0.75); g.addColorStop(0, rgba(A, 0.55)); g.addColorStop(1, rgba(P, 0)); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-      const pad = 70 * u, cardW = W * 0.68, cardH = Math.min(H * 0.48, cardW * 1.05), cx = (W - cardW) / 2, cy = 140 * u;
+      const pad = 70 * u, cardW = W * 0.68, cardH = Math.min(H * (tall > 1.2 ? 0.48 : 0.36), cardW * 1.05), cx = (W - cardW) / 2, cy = 140 * u;
       ctx.fillStyle = "rgba(0,0,0,0.25)"; ctx.beginPath(); ctx.roundRect(cx + 14 * u, cy + 24 * u, cardW, cardH, 36 * u); ctx.fill();
       ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.roundRect(cx - 14 * u, cy - 14 * u, cardW + 28 * u, cardH + 28 * u, 44 * u); ctx.fill();
       photo(cx, cy, cardW, cardH, 32 * u);
