@@ -50,6 +50,13 @@ export function fit(ctx: CanvasRenderingContext2D, text: string, font: (s: numbe
   if (l.length > maxLines) { l.length = maxLines; l[maxLines - 1] = l[maxLines - 1]!.replace(/\s*\S*$/, "") + "…"; }
   return { size: min, lines: l };
 }
+/** Shrink the px size in a CSS font string so `text` fits maxW (call with letterSpacing already set). */
+export function shrinkFont(ctx: CanvasRenderingContext2D, text: string, font: string, maxW: number) {
+  let f = font;
+  for (let i = 0; i < 6; i++) { ctx.font = f; const w = ctx.measureText(text).width; if (w <= maxW || w <= 0) break;
+    f = f.replace(/([\d.]+)px/, (_m, n: string) => `${(Number(n) * maxW * 0.97) / w}px`); }
+  return f;
+}
 export function drawCover(ctx: CanvasRenderingContext2D, img: CanvasImageSource & { width: number; height: number }, x: number, y: number, w: number, h: number) {
   const s = Math.max(w / img.width, h / img.height); const sw = w / s, sh = h / s;
   ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, x, y, w, h);
@@ -76,17 +83,23 @@ export function drawPoster(canvas: HTMLCanvasElement, img: (CanvasImageSource & 
     const cta = c.callToAction.trim(); const ctaSize = 36 * u;
     let y = bottom;
     if (cta) { ctx.font = `700 ${ctaSize}px ${SANS}`; const h = ctaSize + 52 * u; y -= h; pill(ctx, cta, pad, y, ctaSize, ctaBg, ctaFg, 44 * u, 26 * u); y -= 44 * u; }
-    const copy = fit(ctx, c.supportingCopy, (s) => `500 ${s}px ${SANS}`, tw, avail > 900 * u ? 5 : 3, 36 * u, 26 * u);
+    const offerH = withBadge && c.offer.trim() ? 32 * u + 76 * u : 0;
+    let copy = fit(ctx, c.supportingCopy, (s) => `500 ${s}px ${SANS}`, tw, avail > 900 * u ? 5 : 3, 36 * u, 26 * u);
+    let head = fit(ctx, c.headline, (s) => `700 ${s}px ${DISPLAY}`, tw, 4, (avail > 900 * u ? 118 : 96) * u, 54 * u);
+    // Shrink until the whole stack fits between top and bottom, so nothing overlaps the brand or offer.
+    for (let k = 0.92; k >= 0.5 && (bottom - y) + copy.lines.length * copy.size * 1.4 + 20 * u + head.lines.length * head.size * 1.05 + offerH > avail; k -= 0.06) {
+      copy = fit(ctx, c.supportingCopy, (s) => `500 ${s}px ${SANS}`, tw, avail > 900 * u ? 5 : 4, 36 * u * k, 18 * u);
+      head = fit(ctx, c.headline, (s) => `700 ${s}px ${DISPLAY}`, tw, 4, (avail > 900 * u ? 118 : 96) * u * k, 30 * u);
+    }
     ctx.fillStyle = fg; ctx.font = `500 ${copy.size}px ${SANS}`;
     const lh = copy.size * 1.4; for (let i = copy.lines.length - 1; i >= 0; i--) { ctx.fillText(copy.lines[i]!, pad, y); y -= lh; }
     y -= 20 * u;
-    const head = fit(ctx, c.headline, (s) => `700 ${s}px ${DISPLAY}`, tw, 4, (avail > 900 * u ? 118 : 96) * u, 54 * u);
     ctx.fillStyle = headColor; ctx.font = `700 ${head.size}px ${DISPLAY}`; spaced(ctx, -head.size * 0.02);
     const hl = head.size * 1.05; for (let i = head.lines.length - 1; i >= 0; i--) { ctx.fillText(head.lines[i]!, pad, y); y -= hl; }
     spaced(ctx, 0);
-    if (withBadge && c.offer.trim()) { const s = 32 * u; y -= s + 40 * u; ctx.font = `700 ${s}px ${SANS}`; pill(ctx, c.offer.trim().slice(0, 48), pad, y - 4 * u, s, st.accent, accentFg, 32 * u, 18 * u); }
+    if (withBadge && c.offer.trim()) { const s = 32 * u; y -= s + 40 * u; ctx.font = `700 ${s}px ${SANS}`; pill(ctx, c.offer.trim().slice(0, 60), pad, y - 4 * u, s, st.accent, accentFg, 32 * u, 18 * u); }
   };
-  const brand = (color: string, y: number) => { ctx.font = `700 ${28 * u}px ${SANS}`; spaced(ctx, 6 * u); ctx.fillStyle = color; ctx.fillText(c.businessName.toUpperCase().slice(0, 40), pad, y); spaced(ctx, 0); };
+  const brand = (color: string, y: number, maxW = tw) => { ctx.font = `700 ${28 * u}px ${SANS}`; spaced(ctx, 6 * u); ctx.fillStyle = color; const t = c.businessName.trim().toUpperCase().slice(0, 60); ctx.font = shrinkFont(ctx, t, ctx.font, maxW); ctx.fillText(t, pad, y); spaced(ctx, 0); };
   const credit = (color: string) => { if (!c.credit) return; ctx.font = `500 ${17 * u}px ${SANS}`; ctx.fillStyle = color; ctx.textAlign = "right"; ctx.fillText(c.credit.slice(0, 120), W - 28 * u, H - 24 * u); ctx.textAlign = "left"; };
 
   if (st.layout === "graphic") {
@@ -117,9 +130,9 @@ export function drawPoster(canvas: HTMLCanvasElement, img: (CanvasImageSource & 
     ctx.fillStyle = st.primary; ctx.fillRect(0, ph, W, H - ph);
     const fg = textOn(st.primary);
     // brand tag on photo
-    ctx.font = `700 ${28 * u}px ${SANS}`; spaced(ctx, 6 * u); const bw = ctx.measureText(c.businessName.toUpperCase().slice(0, 40)).width; spaced(ctx, 0);
+    ctx.font = `700 ${28 * u}px ${SANS}`; spaced(ctx, 6 * u); const bw = Math.min(tw - 56 * u, ctx.measureText(c.businessName.trim().toUpperCase().slice(0, 60)).width); spaced(ctx, 0);
     ctx.fillStyle = rgba(st.primary, 0.88); ctx.beginPath(); ctx.roundRect(pad - 28 * u, pad - 8 * u, bw + 56 * u, 64 * u, 32 * u); ctx.fill();
-    brand(fg, pad + 34 * u);
+    brand(fg, pad + 34 * u, tw - 56 * u);
     if (c.offer.trim()) { const s = 34 * u; pill(ctx, c.offer.trim().slice(0, 48), pad, ph - (s + 40 * u) / 2, s, st.accent, accentFg, 36 * u, 20 * u); }
     stack(ph + 70 * u, H - pad, fg === "#ffffff" ? "rgba(255,255,255,0.9)" : "rgba(20,20,20,0.85)", fg, st.accent, accentFg, false);
     credit(fg === "#ffffff" ? "rgba(255,255,255,0.6)" : "rgba(20,20,20,0.6)");
@@ -127,7 +140,7 @@ export function drawPoster(canvas: HTMLCanvasElement, img: (CanvasImageSource & 
     ctx.fillStyle = "#f7f1e8"; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = rgba(st.accent, 0.18); ctx.beginPath(); ctx.arc(W - 60 * u, 120 * u, 260 * u, 0, Math.PI * 2); ctx.fill();
     brand(st.primary, pad + 20 * u);
-    const py = pad + 70 * u, ph = H * 0.5;
+    const py = pad + 70 * u, ph = H * (H / W > 1.2 ? 0.5 : 0.4);
     ctx.save(); ctx.beginPath(); ctx.roundRect(pad, py, tw, ph, 36 * u); ctx.clip(); photo(pad, py, tw, ph); ctx.restore();
     if (c.offer.trim()) { const s = 32 * u; ctx.font = `700 ${s}px ${SANS}`; const bw = ctx.measureText(c.offer.trim().slice(0, 48)).width + 64 * u; pill(ctx, c.offer.trim().slice(0, 48), pad + tw - bw - 30 * u, py + 30 * u, s, st.accent, accentFg, 32 * u, 18 * u); }
     stack(py + ph + 60 * u, H - pad, "rgba(20,20,20,0.78)", st.primary, st.primary, textOn(st.primary), false);

@@ -73,24 +73,32 @@ export function drawAiDesign(canvas: HTMLCanvasElement, c: DesignContent, format
   const bx = (b: Box) => { const w = Math.min(b.w, 1 - b.x) * W; return { x: b.x * W, w }; };
   const margin = 50 * u;
   // brand
-  const name = c.businessName.trim().slice(0, 40); { const b = bx(s.brand); K.line(s.brand.uppercase ? name.toUpperCase() : name, s.brand.align === "center" ? b.x + b.w / 2 : s.brand.align === "right" ? b.x + b.w : b.x, s.brand.y * H + 24 * u, `700 ${24 * u}px ${SANS}`, s.brand.color, s.brand.align, (s.brand.uppercase ? 6 : 0) * u); }
+  const name = c.businessName.trim().slice(0, 60); { const b = bx(s.brand); K.line(s.brand.uppercase ? name.toUpperCase() : name, s.brand.align === "center" ? b.x + b.w / 2 : s.brand.align === "right" ? b.x + b.w : b.x, s.brand.y * H + 24 * u, `700 ${24 * u}px ${SANS}`, s.brand.color, s.brand.align, (s.brand.uppercase ? 6 : 0) * u, b.w); }
   // offer / product name
-  const offer = c.offer.trim().slice(0, 48);
+  const offer = c.offer.trim().slice(0, 60);
   if (offer) { const b = bx(s.offer); const ax = s.offer.align === "center" ? b.x + b.w / 2 : s.offer.align === "right" ? b.x + b.w : b.x;
     if (s.offer.style === "text") K.line(offer.toUpperCase(), ax, s.offer.y * H + 24 * u, `700 ${24 * u}px ${SANS}`, s.offer.bg, s.offer.align, 4 * u);
     else K.button(offer, ax, s.offer.y * H, 26 * u, s.offer.bg, s.offer.color, s.offer.style, s.offer.align); }
-  const prod = (c.productName ?? "").trim().slice(0, 50);
-  if (prod) { const b = bx(s.productName); K.line(prod, s.productName.align === "center" ? b.x + b.w / 2 : s.productName.align === "right" ? b.x + b.w : b.x, s.productName.y * H + 28 * u, `italic 500 ${28 * u}px ${FAMILY.serif}`, s.productName.color, s.productName.align); }
+  const offerTop = s.offer.y * H, offerBot = offer ? offerTop + (s.offer.style === "text" ? 34 : 70) * u : -1;
+  const prod = (c.productName ?? "").trim().slice(0, 60);
+  let prodBot = -1;
+  if (prod) { const b = bx(s.productName); let py = s.productName.y * H;
+    if (offer && py + 36 * u > offerTop - 8 * u && py < offerBot + 8 * u) py = offerBot + 16 * u; // never sit on top of the offer
+    prodBot = py + 40 * u;
+    K.line(prod, s.productName.align === "center" ? b.x + b.w / 2 : s.productName.align === "right" ? b.x + b.w : b.x, py + 28 * u, `italic 500 ${28 * u}px ${FAMILY.serif}`, s.productName.color, s.productName.align, 0, b.w); }
   // headline → supporting → CTA flow downward so text never overlaps
   const hb = bx(s.headline); const head = T.uppercase ? c.headline.trim().toUpperCase() : c.headline.trim();
   const hm = K.measure(head, (z) => `${wt} ${z}px ${fam}`, hb.w, sq ? 3 : 4, (sq ? 100 : 118) * u * T.scale, 40 * u, 1.04);
   const sb = bx(s.supporting); const sm = K.measure(c.supportingCopy.trim(), (z) => `400 ${z}px ${body}`, sb.w, 3, 30 * u, 20 * u, 1.5);
   const ctaH = c.callToAction.trim() ? 28 * u * 2.5 : 0;
-  let hy = s.headline.y * H; const need = hm.h + 40 * u + sm.h + (ctaH ? 50 * u + ctaH : 0);
+  let hy = s.headline.y * H; const topLimit = Math.max(prodBot, offerBot) + 24 * u;
+  if (hy < topLimit && hy + hm.h > Math.min(s.offer.y, s.productName.y) * H) hy = topLimit;
+  const need = hm.h + 40 * u + sm.h + (ctaH ? 50 * u + ctaH : 0);
   if (hy + need > H - margin) hy = Math.max(margin + 60 * u, H - margin - need);
+  if (hy < topLimit && hy + hm.h > Math.min(s.offer.y, s.productName.y) * H && topLimit + need <= H - margin) hy = topLimit;
   let y = K.draw(hm, hb.x, hy, hb.w, s.headline.color, s.headline.align, T.tracking * hm.size);
   y = K.draw(sm, sb.x, Math.max(y + 40 * u, Math.min(s.supporting.y * H, H - margin - sm.h - (ctaH ? 50 * u + ctaH : 0))), sb.w, s.supporting.color, s.supporting.align);
-  const cta = c.callToAction.trim().slice(0, 40);
+  const cta = c.callToAction.trim().slice(0, 48);
   if (cta) { const cy = Math.min(H - margin - ctaH, Math.max(y + 50 * u, s.cta.y * H)); const ax = s.cta.align === "center" ? W / 2 : s.cta.align === "right" ? W - s.cta.x * W : s.cta.x * W;
     K.button(cta, ax, cy, 28 * u, s.cta.style === "outline" || s.cta.style === "underline" ? s.cta.color : s.cta.bg, s.cta.fg, s.cta.style, s.cta.align); }
 }
