@@ -19,7 +19,7 @@ export function buildNotifications(rows: CampaignRow[], now = new Date()): AppNo
     const startOff = m ? Math.round((today - new Date(+m[1]!, +m[2]! - 1, +m[3]!).getTime()) / DAY) : offset;
     if (c.status !== "Completed" && startOff >= 0) {
       (c.plan?.calendar ?? []).forEach((item, i) => {
-        const n = (Number(/\d+/.exec(item.day ?? "")?.[0]) || i + 1) - 1;
+        const n = dayNumberOf(item.day, i) - 1;
         if (n === startOff) out.push({ id: `post:${c.id}:${n}`, kind: "post", title: `Today: ${item.theme}`, body: `${item.channel} · ${item.timing} — ${item.action}`, campaignId: c.id, at: new Date(today).toISOString() });
       });
     }

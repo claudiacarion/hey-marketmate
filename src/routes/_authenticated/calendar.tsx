@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/app/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import type { CampaignPlan } from "@/lib/campaign-types";
 import { doneKeys, taskKey } from "@/lib/task-progress";
+import { ACTIVITY_LABEL, activityType, dayNumberOf, isQuickActivity, purposeLabel } from "@/lib/schedule";
 
 export const Route = createFileRoute("/_authenticated/calendar")({
   head: () => ({
