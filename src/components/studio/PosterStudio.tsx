@@ -1,17 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Download, ImagePlus, Trash2, Loader2, Save, ExternalLink } from "lucide-react";
+import { Download, ImagePlus, Trash2, Loader2, Save, ExternalLink, Sparkles, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { CampaignPlan } from "@/lib/campaign-types";
 import { ensurePosterFonts, FORMATS, LAYOUTS, type PosterFormat, type PosterLayout } from "@/lib/poster/render";
 import { drawDesign, ensureDesignFonts, FONT_STYLES, isTemplate, PALETTES, TEMPLATES, type DesignContent, type FontStyle, type TemplateId } from "@/lib/poster/templates";
+import { COLOUR_STYLES, isColourStyle, type ColourStyleId } from "@/lib/poster/colour-styles";
+import { loadProfile } from "@/lib/business-profile";
+import { sanitizeSpec, type AiDesignSpec } from "@/lib/poster/ai-design";
 import { creditLine, licenseLabel, requiresCredit, stockPhotos, suggestPhotos, type StockPhoto } from "@/lib/poster/photos";
 
 type Promo = NonNullable<CampaignPlan["promotionalMaterial"]>;
 export type SavedPoster = {
-  format: PosterFormat; layout: PosterLayout | TemplateId; primary: string; accent: string; showCredit: boolean;
-  font?: FontStyle | undefined; usePhoto?: boolean | undefined;
+  format: PosterFormat; layout: PosterLayout | TemplateId | ColourStyleId | "ai"; primary: string; accent: string; showCredit: boolean;
+  font?: FontStyle | undefined; usePhoto?: boolean | undefined; aiSpec?: AiDesignSpec | null | undefined;
   text?: { headline: string; supportingCopy: string; offer: string; callToAction: string; productName: string } | undefined;
   photo: { kind: "stock"; id: string } | { kind: "upload"; path: string } | null;
   imagePath?: string | undefined; savedAt?: string | undefined;
@@ -33,7 +36,7 @@ async function loadImage(src: string) {
     return await make(URL.createObjectURL(await r.blob()), false);
   } catch { return make(src + (src.includes("?") ? "&" : "?") + "cors=1", true); }
 }
-function TemplateThumb({ id, img, content, format, primary, accent, font, active, onPick }: { id: TemplateId; img: HTMLImageElement | null; content: DesignContent; format: PosterFormat; primary: string; accent: string; font: FontStyle; active: boolean; onPick: () => void }) {
+function TemplateThumb({ id, label, img, content, format, primary, accent, font, active, onPick }: { id: TemplateId | ColourStyleId; label: string; img: HTMLImageElement | null; content: DesignContent; format: PosterFormat; primary: string; accent: string; font: FontStyle; active: boolean; onPick: () => void }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const t = setTimeout(() => { ensureDesignFonts().then(() => { if (ref.current) drawDesign(ref.current, img, { ...content, credit: undefined }, { format: format === "print" ? "social" : format, layout: id, primary, accent, font }); }); }, 300);
@@ -42,7 +45,7 @@ function TemplateThumb({ id, img, content, format, primary, accent, font, active
   return (
     <button type="button" onClick={onPick} aria-pressed={active} className={`group rounded-xl border bg-card p-1.5 text-left transition-colors hover:bg-secondary ${active ? "border-primary ring-2 ring-accent ring-offset-2 ring-offset-background" : ""}`}>
       <canvas ref={ref} aria-hidden className="block h-auto w-full rounded-lg" />
-      <span className="mt-1.5 block truncate px-0.5 text-[11px] font-semibold">{TEMPLATES[id].label}</span>
+      <span className="mt-1.5 block truncate px-0.5 text-[11px] font-semibold">{label}</span>
     </button>
   );
 }
@@ -53,15 +56,15 @@ async function signedBlobUrl(path: string) {
   return URL.createObjectURL(data);
 }
 
-export function PosterStudio({ promo, businessName, businessType, brand, campaignId, initial }: {
+export function PosterStudio({ promo, businessName, businessType, brand, business, campaignId, initial }: {
   promo: Promo; businessName: string; businessType: string; brand: { primary: string; accent: string };
-  campaignId?: string | null | undefined; initial?: SavedPoster | null | undefined;
+  campaignId?: string | null | undefined; initial?: SavedPoster | null | undefined; business?: Record<string, unknown> | undefined;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const suggestions = useMemo(() => suggestPhotos(businessType, [promo.headline, promo.offer, promo.supportingCopy, promo.designConcept].join(" ")), [businessType, promo]);
   const [format, setFormat] = useState<PosterFormat>(initial?.format ?? "social");
-  const [layout, setLayout] = useState<PosterLayout | TemplateId>(initial?.layout ?? "minimal");
+  const [layout, setLayout] = useState<SavedPoster["layout"]>(initial?.layout ?? "minimal");
   const [font, setFont] = useState<FontStyle>(initial?.font ?? "auto");
   const [usePhoto, setUsePhoto] = useState(initial?.usePhoto ?? true);
   const [txt, setTxt] = useState(initial?.text ?? { headline: promo.headline ?? "", supportingCopy: promo.supportingCopy ?? "", offer: promo.offer ?? "", callToAction: promo.callToAction ?? "", productName: "" });
@@ -75,9 +78,15 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
   const [busy, setBusy] = useState<null | "upload" | "save" | "png">(null);
   const [savedAt, setSavedAt] = useState(initial?.savedAt);
   const [showAll, setShowAll] = useState(false);
+  const [aiSpec, setAiSpec] = useState<AiDesignSpec | null>(initial?.aiSpec ?? null);
+  const [keepColours, setKeepColours] = useState(true);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiCount, setAiCount] = useState(0);
 
   const tpl = isTemplate(layout);
-  const noPhoto = layout === "graphic" || (tpl && !usePhoto);
+  const colourOnly = isColourStyle(layout) || layout === "ai";
+  const noPhoto = layout === "graphic" || colourOnly || (tpl && !usePhoto);
+  const photoToggle = (on: boolean) => { setUsePhoto(on); if (on && colourOnly) setLayout("minimal"); if (!on && tpl) setLayout("c-minimal"); };
   const stock = !noPhoto && photo?.kind === "stock" ? stockPhotos.find((p) => p.id === photo.id) ?? null : null;
   const mustCredit = !!stock && requiresCredit(stock);
   const credit = stock && (showCredit || mustCredit) ? creditLine(stock) : undefined;
@@ -119,10 +128,28 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
     let alive = true;
     Promise.all([ensurePosterFonts(), ensureDesignFonts()]).then(() => {
       if (!alive || !canvasRef.current) return;
-      drawDesign(canvasRef.current, noPhoto ? null : img, { ...content, credit }, { format, layout, primary, accent, font });
+      drawDesign(canvasRef.current, noPhoto ? null : img, { ...content, credit }, { format, layout, primary, accent, font, aiSpec });
     });
     return () => { alive = false; };
-  }, [img, noPhoto, format, layout, primary, accent, font, credit, content]);
+  }, [img, noPhoto, format, layout, primary, accent, font, credit, content, aiSpec]);
+
+  const designWithAi = async () => {
+    setAiBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke<{ spec?: unknown; error?: string }>("design-poster", { body: {
+        business: business ?? (() => { const p = loadProfile(); return { name: businessName || p.name, category: p.category || businessType, subcategory: p.subcategory, otherDescription: p.otherDescription, salesChannels: p.salesChannels, audience: p.audience, voice: p.voice, location: p.location }; })(), text: txt, format, variation: aiCount + 1, previous: aiSpec?.name ?? null,
+        colours: { primary, accent, keep: keepColours } } });
+      let msg: string | null = null;
+      if (error) { msg = "The AI designer couldn't be reached. Please try again."; const ctx = (error as { context?: Response }).context;
+        if (ctx && typeof ctx.json === "function") { try { const b = await ctx.json(); if (b?.error) msg = String(b.error); } catch { /* keep default */ } }
+        if ((error as { name?: string }).name === "FunctionsFetchError" || /not found/i.test(msg)) msg = "The design-poster function isn't deployed yet, or couldn't be reached.";
+      } else if (data?.error) msg = data.error; else if (!data?.spec) msg = "The AI returned an unexpected answer. Please try again.";
+      if (msg) { toast.error(msg); return; }
+      const spec = sanitizeSpec(data!.spec, { primary, accent });
+      setAiSpec(spec); setLayout("ai"); setAiCount((n) => n + 1); toast.success(`New design: ${spec.name}`);
+    } catch (e) { console.error(e); toast.error("Something went wrong while designing. Please try again."); }
+    finally { setAiBusy(false); }
+  };
 
   const toBlob = async () => {
     const c = canvasRef.current; if (!c) throw new Error("no canvas");
@@ -166,7 +193,7 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
       const { error: upErr } = await supabase.storage.from(BUCKET).upload(imagePath, await toBlob(), { contentType: "image/png", upsert: true });
       if (upErr) throw upErr;
       const at = new Date().toISOString();
-      const poster: SavedPoster = { format, layout, primary, accent, showCredit, photo, font, usePhoto, text: txt, imagePath, savedAt: at };
+      const poster: SavedPoster = { format, layout, primary, accent, showCredit, photo, font, usePhoto, aiSpec: layout === "ai" ? aiSpec : null, text: txt, imagePath, savedAt: at };
       const { error } = await supabase.from("campaigns").update({ poster: poster as never }).eq("id", campaignId);
       if (error) throw error;
       setSavedAt(at); toast.success("Poster saved with this campaign");
@@ -214,18 +241,30 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
           <p className="text-xs text-muted-foreground">{FORMATS[format].hint}</p>
         </div>
         <div className="space-y-2">
-          <p className="font-semibold">Design template</p>
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-3">{(Object.keys(TEMPLATES) as TemplateId[]).map((id) => (
-            <TemplateThumb key={id} id={id} img={usePhoto ? thumbImg ?? img : null} content={content} format={format} primary={primary} accent={accent} font={font} active={layout === id} onPick={() => setLayout(id)} />
-          ))}</div>
+          <p className="font-semibold">Design style</p>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={usePhoto && !colourOnly} onChange={(e) => photoToggle(e.target.checked)} className="size-4 accent-primary" />Use a photo (untick for colour-only designs)</label>
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-3">{usePhoto && !colourOnly
+            ? (Object.keys(TEMPLATES) as TemplateId[]).map((id) => <TemplateThumb key={id} id={id} label={TEMPLATES[id].label} img={thumbImg ?? img} content={content} format={format} primary={primary} accent={accent} font={font} active={layout === id} onPick={() => setLayout(id)} />)
+            : (Object.keys(COLOUR_STYLES) as ColourStyleId[]).map((id) => <TemplateThumb key={id} id={id} label={COLOUR_STYLES[id].label} img={null} content={content} format={format} primary={primary} accent={accent} font={font} active={layout === id} onPick={() => setLayout(id)} />)}</div>
+          {isColourStyle(layout) && <p className="text-xs text-muted-foreground">{COLOUR_STYLES[layout].blurb}</p>}
+          {(!usePhoto || colourOnly) && <div className="space-y-2 rounded-xl border bg-secondary/40 p-3">
+            <p className="font-semibold">Design with AI</p>
+            <p className="text-xs text-muted-foreground">Your assistant creates a fresh colour and typography design for this poster — no images or illustrations.</p>
+            <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={keepColours} onChange={(e) => setKeepColours(e.target.checked)} className="size-4 accent-primary" />Keep my chosen colours</label>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" className="rounded-lg" disabled={aiBusy} onClick={designWithAi}>{aiBusy ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}{aiSpec ? "New AI design" : "Design with AI"}</Button>
+              {aiSpec && <Button size="sm" variant="outline" className="rounded-lg" disabled={aiBusy} onClick={designWithAi}><RefreshCw className="size-4" />Another variation</Button>}
+              {aiSpec && layout !== "ai" && <Button size="sm" variant="ghost" className="rounded-lg" onClick={() => setLayout("ai")}>Back to AI design</Button>}
+            </div>
+            {layout === "ai" && aiSpec && <p className="text-xs text-muted-foreground"><b className="text-foreground">{aiSpec.name}</b>{aiSpec.rationale ? ` — ${aiSpec.rationale}` : ""}</p>}
+          </div>}
           {tpl && <p className="text-xs text-muted-foreground">{TEMPLATES[layout as TemplateId].blurb}</p>}
           <details className="text-xs">
             <summary className="cursor-pointer text-muted-foreground">Classic layouts</summary>
             <div className="mt-2 flex flex-wrap gap-2">{(Object.keys(LAYOUTS) as PosterLayout[]).map((l) => <button key={l} type="button" className={chip(layout === l)} onClick={() => setLayout(l)}>{LAYOUTS[l]}</button>)}</div>
           </details>
         </div>
-        {tpl && <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={usePhoto} onChange={(e) => setUsePhoto(e.target.checked)} className="size-4 accent-primary" />Use a photo (untick for colours only)</label>}
-        {tpl && <div className="space-y-2">
+        {(tpl || isColourStyle(layout)) && <div className="space-y-2">
           <p className="font-semibold">Font style</p>
           <div className="flex flex-wrap gap-2">{(Object.keys(FONT_STYLES) as FontStyle[]).map((f) => <button key={f} type="button" className={chip(font === f)} onClick={() => setFont(f)}>{FONT_STYLES[f]}</button>)}</div>
         </div>}
@@ -252,7 +291,7 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
             </label>
           ))}
         </div>
-        {noPhoto ? <p className="text-xs text-muted-foreground">This design uses only your brand colours, with no photo. Tick "Use a photo" or pick a classic photo layout to add one.</p> : <div className="space-y-2">
+        {noPhoto ? <p className="text-xs text-muted-foreground">This design uses only colour and typography — no photo. Tick "Use a photo" to switch to the photo templates.</p> : <div className="space-y-2">
           <div className="flex items-center justify-between">
             <p className="font-semibold">Photo</p>
             <Button size="sm" variant="outline" className="rounded-lg" disabled={!!busy} onClick={() => fileRef.current?.click()}>{busy === "upload" ? <Loader2 className="size-4 animate-spin" /> : <ImagePlus className="size-4" />}Upload your own</Button>
