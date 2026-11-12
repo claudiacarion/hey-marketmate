@@ -64,7 +64,11 @@ function Studio() {
       } else if (data?.error) msg = data.error;
       else if (!data?.plan) msg = "The AI returned an unexpected answer. Please try again.";
       if (msg) { setError(msg); toast.error(msg); }
-      else if (data?.plan) { setPlan(data.plan); setTimeout(() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth" }), 50); }
+      else if (data?.plan) {
+        setPlan(data.plan);
+        const { error: saveErr } = await supabase.from("campaigns").insert({ title: `${goal} — ${profile.name || "My business"}`, business: business as never, brief: { goal, channels: names, budget, timing, notes } as never, plan: data.plan as never });
+        if (saveErr) toast.error("Plan created, but it couldn't be saved to your campaigns."); else toast.success("Saved to Campaigns");
+        setTimeout(() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth" }), 50); }
     } catch (e) {
       console.error(e);
       const msg = "Something went wrong while generating. Please check your connection and try again.";
