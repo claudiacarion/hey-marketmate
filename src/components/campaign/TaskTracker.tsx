@@ -4,12 +4,14 @@ import { Check, CalendarDays, PartyPopper } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { CampaignPlan } from "@/lib/campaign-types";
+import { ACTIVITY_LABEL, activityType, purposeLabel } from "@/lib/schedule";
+import { CadenceNote } from "@/components/campaign/CadenceNote";
 import { filterTasks, progress, type TaskFilter } from "@/lib/task-progress";
 
 type Item = NonNullable<CampaignPlan["calendar"]>[number];
 const FILTERS: { id: TaskFilter; label: string }[] = [{ id: "all", label: "All" }, { id: "todo", label: "To do" }, { id: "done", label: "Completed" }];
 
-export function TaskTracker({ campaignId, items }: { campaignId: string; items: Item[] }) {
+export function TaskTracker({ campaignId, items, plan }: { campaignId: string; items: Item[]; plan: CampaignPlan }) {
   const qc = useQueryClient();
   const key = ["campaign-tasks", campaignId];
   const [filter, setFilter] = useState<TaskFilter>("all");
@@ -45,6 +47,7 @@ export function TaskTracker({ campaignId, items }: { campaignId: string; items: 
   return (
     <>
       <h3 className="flex items-center gap-2 pt-4 text-2xl font-semibold"><CalendarDays className="size-5 text-primary" />Posting schedule</h3>
+      <CadenceNote plan={plan} items={items} />
       <div className="panel space-y-4 p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm font-semibold" aria-live="polite">{p.completed} of {p.total} tasks completed</p>
@@ -77,7 +80,7 @@ export function TaskTracker({ campaignId, items }: { campaignId: string; items: 
               </button>
               <div className={`font-semibold ${isDone ? "text-muted-foreground" : "text-primary"}`}>{d.day}</div>
               <div className={isDone ? "text-muted-foreground line-through decoration-muted-foreground/50" : ""}><b>{d.theme}</b><p className="text-muted-foreground">{d.action}</p></div>
-              <div className="text-xs text-muted-foreground sm:text-right"><span className="rounded-full bg-secondary px-2 py-1 font-medium text-foreground">{d.channel}</span><div className="mt-1">{d.timing}</div>{(d.impact || d.effort) && <div className="mt-1">Impact {d.impact ?? "–"} · Effort {d.effort ?? "–"}</div>}</div>
+              <div className="text-xs text-muted-foreground sm:text-right"><span className="rounded-full bg-secondary px-2 py-1 font-medium text-foreground">{d.channel}</span><div className="mt-1">{d.timing}</div><div className="mt-1 flex flex-wrap justify-end gap-1"><span className="rounded-full bg-primary/10 px-2 py-1 font-medium text-primary">{ACTIVITY_LABEL[activityType(d.type)]}</span>{purposeLabel(d.purpose) && <span className="rounded-full bg-secondary px-2 py-1">{purposeLabel(d.purpose)}</span>}</div>{(d.impact || d.effort) && <div className="mt-1">Impact {d.impact ?? "–"} · Effort {d.effort ?? "–"}</div>}</div>
             </div>
           );
         })}
