@@ -42,7 +42,8 @@ function Studio() {
   const [picked, setPicked] = useState<string[]>(["instagram", "email"]);
   const toggle = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
   const [budget, setBudget] = useState("");
-  const [timing, setTiming] = useState("");
+  const [startDate, setStartDate] = useState(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; });
+  const [duration, setDuration] = useState(7);
   const [notes, setNotes] = useState("");
   const [profile, setProfile] = useState(defaultProfile);
   const [loading, setLoading] = useState(false);
@@ -61,7 +62,7 @@ function Studio() {
     try {
       const names = channels.filter((c) => picked.includes(c.id)).map((c) => c.label);
       const business = { name: profile.name, category: profile.category, subcategory: profile.subcategory, otherDescription: profile.otherDescription, salesChannels: profile.salesChannels, location: profile.location, audience: profile.audience, voice: profile.voice, ...(isEtsySeller(profile) ? { etsyDetails: profile.etsyDetails } : {}) };
-      const { data, error: fnError } = await supabase.functions.invoke<{ plan?: CampaignPlan; error?: string }>("generate-campaign", { body: { business, brief: { goal, channels: names, budget, timing, notes } } });
+      const { data, error: fnError } = await supabase.functions.invoke<{ plan?: CampaignPlan; error?: string }>("generate-campaign", { body: { business, brief: { goal, channels: names, budget, timing: `${duration} days from ${startDate}`, startDate, durationDays: duration, notes } } });
       let msg: string | null = null;
       if (fnError) {
         msg = "The campaign service couldn't be reached. Please try again.";
@@ -74,7 +75,7 @@ function Studio() {
       if (msg) { setError(msg); toast.error(msg); }
       else if (data?.plan) {
         setPlan(data.plan); setCampaignId(null);
-        const { data: saved, error: saveErr } = await supabase.from("campaigns").insert({ title: `${goal} — ${profile.name || "My business"}`, business: business as never, brief: { goal, channels: names, budget, timing, notes } as never, plan: data.plan as never }).select("id").single();
+        const { data: saved, error: saveErr } = await supabase.from("campaigns").insert({ title: `${goal} — ${profile.name || "My business"}`, business: business as never, brief: { goal, channels: names, budget, timing: `${duration} days from ${startDate}`, startDate, durationDays: duration, notes } as never, plan: data.plan as never }).select("id").single();
         if (saved) setCampaignId(saved.id);
         if (saveErr) toast.error("Plan created, but it couldn't be saved to your campaigns."); else toast.success("Saved to Campaigns");
         setTimeout(() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth" }), 50); }
@@ -99,9 +100,10 @@ function Studio() {
             <Label>2. Where should it run?</Label>
             <div className="flex flex-wrap gap-2">{channels.map(({ id, label, icon: Icon }) => <button type="button" key={id} onClick={() => toggle(id)} className={`${chip(picked.includes(id))} flex items-center gap-2`}><Icon className="size-4" />{label}</button>)}</div>
           </div>
+          <div className="space-y-2"><Label htmlFor="budget">3. Budget (optional)</Label><Input id="budget" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="e.g. 200 €" /></div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2"><Label htmlFor="budget">3. Budget (optional)</Label><Input id="budget" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="e.g. 200 €" /></div>
-            <div className="space-y-2"><Label htmlFor="dates">Timing</Label><Input id="dates" value={timing} onChange={(e) => setTiming(e.target.value)} placeholder="e.g. Next 2 weeks" /></div>
+            <div className="space-y-2"><Label htmlFor="start">Start date</Label><Input id="start" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} /></div>
+            <div className="space-y-2"><Label>Length</Label><div className="flex flex-wrap gap-2">{[[7, "7 days"], [14, "2 weeks"], [28, "4 weeks"]].map(([n, l]) => <button type="button" key={n} onClick={() => setDuration(Number(n))} className={chip(duration === n)}>{l}</button>)}</div></div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="brief">4. Anything else?</Label>

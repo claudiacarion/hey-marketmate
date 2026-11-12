@@ -31,7 +31,7 @@ function CalendarPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["campaigns", "calendar"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("campaigns").select("id,title,plan,created_at");
+      const { data, error } = await supabase.from("campaigns").select("id,title,plan,brief,created_at");
       if (error) throw error;
       return data;
     },
@@ -43,9 +43,11 @@ function CalendarPage() {
     (data ?? []).forEach((c, ci) => {
       toneOf[c.id] = TONES[ci % TONES.length] ?? "";
       const plan = (c.plan ?? {}) as CampaignPlan;
-      const start = new Date(c.created_at);
+      const sd = (c.brief as { startDate?: string } | null)?.startDate;
+      const m = sd && /^(\d{4})-(\d{2})-(\d{2})$/.exec(sd);
+      const start = m ? new Date(+m[1]!, +m[2]! - 1, +m[3]!) : new Date(c.created_at);
       (plan.calendar ?? []).forEach((item, i) => {
-        const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+        const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + ((Number(/\d+/.exec(item.day ?? "")?.[0]) || i + 1) - 1));
         (byDay[dayKey(d)] ??= []).push({
           key: `${c.id}-${i}`, campaignId: c.id, campaign: c.title,
           text: item.theme || item.action, channel: item.channel, timing: item.timing,
@@ -62,7 +64,7 @@ function CalendarPage() {
 
   return (
     <div className="mx-auto max-w-7xl">
-      <PageHeader eyebrow="Calendar" title={label} description="Each campaign's 7-day plan, starting the day you created it."
+      <PageHeader eyebrow="Calendar" title={label} description="Every campaign's tasks, placed from its start date."
         action={<div className="flex gap-2">
           <Button variant="outline" size="icon" aria-label="Previous month" onClick={() => shift(-1)}><ChevronLeft className="size-4" /></Button>
           <Button variant="outline" onClick={() => setMonth(new Date(today.getFullYear(), today.getMonth(), 1))}>Today</Button>
