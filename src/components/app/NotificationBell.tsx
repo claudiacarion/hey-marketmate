@@ -18,7 +18,7 @@ export function NotificationBell() {
   const { data = [] } = useQuery({
     queryKey: ["campaigns", "notifications"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("campaigns").select("id,title,status,created_at,poster,plan").order("created_at", { ascending: false }).limit(30);
+      const { data, error } = await supabase.from("campaigns").select("id,title,status,created_at,poster,plan,brief").order("created_at", { ascending: false }).limit(30);
       if (error) throw error;
       return data as unknown as CampaignRow[];
     },
