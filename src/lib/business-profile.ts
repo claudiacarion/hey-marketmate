@@ -4,7 +4,7 @@ const KEY = "marketmate.business";
 export const businessTypes = ["Restaurant / Café", "Salon / Beauty", "Online shop", "Fitness studio", "Consultant", "Other"];
 export const defaultProfile: BusinessProfile = {
   name: "Lina's Bakery & Brunch",
-  type: businessTypes[0],
+  type: "Restaurant / Café",
   location: "Stockholm",
   audience: "Young families and remote workers in the neighbourhood who love slow weekend mornings.",
   voice: "Warm, playful, a little cosy",

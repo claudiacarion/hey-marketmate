@@ -47,7 +47,7 @@ export const generateCampaign = createServerFn({ method: "POST" })
     };
   })
   .handler(async ({ data }): Promise<GenerateResult> => {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env['GEMINI_API_KEY'];
     if (!apiKey) return { error: "The AI service isn't set up yet (the Gemini key is missing)." };
     const { business: b, brief } = data;
     if (!brief.goal) return { error: "Please choose a campaign goal." };
