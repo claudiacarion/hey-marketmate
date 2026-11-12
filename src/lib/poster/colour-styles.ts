@@ -50,7 +50,7 @@ export function textKit(ctx: Ctx, u: number) {
     m.lines.forEach((l, i) => ctx.fillText(l, ax, y + m.size * 0.86 + i * m.lh));
     spaced(ctx, 0); ctx.textAlign = "left"; return y + m.h;
   };
-  const line = (t: string, x: number, y: number, font: string, color: string, align: CanvasTextAlign = "left", ls = 0) => { if (!t) return; ctx.font = font; ctx.fillStyle = color; ctx.textAlign = align; spaced(ctx, ls); ctx.fillText(t, x, y); spaced(ctx, 0); ctx.textAlign = "left"; };
+  const line = (t: string, x: number, y: number, font: string, color: string, align: CanvasTextAlign = "left", ls = 0, maxW = Infinity) => { if (!t) return; ctx.fillStyle = color; ctx.textAlign = align; spaced(ctx, ls); ctx.font = shrinkFont(ctx, t, font, maxW); ctx.fillText(t, x, y); spaced(ctx, 0); ctx.textAlign = "left"; };
   const width = (t: string, font: string, ls = 0) => { ctx.font = font; spaced(ctx, ls); const w = ctx.measureText(t).width + ls * t.length; spaced(ctx, 0); return w; };
   /** CTA button. style: pill | box | outline | underline. Returns its height. */
   const button = (t: string, x: number, y: number, size: number, bg: string, fg: string, style: "pill" | "box" | "outline" | "underline" = "pill", align: "left" | "center" | "right" = "left", ls = 0) => {
@@ -76,7 +76,7 @@ export function drawColourStyle(canvas: HTMLCanvasElement, c: DesignContent, st:
   const P = st.primary, A = st.accent, pFg = textOn(P), aFg = textOn(A);
   const K = textKit(ctx, u);
   ctx.clearRect(0, 0, W, H); spaced(ctx, 0); ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
-  const name = c.businessName.trim().slice(0, 40), offer = c.offer.trim().slice(0, 48), cta = c.callToAction.trim().slice(0, 40);
+  const name = c.businessName.trim().slice(0, 60), offer = c.offer.trim().slice(0, 60), cta = c.callToAction.trim().slice(0, 48);
   const prod = (c.productName ?? "").trim().slice(0, 50);
   const head = c.headline.trim(), sup = c.supportingCopy.trim();
   const fill = (col: string | CanvasGradient, x: number, y: number, w: number, h: number) => { ctx.fillStyle = col; ctx.fillRect(x, y, w, h); };
@@ -87,8 +87,8 @@ export function drawColourStyle(canvas: HTMLCanvasElement, c: DesignContent, st:
       const bg = mix(P, "#ffffff", lum(P) > 0.75 ? 0.4 : 0.93); const ink = lum(bg) > 0.5 ? mix(P, "#111111", lum(P) > 0.6 ? 0.85 : 0.35) : "#ffffff";
       const inkFg = lum(ink) > 0.5 ? "#141414" : "#ffffff";
       fill(bg, 0, 0, W, H); const pad = 96 * u, tw = W - pad * 2;
-      K.line(name.toUpperCase(), pad, pad + 22 * u, `600 ${22 * u}px ${SANS}`, soft(ink, 0.75), "left", 7 * u);
-      if (offer) K.line(offer.toUpperCase(), W - pad, pad + 22 * u, `700 ${22 * u}px ${SANS}`, lum(A) > 0.8 ? ink : A, "right", 3 * u);
+      K.line(name.toUpperCase(), pad, pad + 22 * u, `600 ${22 * u}px ${SANS}`, soft(ink, 0.75), "left", 7 * u, tw * (offer ? 0.52 : 1));
+      if (offer) K.line(offer.toUpperCase(), W - pad, pad + 22 * u, `700 ${22 * u}px ${SANS}`, lum(A) > 0.8 ? ink : A, "right", 3 * u, tw * 0.44);
       fill(soft(ink, 0.15), pad, pad + 52 * u, tw, Math.max(1, 1.5 * u));
       const hm = K.measure(head, HF(fs === "sans" ? 700 : undefined), tw * (sq ? 0.95 : 0.92), sq ? 3 : 4, (sq ? 104 : 124) * u, 50 * u, 1.04);
       const sm = K.measure(sup, BODY(400), tw * 0.78, 3, 31 * u, 22 * u, 1.5);
@@ -109,7 +109,7 @@ export function drawColourStyle(canvas: HTMLCanvasElement, c: DesignContent, st:
       fill(third, 0, topH, W - colW * 0.55, H - topH);
       fill(mix(A, P, 0.45), W - colW * 0.55, topH, colW * 0.55, H - topH);
       const pad = 72 * u;
-      K.line(name.toUpperCase(), pad, pad + 24 * u, `800 ${24 * u}px ${SANS}`, pFg, "left", 6 * u);
+      K.line(name.toUpperCase(), pad, pad + 24 * u, `800 ${24 * u}px ${SANS}`, pFg, "left", 6 * u, W - colW - pad * 1.6);
       const hw = W - colW - pad * 1.6;
       const hm = K.measure(head.toUpperCase(), HF(), hw, sq ? 4 : 5, (sq ? 92 : 108) * u, 44 * u, 0.98);
       K.draw(hm, pad, topH - pad - hm.h, hw, pFg, "left", -hm.size * 0.01);
@@ -151,7 +151,7 @@ export function drawColourStyle(canvas: HTMLCanvasElement, c: DesignContent, st:
       const hm = K.measure(head, HF(fs === "sans" ? 800 : 600), tw, sq ? 3 : 4, (sq ? 110 : 132) * u, 52 * u, 1.0);
       y = K.draw(hm, pad, y + 50 * u, tw, ink, "left", -hm.size * 0.025);
       const colW = tw * 0.58, gx = pad + tw - colW; const by = Math.max(y + 50 * u, H * 0.55);
-      if (prod) K.line(prod, pad, by + 30 * u, `italic 500 ${30 * u}px ${FAMILY.serif}`, A === paper ? ink : mix(A, ink, 0.2));
+      if (prod) K.line(prod, pad, by + 30 * u, `italic 500 ${30 * u}px ${FAMILY.serif}`, A === paper ? ink : mix(A, ink, 0.2), "left", 0, tw - colW - 60 * u);
       fill(ink, gx - 30 * u, by, 1.5 * u, H - pad - 110 * u - by);
       const sm = K.measure(sup, BODY(400), colW, sq ? 4 : 6, 30 * u, 21 * u, 1.55);
       K.draw(sm, gx, by, colW, soft(ink, 0.82));
@@ -175,7 +175,7 @@ export function drawColourStyle(canvas: HTMLCanvasElement, c: DesignContent, st:
       const y = top + hm.h + 50 * u; fill(fg, pad, y, tw, 4 * u);
       const sm = K.measure(sup, BODY(600), tw * 0.55, 4, 28 * u, 20 * u, 1.4);
       K.draw(sm, W - pad - 40 * u - tw * 0.55, y + 30 * u, tw * 0.55, soft(fg, 0.85));
-      if (prod) K.line(prod.toUpperCase(), pad, y + 54 * u, `700 ${22 * u}px ${SANS}`, fg, "left", 3 * u);
+      if (prod) K.line(prod.toUpperCase(), pad, y + 54 * u, `700 ${22 * u}px ${SANS}`, fg, "left", 3 * u, tw * 0.4);
       if (cta) K.button(cta.toUpperCase(), pad, H - pad - 70 * u, 26 * u, fg, bg, "box", "left", 2 * u);
       break;
     }
