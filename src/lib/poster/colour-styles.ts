@@ -1,6 +1,6 @@
 // Colour-only poster styles: no photos, illustrations or icons — colour, gradients,
 // colour blocking, typography and fine geometry only. Drawn on <canvas> so the PNG matches the preview.
-import { fit, FORMATS, hexToRgb, rgba, spaced, textOn, type PosterFormat } from "./render";
+import { fit, FORMATS, hexToRgb, rgba, shrinkFont, spaced, textOn, type PosterFormat } from "./render";
 import type { DesignContent, FontStyle } from "./templates";
 
 export type ColourStyleId = "c-minimal" | "c-block" | "c-gradient" | "c-editorial" | "c-type" | "c-soft" | "c-retro" | "c-luxury";
