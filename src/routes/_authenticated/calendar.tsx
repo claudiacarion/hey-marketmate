@@ -101,8 +101,8 @@ function CalendarPage() {
                     <div className={`mb-1 inline-grid size-6 place-items-center rounded-full text-xs ${isToday ? "bg-accent font-bold text-accent-foreground" : "text-muted-foreground"}`}>{d.getDate()}</div>
                     {byDay[dayKey(d)]?.map((e) => (
                       <Link key={e.key} to="/campaigns/$id" params={{ id: e.campaignId }}
-                        title={`${e.campaign} · ${e.channel}${e.timing ? ` · ${e.timing}` : ""}${e.done ? " · completed" : ""}\n${e.text}`}
-                        className={`mb-1 block truncate rounded-md px-2 py-1 text-xs font-medium hover:opacity-80 ${e.done ? "bg-muted text-muted-foreground line-through decoration-muted-foreground/70" : toneOf[e.campaignId]}`}>
+                        title={`${e.campaign} · ${e.kind}${e.purpose ? ` · ${e.purpose}` : ""} · ${e.channel}${e.timing ? ` · ${e.timing}` : ""}${e.done ? " · completed" : ""}\n${e.text}`}
+                        className={`mb-1 block truncate rounded-md px-2 py-1 text-xs font-medium hover:opacity-80 ${e.done ? "bg-muted text-muted-foreground line-through decoration-muted-foreground/70" : `${toneOf[e.campaignId]}${e.quick ? " border border-dashed border-border" : ""}`}`}>
                         {e.channel ? `${e.channel}: ` : ""}{e.text}
                       </Link>
                     ))}
