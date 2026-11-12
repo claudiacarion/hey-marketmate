@@ -32,3 +32,4 @@ use the editor.
 ## Structure
 - App shell (sidebar + top bar) lives in src/components/app/AppShell.tsx and wraps <Outlet /> in __root; each section is its own route file.
 - Placeholder figures live in src/lib/sample-data.ts until real data/AI is wired in, so they can be swapped in one place.
+- All app pages live under src/routes/_authenticated/ (client-only gate + AppShell); /auth and /reset-password are the only public pages — keeps every workspace screen behind sign-in.
