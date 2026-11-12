@@ -9,7 +9,9 @@ export type CampaignPlan = {
   budgetAllocation: { item: string; percent: number; amount?: string }[];
   successMetrics: { metric: string; target: string }[];
   socialPosts?: { platform: string; headline: string; caption: string; callToAction: string; hashtags?: string[]; visualConcept: string }[];
-  calendar?: { day: string; theme: string; channel: string; timing: string; action: string; effort?: string; impact?: string }[];
+  calendar?: { day: string; theme: string; channel: string; timing: string; action: string; effort?: string; impact?: string; type?: string; purpose?: string }[];
+  cadenceRationale?: string;
+  timeCommitment?: string;
   promotionalMaterial?: { offer: string; headline: string; supportingCopy: string; callToAction: string; designConcept: string };
   qualityReview?: { brandVoiceCheck: string; audienceFit: string; clarityScore: number; reviewerNotes: string };
   etsyListing?: { titles: string[]; description: string; tags: string[]; keywords: string[]; sellingPoints: string[]; clarityTips: string[] };
