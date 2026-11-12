@@ -164,7 +164,10 @@ export function drawColourStyle(canvas: HTMLCanvasElement, c: DesignContent, st:
       fill(bg, 0, 0, W, H); const pad = 64 * u, tw = W - pad * 2 - 40 * u;
       ctx.save(); ctx.translate(W - pad * 0.6, pad); ctx.rotate(Math.PI / 2); K.line(name.toUpperCase(), 0, 0, `800 ${24 * u}px ${SANS}`, fg, "left", 8 * u); ctx.restore();
       const words = head.toUpperCase();
-      const hm = K.measure(words, (s) => `${fs === "sans" ? 800 : HEAD_WEIGHT[fs]} ${s}px ${FAMILY[fs]}`, tw, sq ? 4 : 6, (sq ? 170 : 200) * u, 64 * u, 0.92);
+      const tf = (s: number) => `${fs === "sans" ? 800 : HEAD_WEIGHT[fs]} ${s}px ${FAMILY[fs]}`;
+      const longest = words.split(/\s+/).reduce((m, w) => Math.max(m, K.width(w, tf(100))), 1);
+      const cap = Math.max(64 * u, Math.min((sq ? 170 : 200) * u, (tw / longest) * 100 * 0.98));
+      const hm = K.measure(words, tf, tw, sq ? 4 : 6, cap, 56 * u, 0.92);
       if (offer) { const s = 30 * u; K.button(offer.toUpperCase(), pad, pad, s * 0.8, hi, textOn(hi), "box"); }
       const top = pad + 110 * u;
       ctx.font = hm.font; spaced(ctx, -hm.size * 0.03); ctx.textAlign = "left";
@@ -214,7 +217,7 @@ export function drawColourStyle(canvas: HTMLCanvasElement, c: DesignContent, st:
       K.draw(sm, pad + tw * 0.1, y + 36 * u, tw * 0.8, rgba(ink, 0.8), "center");
       const by = sy + 3 * sh * 1.5; const bh = H - by;
       if (cta) K.button(cta.toUpperCase(), W / 2, by + (bh - 26 * u * 2.5) / 2 - (prod ? 18 * u : 0), 26 * u, cream, ink, "pill", "center", 2 * u);
-      if (prod) K.line(prod, W / 2, H - 26 * u, `600 ${20 * u}px ${SANS}`, pFg, "center", 2 * u);
+      if (prod && !(sq && cta)) K.line(prod, W / 2, H - 26 * u, `600 ${20 * u}px ${SANS}`, pFg, "center", 2 * u);
       break;
     }
     case "c-luxury": {
