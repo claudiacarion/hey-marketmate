@@ -1,4 +1,5 @@
 import type { CampaignPlan } from "@/lib/campaign-types";
+import { dayNumberOf } from "@/lib/schedule";
 
 export type CampaignRow = { id: string; title: string; status: string; created_at: string; poster: unknown; plan: CampaignPlan | null; brief?: unknown };
 export type AppNotification = { id: string; kind: "post" | "draft" | "poster" | "ready"; title: string; body: string; campaignId: string; at: string };
