@@ -81,5 +81,5 @@ export function StatusPill({ status }: { status: string }) {
     Draft: "bg-muted text-muted-foreground",
     Completed: "bg-primary/10 text-primary",
   };
-  return <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${map[status] ?? map.Draft}`}>{status}</span>;
+  return <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${map[status] ?? map["Draft"]}`}>{status}</span>;
 }
