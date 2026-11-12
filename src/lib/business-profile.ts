@@ -1,4 +1,4 @@
-import type { BusinessProfile } from "./campaign.functions";
+export type BusinessProfile = { name: string; type: string; location: string; audience: string; voice: string };
 
 const KEY = "marketmate.business";
 export const businessTypes = ["Restaurant / Café", "Salon / Beauty", "Online shop", "Fitness studio", "Consultant", "Other"];

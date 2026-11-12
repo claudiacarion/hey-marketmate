@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, AlertCircle, Target, Users, Compass, MessageCircle, Megaphone, Gift, PieChart, TrendingUp, Sparkles, Instagram, Mail, Facebook, MessageSquare, Search } from "lucide-react";
+import { Loader2, AlertCircle, Target, Users, Compass, MessageCircle, Megaphone, Gift, PieChart, TrendingUp, Sparkles, Copy, CalendarDays, ShieldCheck, Image as ImageIcon, Instagram, Mail, Facebook, MessageSquare, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/app/AppShell";
-import type { CampaignPlan } from "@/lib/campaign.functions";
+import type { CampaignPlan } from "@/lib/campaign-types";
 import { defaultProfile, loadProfile } from "@/lib/business-profile";
 
 export const Route = createFileRoute("/studio")({
@@ -110,7 +110,7 @@ function Studio() {
           <div className="panel p-5 text-sm text-muted-foreground"><b className="text-foreground">Tip:</b> the more you share about your customers, the better the plan.</div>
         </aside>
       </div>
-      {loading && !plan && <div className="panel mt-6 flex items-center gap-3 p-6 text-muted-foreground"><Loader2 className="size-5 animate-spin text-primary" />Your strategist is thinking. This usually takes 10–20 seconds.</div>}
+      {loading && !plan && <div className="panel mt-6 flex items-center gap-3 p-6 text-muted-foreground"><Loader2 className="size-5 animate-spin text-primary" />Your strategist is thinking. Drafting strategy, posts, schedule and promo, then reviewing quality — about 15–30 seconds.</div>}
       {plan && <PlanView plan={plan} />}
     </div>
   );
@@ -154,6 +154,64 @@ function PlanView({ plan }: { plan: CampaignPlan }) {
           <ul className="space-y-2">{plan.successMetrics.map((m, i) => <li key={i} className="flex justify-between gap-3"><span>{m.metric}</span><span className="text-right font-semibold">{m.target}</span></li>)}</ul>
         </Block>
       </div>
+      {plan.qualityReview && <Review r={plan.qualityReview} />}
+      {!!plan.socialPosts?.length && <>
+        <h3 className="pt-4 text-2xl font-semibold">Social media posts</h3>
+        <div className="grid gap-4 md:grid-cols-3">{plan.socialPosts.map((p, i) => <PostCard key={i} p={p} />)}</div>
+      </>}
+      {!!plan.calendar?.length && <>
+        <h3 className="flex items-center gap-2 pt-4 text-2xl font-semibold"><CalendarDays className="size-5 text-primary" />7-day schedule</h3>
+        <div className="panel divide-y">{plan.calendar.map((d, i) => (
+          <div key={i} className="grid gap-2 p-4 text-sm sm:grid-cols-[110px_1fr_auto]">
+            <div className="font-semibold text-primary">{d.day}</div>
+            <div><b>{d.theme}</b><p className="text-muted-foreground">{d.action}</p></div>
+            <div className="text-right text-xs text-muted-foreground"><span className="rounded-full bg-secondary px-2 py-1 font-medium text-foreground">{d.channel}</span><div className="mt-1">{d.timing}</div></div>
+          </div>
+        ))}</div>
+      </>}
+      {plan.promotionalMaterial && <>
+        <h3 className="pt-4 text-2xl font-semibold">Promotional material</h3>
+        <div className="grid gap-4 md:grid-cols-[1.2fr_1fr]">
+          <div className="rounded-2xl bg-warm p-7 shadow-soft">
+            <span className="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">{plan.promotionalMaterial.offer}</span>
+            <h4 className="mt-4 text-3xl font-semibold">{plan.promotionalMaterial.headline}</h4>
+            <p className="mt-3 text-sm leading-relaxed">{plan.promotionalMaterial.supportingCopy}</p>
+            <p className="mt-5 inline-block rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">{plan.promotionalMaterial.callToAction}</p>
+          </div>
+          <Block icon={ImageIcon} title="Poster / graphic design">{plan.promotionalMaterial.designConcept}</Block>
+        </div>
+      </>}
     </section>
+  );
+}
+
+function Review({ r }: { r: NonNullable<CampaignPlan["qualityReview"]> }) {
+  return (
+    <div className="panel flex flex-col gap-4 p-6 sm:flex-row sm:items-start">
+      <div className="flex shrink-0 items-center gap-3"><ShieldCheck className="size-8 text-primary" /><div><div className="text-xs uppercase tracking-wide text-muted-foreground">Quality review</div><div className="text-2xl font-semibold">{Math.round(r.clarityScore)}/100</div></div></div>
+      <div className="grid flex-1 gap-3 text-sm sm:grid-cols-3">
+        <div><b>Brand voice</b><p className="text-muted-foreground">{r.brandVoiceCheck}</p></div>
+        <div><b>Audience fit</b><p className="text-muted-foreground">{r.audienceFit}</p></div>
+        <div><b>Reviewer notes</b><p className="text-muted-foreground">{r.reviewerNotes}</p></div>
+      </div>
+    </div>
+  );
+}
+
+function PostCard({ p }: { p: NonNullable<CampaignPlan["socialPosts"]>[number] }) {
+  const tags = (p.hashtags ?? []).map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ");
+  const copy = async () => {
+    try { await navigator.clipboard.writeText([p.headline, p.caption, p.callToAction, tags].filter(Boolean).join("\n\n")); toast.success("Post copied"); }
+    catch { toast.error("Couldn't copy — please select the text manually."); }
+  };
+  return (
+    <div className="panel flex flex-col p-5 text-sm">
+      <div className="mb-3 flex items-center justify-between"><span className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold">{p.platform}</span><Button size="sm" variant="ghost" onClick={copy}><Copy className="size-4" />Copy</Button></div>
+      <h4 className="text-lg font-semibold leading-snug">{p.headline}</h4>
+      <p className="mt-2 whitespace-pre-line leading-relaxed">{p.caption}</p>
+      <p className="mt-3 font-semibold text-primary">→ {p.callToAction}</p>
+      {tags && <p className="mt-2 text-xs text-accent">{tags}</p>}
+      <div className="mt-auto pt-4"><div className="rounded-xl bg-secondary/60 p-3 text-xs text-muted-foreground"><b className="text-foreground">Visual idea:</b> {p.visualConcept}</div></div>
+    </div>
   );
 }
