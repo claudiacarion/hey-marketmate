@@ -55,7 +55,8 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
   const [savedAt, setSavedAt] = useState(initial?.savedAt);
   const [showAll, setShowAll] = useState(false);
 
-  const stock = photo?.kind === "stock" ? stockPhotos.find((p) => p.id === photo.id) ?? null : null;
+  const noPhoto = layout === "graphic";
+  const stock = !noPhoto && photo?.kind === "stock" ? stockPhotos.find((p) => p.id === photo.id) ?? null : null;
   const mustCredit = !!stock && requiresCredit(stock);
   const credit = stock && (showCredit || mustCredit) ? creditLine(stock) : undefined;
 
@@ -94,10 +95,10 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
     let alive = true;
     ensurePosterFonts().then(() => {
       if (!alive || !canvasRef.current) return;
-      drawPoster(canvasRef.current, img, { businessName, offer: promo.offer, headline: promo.headline, supportingCopy: promo.supportingCopy, callToAction: promo.callToAction, credit }, { format, layout, primary, accent });
+      drawPoster(canvasRef.current, noPhoto ? null : img, { businessName, offer: promo.offer, headline: promo.headline, supportingCopy: promo.supportingCopy, callToAction: promo.callToAction, credit }, { format, layout, primary, accent });
     });
     return () => { alive = false; };
-  }, [img, format, layout, primary, accent, credit, businessName, promo]);
+  }, [img, noPhoto, format, layout, primary, accent, credit, businessName, promo]);
 
   const toBlob = async () => {
     const c = canvasRef.current; if (!c) throw new Error("no canvas");
@@ -196,7 +197,7 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
           <label className="flex items-center gap-2"><input type="color" value={primary} onChange={(e) => setPrimary(e.target.value)} className="size-8 cursor-pointer rounded border" aria-label="Main colour" />Main</label>
           <label className="flex items-center gap-2"><input type="color" value={accent} onChange={(e) => setAccent(e.target.value)} className="size-8 cursor-pointer rounded border" aria-label="Accent colour" />Accent</label>
         </div>
-        <div className="space-y-2">
+        {noPhoto ? <p className="text-xs text-muted-foreground">This design uses only your brand colours, with no photo. Pick a photo layout above to add one.</p> : <div className="space-y-2">
           <div className="flex items-center justify-between">
             <p className="font-semibold">Photo</p>
             <Button size="sm" variant="outline" className="rounded-lg" disabled={!!busy} onClick={() => fileRef.current?.click()}>{busy === "upload" ? <Loader2 className="size-4 animate-spin" /> : <ImagePlus className="size-4" />}Upload your own</Button>
@@ -216,7 +217,7 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
             <button key={p.id} type="button" title={`${p.title} — ${p.creator}`} onClick={() => setPhoto({ kind: "stock", id: p.id })} className={`aspect-square overflow-hidden rounded-lg ${photo?.kind === "stock" && photo.id === p.id ? sel : ""}`}><img src={p.url} alt={p.title} crossOrigin="anonymous" loading="lazy" className="size-full object-cover" /></button>
           ))}</div>
           {suggestions.length > 8 && <button type="button" className="text-xs font-medium text-primary underline" onClick={() => setShowAll((v) => !v)}>{showAll ? "Show fewer" : `Show all ${suggestions.length} photos`}</button>}
-        </div>
+        </div>}
         {stock && (
           <label className="flex items-start gap-2 text-xs">
             <input type="checkbox" checked={showCredit || mustCredit} disabled={mustCredit} onChange={(e) => setShowCredit(e.target.checked)} className="mt-0.5" />
