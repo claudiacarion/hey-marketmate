@@ -36,6 +36,7 @@ export function TaskTracker({ campaignId, items }: { campaignId: string; items: 
       return { prev };
     },
     onError: (_e, _v, ctx) => { qc.setQueryData(key, ctx?.prev); toast.error("Couldn't save that change. Please try again."); },
+    onSettled: () => { qc.invalidateQueries({ queryKey: ["campaign-tasks"] }); },
     onSuccess: (_d, { completed }) => { if (completed) toast.success("Task completed — nice work!"); },
   });
   const p = progress(items.length, done);

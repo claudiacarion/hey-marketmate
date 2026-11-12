@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/app/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import type { CampaignPlan } from "@/lib/campaign-types";
+import { doneKeys, taskKey } from "@/lib/task-progress";
 
 export const Route = createFileRoute("/_authenticated/calendar")({
   head: () => ({
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/calendar")({
   component: CalendarPage,
 });
 
-type Ev = { key: string; campaignId: string; campaign: string; text: string; channel: string; timing: string };
+type Ev = { key: string; campaignId: string; campaign: string; text: string; channel: string; timing: string; done: boolean };
 const TONES = ["bg-accent/15 text-accent", "bg-primary/10 text-primary", "bg-highlight/40 text-highlight-foreground"];
 const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
@@ -34,6 +35,15 @@ function CalendarPage() {
       const { data, error } = await supabase.from("campaigns").select("id,title,plan,brief,created_at");
       if (error) throw error;
       return data;
+    },
+  });
+
+  const { data: finished = new Set<string>() } = useQuery({
+    queryKey: ["campaign-tasks", "all"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("campaign_tasks").select("campaign_id,task_index").eq("completed", true);
+      if (error) throw error;
+      return doneKeys(data);
     },
   });
 
@@ -51,11 +61,12 @@ function CalendarPage() {
         (byDay[dayKey(d)] ??= []).push({
           key: `${c.id}-${i}`, campaignId: c.id, campaign: c.title,
           text: item.theme || item.action, channel: item.channel, timing: item.timing,
+          done: finished.has(taskKey(c.id, i)),
         });
       });
     });
     return { byDay, toneOf };
-  }, [data]);
+  }, [data, finished]);
 
   const offset = (month.getDay() + 6) % 7;
   const cells = Array.from({ length: 42 }, (_, i) => new Date(month.getFullYear(), month.getMonth(), i - offset + 1));
@@ -88,8 +99,8 @@ function CalendarPage() {
                     <div className={`mb-1 inline-grid size-6 place-items-center rounded-full text-xs ${isToday ? "bg-accent font-bold text-accent-foreground" : "text-muted-foreground"}`}>{d.getDate()}</div>
                     {byDay[dayKey(d)]?.map((e) => (
                       <Link key={e.key} to="/campaigns/$id" params={{ id: e.campaignId }}
-                        title={`${e.campaign} · ${e.channel}${e.timing ? ` · ${e.timing}` : ""}\n${e.text}`}
-                        className={`mb-1 block truncate rounded-md px-2 py-1 text-xs font-medium hover:opacity-80 ${toneOf[e.campaignId]}`}>
+                        title={`${e.campaign} · ${e.channel}${e.timing ? ` · ${e.timing}` : ""}${e.done ? " · completed" : ""}\n${e.text}`}
+                        className={`mb-1 block truncate rounded-md px-2 py-1 text-xs font-medium hover:opacity-80 ${e.done ? "bg-muted text-muted-foreground line-through decoration-muted-foreground/70" : toneOf[e.campaignId]}`}>
                         {e.channel ? `${e.channel}: ` : ""}{e.text}
                       </Link>
                     ))}
