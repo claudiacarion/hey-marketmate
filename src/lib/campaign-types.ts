@@ -9,7 +9,13 @@ export type CampaignPlan = {
   budgetAllocation: { item: string; percent: number; amount?: string }[];
   successMetrics: { metric: string; target: string }[];
   socialPosts?: { platform: string; headline: string; caption: string; callToAction: string; hashtags?: string[]; visualConcept: string }[];
-  calendar?: { day: string; theme: string; channel: string; timing: string; action: string }[];
+  calendar?: { day: string; theme: string; channel: string; timing: string; action: string; effort?: string; impact?: string }[];
   promotionalMaterial?: { offer: string; headline: string; supportingCopy: string; callToAction: string; designConcept: string };
   qualityReview?: { brandVoiceCheck: string; audienceFit: string; clarityScore: number; reviewerNotes: string };
+  etsyListing?: { titles: string[]; description: string; tags: string[]; keywords: string[]; sellingPoints: string[]; clarityTips: string[] };
+  productPhotography?: { shot: string; why: string }[];
+  pinterestPins?: { title: string; description: string; visualConcept: string; boardIdea: string }[];
+  seasonalCampaigns?: { occasion: string; timing: string; idea: string }[];
+  productLaunch?: { teaser: string; announcement: string; launchPlan: string; followUp: string };
+  soloSellerTips?: { priorities: { task: string; impact: string; effort: string; why: string }[]; reusableContent: string[]; weeklyTimeEstimate: string };
 };

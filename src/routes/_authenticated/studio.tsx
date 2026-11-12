@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, AlertCircle, Sparkles, Instagram, Mail, Facebook, MessageSquare, Search } from "lucide-react";
+import { Loader2, AlertCircle, Sparkles, Instagram, Mail, Facebook, MessageSquare, Search, Store, Pin } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/app/AppShell";
 import type { CampaignPlan } from "@/lib/campaign-types";
-import { defaultProfile, loadProfile } from "@/lib/business-profile";
+import { defaultProfile, isEtsySeller, loadProfile } from "@/lib/business-profile";
 import { PlanView } from "@/components/studio/PlanView";
 
 export const Route = createFileRoute("/_authenticated/studio")({
@@ -33,6 +33,8 @@ const channels = [
   { id: "email", label: "Email", icon: Mail },
   { id: "sms", label: "SMS", icon: MessageSquare },
   { id: "google", label: "Google", icon: Search },
+  { id: "etsy", label: "Etsy", icon: Store },
+  { id: "pinterest", label: "Pinterest", icon: Pin },
 ];
 
 function Studio() {
@@ -47,13 +49,18 @@ function Studio() {
   const [error, setError] = useState<string | null>(null);
   const [plan, setPlan] = useState<CampaignPlan | null>(null);
   const [campaignId, setCampaignId] = useState<string | null>(null);
-  useEffect(() => setProfile(loadProfile()), []);
+  useEffect(() => {
+    const p = loadProfile(); setProfile(p);
+    if (isEtsySeller(p)) setPicked(["etsy", "pinterest", "instagram"]);
+    else if (p.salesChannels.includes("Instagram / social media")) setPicked((x) => (x.includes("instagram") ? x : [...x, "instagram"]));
+  }, []);
+  const label = [profile.category, profile.subcategory || profile.otherDescription].filter(Boolean).join(" · ");
 
   const run = async () => {
     setLoading(true); setError(null);
     try {
       const names = channels.filter((c) => picked.includes(c.id)).map((c) => c.label);
-      const business = { name: profile.name, type: profile.type, location: profile.location, audience: profile.audience, voice: profile.voice };
+      const business = { name: profile.name, category: profile.category, subcategory: profile.subcategory, otherDescription: profile.otherDescription, salesChannels: profile.salesChannels, location: profile.location, audience: profile.audience, voice: profile.voice, ...(isEtsySeller(profile) ? { etsyDetails: profile.etsyDetails } : {}) };
       const { data, error: fnError } = await supabase.functions.invoke<{ plan?: CampaignPlan; error?: string }>("generate-campaign", { body: { business, brief: { goal, channels: names, budget, timing, notes } } });
       let msg: string | null = null;
       if (fnError) {
@@ -103,7 +110,7 @@ function Studio() {
           <Button size="lg" className="w-full rounded-xl bg-accent text-accent-foreground hover:bg-accent/90" disabled={loading} onClick={run}>
             {loading ? <><Loader2 className="size-4 animate-spin" /> Crafting your campaign…</> : <><Sparkles className="size-4" /> Generate campaign plan</>}
           </Button>
-          <p className="text-center text-xs text-muted-foreground">Planning for <b className="text-foreground">{profile.name}</b> · {profile.type}. Edit in My Business.</p>
+          <p className="text-center text-xs text-muted-foreground">Planning for <b className="text-foreground">{profile.name}</b> · {label}. Edit in My Business.</p>
           {error && <div role="alert" className="flex items-start gap-2 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"><AlertCircle className="mt-0.5 size-4 shrink-0" />{error}</div>}
         </div>
         <aside className="space-y-4">
@@ -118,7 +125,7 @@ function Studio() {
         </aside>
       </div>
       {loading && !plan && <div className="panel mt-6 flex items-center gap-3 p-6 text-muted-foreground"><Loader2 className="size-5 animate-spin text-primary" />Your strategist is thinking. Drafting strategy, posts, schedule and promo, then reviewing quality — about 15–30 seconds.</div>}
-      {plan && <PlanView plan={plan} businessName={profile.name} businessType={profile.type} brand={{ primary: profile.primaryColor, accent: profile.accentColor }} campaignId={campaignId} />}
+      {plan && <PlanView plan={plan} businessName={profile.name} businessType={profile.category} brand={{ primary: profile.primaryColor, accent: profile.accentColor }} campaignId={campaignId} />}
     </div>
   );
 }

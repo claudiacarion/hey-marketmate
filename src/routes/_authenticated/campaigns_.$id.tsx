@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PlanView } from "@/components/studio/PlanView";
 import type { SavedPoster } from "@/components/studio/PosterStudio";
 import type { CampaignPlan } from "@/lib/campaign-types";
-import { defaultProfile } from "@/lib/business-profile";
+import { normalizeProfile } from "@/lib/business-profile";
 
 export const Route = createFileRoute("/_authenticated/campaigns_/$id")({
   head: () => ({
@@ -34,11 +34,11 @@ function CampaignDetail() {
   const back = <Link to="/campaigns" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" />All campaigns</Link>;
   if (isLoading) return <div className="flex justify-center py-16"><Loader2 className="size-6 animate-spin text-muted-foreground" /></div>;
   if (error || !data) return <div className="mx-auto max-w-5xl space-y-4">{back}<p className="panel p-6 text-sm">This campaign couldn't be found.</p></div>;
-  const b = { ...defaultProfile, ...((data.business ?? {}) as Partial<typeof defaultProfile>) };
+  const b = normalizeProfile((data.business ?? {}) as Record<string, unknown>);
   return (
     <div className="mx-auto max-w-5xl">
       {back}
-      <PlanView plan={data.plan as unknown as CampaignPlan} businessName={b.name} businessType={b.type}
+      <PlanView plan={data.plan as unknown as CampaignPlan} businessName={b.name} businessType={b.category}
         brand={{ primary: b.primaryColor, accent: b.accentColor }} campaignId={data.id} poster={data.poster as unknown as SavedPoster | null} />
     </div>
   );
