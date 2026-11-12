@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { PageHeader, StatusPill } from "@/components/app/AppShell";
 import { campaigns } from "@/lib/sample-data";
 
-export const Route = createFileRoute("/campaigns")({
+export const Route = createFileRoute("/_authenticated/campaigns")({
   head: () => ({
     meta: [
       { title: "Campaigns — MarketMate" },

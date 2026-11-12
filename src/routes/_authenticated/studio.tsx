@@ -12,7 +12,7 @@ import type { CampaignPlan } from "@/lib/campaign-types";
 import { defaultProfile, loadProfile } from "@/lib/business-profile";
 import { PromoPoster } from "@/components/studio/PromoPoster";
 
-export const Route = createFileRoute("/studio")({
+export const Route = createFileRoute("/_authenticated/studio")({
   head: () => ({
     meta: [
       { title: "Content Studio — MarketMate" },

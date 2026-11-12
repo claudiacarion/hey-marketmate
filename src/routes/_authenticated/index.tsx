@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/app/AppShell";
 import { campaigns, weekly } from "@/lib/sample-data";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "Dashboard — MarketMate" },
