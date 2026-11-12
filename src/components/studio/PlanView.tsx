@@ -48,7 +48,7 @@ export function PlanView({ plan, businessName, businessType, brand, campaignId, 
         <div className="grid gap-4 md:grid-cols-3">{plan.socialPosts.map((p, i) => <PostCard key={i} p={p} />)}</div>
       </>}
       {!!plan.calendar?.length && <>
-        <h3 className="flex items-center gap-2 pt-4 text-2xl font-semibold"><CalendarDays className="size-5 text-primary" />7-day schedule</h3>
+        <h3 className="flex items-center gap-2 pt-4 text-2xl font-semibold"><CalendarDays className="size-5 text-primary" />Posting schedule</h3>
         <div className="panel divide-y">{plan.calendar.map((d, i) => (
           <div key={i} className="grid gap-2 p-4 text-sm sm:grid-cols-[110px_1fr_auto]">
             <div className="font-semibold text-primary">{d.day}</div>
