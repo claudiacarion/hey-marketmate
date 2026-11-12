@@ -26,7 +26,8 @@ const HEX = /^#[0-9a-f]{6}$/i;
 const num = (v: unknown, lo: number, hi: number, d: number) => { const n = typeof v === "number" && isFinite(v) ? v : d; return Math.min(hi, Math.max(lo, n)); };
 const col = (v: unknown, d: string) => (typeof v === "string" && HEX.test(v.trim()) ? v.trim().toLowerCase() : d);
 const pick = <T extends string>(v: unknown, opts: readonly T[], d: T): T => (opts.includes(v as T) ? (v as T) : d);
-const obj = (v: unknown) => (v && typeof v === "object" ? (v as Record<string, unknown>) : {});
+type Key = "name" | "rationale" | "background" | "type" | "colors" | "angle" | "texture" | "panels" | "rules" | "frame" | "typography" | "brand" | "headline" | "supporting" | "offer" | "cta" | "productName" | "x" | "y" | "w" | "h" | "align" | "color" | "opacity" | "radius" | "thickness" | "inset" | "double" | "heading" | "headingWeight" | "uppercase" | "scale" | "tracking" | "body" | "style" | "bg" | "fg";
+const obj = (v: unknown): { [K in Key]?: unknown } => (v && typeof v === "object" ? (v as { [K in Key]?: unknown }) : {});
 
 /** Turn whatever the AI returned into a safe, complete spec. */
 export function sanitizeSpec(raw: unknown, fallback: { primary: string; accent: string }): AiDesignSpec {
