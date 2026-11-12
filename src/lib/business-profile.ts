@@ -26,15 +26,16 @@ export const productNatures = ["Handmade", "Personalized", "Vintage", "Digital"]
 
 export const emptyEtsy: EtsyDetails = { productType: "", productDescription: "", productNature: [], targetCustomer: "", priceRange: "", markets: "", usps: "", challenges: "" };
 
+/** Blank profile for accounts that haven't set up their business yet. */
 export const defaultProfile: BusinessProfile = {
-  name: "Lina's Bakery & Brunch",
-  category: "Food & Hospitality",
-  subcategory: "Bakery",
+  name: "",
+  category: "",
+  subcategory: "",
   otherDescription: "",
-  salesChannels: ["Physical shop", "Instagram / social media"],
-  location: "Stockholm",
-  audience: "Young families and remote workers in the neighbourhood who love slow weekend mornings.",
-  voice: "Warm, playful, a little cosy",
+  salesChannels: [],
+  location: "",
+  audience: "",
+  voice: "",
   primaryColor: "#1f4f3f",
   accentColor: "#e8744f",
   etsyDetails: emptyEtsy,
@@ -55,21 +56,26 @@ export function normalizeProfile(raw: Record<string, unknown>): BusinessProfile 
   const p = { ...defaultProfile, ...raw } as BusinessProfile & { type?: string };
   const legacy = typeof p.type === "string" ? LEGACY[p.type] : undefined;
   if (!raw["category"] && legacy) { p.category = legacy[0]; p.subcategory = legacy[1]; }
-  if (!businessCategories[p.category]) p.category = "Other";
+  if (p.category && !businessCategories[p.category]) p.category = "Other";
   if (!Array.isArray(p.salesChannels)) p.salesChannels = [];
   p.etsyDetails = { ...emptyEtsy, ...(p.etsyDetails ?? {}) };
   delete p.type;
   return p;
 }
 
+let currentUser = "";
+/** Profiles are stored per signed-in account so a new account starts blank. */
+export function setProfileUser(id: string) { currentUser = id; }
+const key = () => `${KEY}.${currentUser}`;
+
 export function loadProfile(): BusinessProfile {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = currentUser ? localStorage.getItem(key()) : null;
     return raw ? normalizeProfile(JSON.parse(raw)) : defaultProfile;
   } catch {
     return defaultProfile;
   }
 }
 export function saveProfile(p: BusinessProfile) {
-  localStorage.setItem(KEY, JSON.stringify(p));
+  if (currentUser) localStorage.setItem(key(), JSON.stringify(p));
 }
