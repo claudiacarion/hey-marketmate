@@ -50,7 +50,7 @@ export function textKit(ctx: Ctx, u: number) {
     m.lines.forEach((l, i) => ctx.fillText(l, ax, y + m.size * 0.86 + i * m.lh));
     spaced(ctx, 0); ctx.textAlign = "left"; return y + m.h;
   };
-  const line = (t: string, x: number, y: number, font: string, color: string, align: CanvasTextAlign = "left", ls = 0, maxW = Infinity) => { if (!t) return; ctx.fillStyle = color; ctx.textAlign = align; spaced(ctx, ls); ctx.font = shrinkFont(ctx, t, font, maxW); ctx.fillText(t, x, y); spaced(ctx, 0); ctx.textAlign = "left"; };
+  const line = (t: string, x: number, y: number, font: string, color: string, align: CanvasTextAlign = "left", ls = 0, maxW = Infinity) => { if (!t) return; ctx.fillStyle = color; ctx.textAlign = align; spaced(ctx, ls); ctx.font = font; if (ls && ctx.measureText(t).width > maxW) spaced(ctx, ls * 0.2); ctx.font = shrinkFont(ctx, t, font, maxW); ctx.fillText(t, x, y); spaced(ctx, 0); ctx.textAlign = "left"; };
   const width = (t: string, font: string, ls = 0) => { ctx.font = font; spaced(ctx, ls); const w = ctx.measureText(t).width + ls * t.length; spaced(ctx, 0); return w; };
   /** CTA button. style: pill | box | outline | underline. Returns its height. */
   const button = (t: string, x: number, y: number, size: number, bg: string, fg: string, style: "pill" | "box" | "outline" | "underline" = "pill", align: "left" | "center" | "right" = "left", ls = 0) => {

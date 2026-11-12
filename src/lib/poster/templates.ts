@@ -65,7 +65,7 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
     ctx.restore();
   };
   const blobPhoto = (cx: number, cy: number, r: number) => { ctx.save(); ctx.beginPath(); ctx.ellipse(cx, cy, r, r * 1.08, 0, 0, Math.PI * 2); ctx.clip(); photo(cx - r, cy - r * 1.08, r * 2, r * 2.16); ctx.restore(); };
-  const text = (t: string, x: number, y: number, font: string, color: string, align: CanvasTextAlign = "left", ls = 0, maxW = align === "center" ? 2 * Math.min(x, W - x) - 40 * u : align === "right" ? x - 30 * u : W - x - 30 * u) => { ctx.fillStyle = color; ctx.textAlign = align; spaced(ctx, ls); ctx.font = shrinkFont(ctx, t, font, Math.max(40 * u, maxW)); ctx.fillText(t, x, y); spaced(ctx, 0); ctx.textAlign = "left"; };
+  const text = (t: string, x: number, y: number, font: string, color: string, align: CanvasTextAlign = "left", ls = 0, maxW = align === "center" ? 2 * Math.min(x, W - x) - 40 * u : align === "right" ? x - 30 * u : W - x - 30 * u) => { ctx.fillStyle = color; ctx.textAlign = align; const mw = Math.max(40 * u, maxW); spaced(ctx, ls); ctx.font = font; if (ls && ctx.measureText(t).width > mw) spaced(ctx, ls * 0.2); ctx.font = shrinkFont(ctx, t, font, mw); ctx.fillText(t, x, y); spaced(ctx, 0); ctx.textAlign = "left"; };
   /** Wrapped text that fits inside a circle/badge of width w: up to `lines` lines, shrinking the font. */
   const badgeText = (t: string, cx: number, cy: number, w: number, color: string, lines = 4, max = 24 * u, weight = 800) => {
     const f = fit(ctx, t, (s) => `${weight} ${s}px ${SANS}`, w, lines, max, 13 * u); const lh = f.size * 1.18;
