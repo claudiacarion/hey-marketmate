@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PlanView } from "@/components/studio/PlanView";
 import type { SavedPoster } from "@/components/studio/PosterStudio";
 import type { CampaignPlan } from "@/lib/campaign-types";
-import { defaultProfile } from "@/lib/business-profile";
+import { normalizeProfile } from "@/lib/business-profile";
 
 export const Route = createFileRoute("/_authenticated/campaigns_/$id")({
   head: () => ({
