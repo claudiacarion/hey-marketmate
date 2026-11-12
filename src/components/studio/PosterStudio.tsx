@@ -11,7 +11,7 @@ type Promo = NonNullable<CampaignPlan["promotionalMaterial"]>;
 export type SavedPoster = {
   format: PosterFormat; layout: PosterLayout; primary: string; accent: string; showCredit: boolean;
   photo: { kind: "stock"; id: string } | { kind: "upload"; path: string } | null;
-  imagePath?: string; savedAt?: string;
+  imagePath?: string | undefined; savedAt?: string | undefined;
 };
 const BUCKET = "posters";
 
@@ -32,7 +32,7 @@ async function signedBlobUrl(path: string) {
 
 export function PosterStudio({ promo, businessName, businessType, brand, campaignId, initial }: {
   promo: Promo; businessName: string; businessType: string; brand: { primary: string; accent: string };
-  campaignId?: string | null; initial?: SavedPoster | null;
+  campaignId?: string | null | undefined; initial?: SavedPoster | null | undefined;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);

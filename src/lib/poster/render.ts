@@ -8,7 +8,7 @@ export const FORMATS: Record<PosterFormat, { label: string; hint: string; w: num
 };
 export const LAYOUTS: Record<PosterLayout, string> = { overlay: "Full photo", split: "Photo + colour panel", frame: "Framed photo" };
 
-export type PosterContent = { businessName: string; offer: string; headline: string; supportingCopy: string; callToAction: string; credit?: string };
+export type PosterContent = { businessName: string; offer: string; headline: string; supportingCopy: string; callToAction: string; credit?: string | undefined };
 export type PosterStyle = { format: PosterFormat; layout: PosterLayout; primary: string; accent: string };
 
 const DISPLAY = '"Fraunces", Georgia, serif';
