@@ -1,9 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowUpRight, Sparkles, TrendingUp, Users, MousePointerClick, Megaphone, Lightbulb } from "lucide-react";
+import { ArrowUpRight, Sparkles, Megaphone, Lightbulb } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/app/AppShell";
-import { weekly } from "@/lib/sample-data";
+import type { CampaignPlan } from "@/lib/campaign-types";
+import { loadProfile } from "@/lib/business-profile";
+import { useEffect, useMemo, useState } from "react";
+import { CalendarDays, Image as ImageIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -21,48 +24,69 @@ export const Route = createFileRoute("/_authenticated/")({
   component: Dashboard,
 });
 
-const stats = [
-  { label: "Weekly reach", value: "22.0k", delta: "+18%", icon: Users },
-  { label: "Link clicks", value: "1,790", delta: "+9%", icon: MousePointerClick },
-  { label: "Active campaigns", value: "3", delta: "2 scheduled", icon: Megaphone },
-  { label: "Engagement rate", value: "6.4%", delta: "+1.2 pts", icon: TrendingUp },
-];
-
-const ideas = [
-  "Post a behind-the-scenes reel of Saturday prep — weekends are your best-performing days.",
-  "Send a 'we miss you' email to 140 customers who haven't visited in 60 days.",
-  "Launch gift cards before Dec 1 — local searches for 'gift ideas' are rising.",
-];
+const DAY = 86_400_000;
+const sod = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+type Row = { id: string; title: string; status: string; brief: unknown; plan: unknown; poster: unknown; created_at: string };
+function taskDates(c: Row) {
+  const sd = (c.brief as { startDate?: string } | null)?.startDate;
+  const m = sd ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(sd) : null;
+  const start = m ? new Date(+m[1]!, +m[2]! - 1, +m[3]!) : sod(new Date(c.created_at));
+  return (((c.plan ?? {}) as CampaignPlan).calendar ?? []).map((it, i) => ({ ...it, date: new Date(start.getTime() + ((Number(/\d+/.exec(it.day ?? "")?.[0]) || i + 1) - 1) * DAY) }));
+}
 
 function Dashboard() {
   const { data: campaigns, isLoading } = useQuery({
     queryKey: ["campaigns", "dashboard"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("campaigns").select("id,title,status,brief,created_at").order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("campaigns").select("id,title,status,brief,plan,poster,created_at").order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
   });
-  const active = (campaigns ?? []).filter((c) => c.status === "Live" || c.status === "Scheduled").length;
-  const liveStats = stats.map((s) => s.label === "Active campaigns" ? { ...s, value: isLoading ? "…" : String(active), delta: `${campaigns?.length ?? 0} in total` } : s);
+  const [name, setName] = useState("");
+  useEffect(() => setName(loadProfile().name), []);
+  const m = useMemo(() => {
+    const rows = (campaigns ?? []) as Row[];
+    const today = sod(new Date());
+    const days = Array.from({ length: 7 }, (_, i) => new Date(today.getTime() + i * DAY));
+    const tasks = rows.filter((c) => c.status !== "Completed").flatMap((c) => taskDates(c).map((t) => ({ ...t, campaign: c })));
+    const week = days.map((d) => ({ day: d.toLocaleDateString(undefined, { weekday: "short" }), tasks: tasks.filter((t) => sod(t.date).getTime() === d.getTime()).length }));
+    const todays = tasks.filter((t) => sod(t.date).getTime() === today.getTime());
+    const ideas: string[] = [];
+    todays.slice(0, 2).forEach((t) => ideas.push(`Today for “${t.campaign.title}”: ${t.action}`));
+    const drafts = rows.filter((c) => c.status === "Draft");
+    if (drafts[0]) ideas.push(`“${drafts[0].title}” is still a draft — schedule it when you're ready.`);
+    const noPoster = rows.find((c) => !c.poster);
+    if (noPoster) ideas.push(`Create a poster for “${noPoster.title}” to use on social or in your shop.`);
+    if (!rows.length) ideas.push("Plan your first campaign in Content Studio to get tasks and ideas here.");
+    return {
+      week, todays: todays.length, ideas: ideas.slice(0, 3),
+      stats: [
+        { label: "Campaigns", value: String(rows.length), delta: `${drafts.length} draft${drafts.length === 1 ? "" : "s"}`, icon: Megaphone },
+        { label: "Active campaigns", value: String(rows.filter((c) => c.status === "Live" || c.status === "Scheduled").length), delta: "Live or scheduled", icon: Sparkles },
+        { label: "Tasks next 7 days", value: String(week.reduce((n, d) => n + d.tasks, 0)), delta: `${todays.length} today`, icon: CalendarDays },
+        { label: "Posters made", value: String(rows.filter((c) => c.poster).length), delta: `of ${rows.length} campaigns`, icon: ImageIcon },
+      ],
+    };
+  }, [campaigns]);
   return (
     <div className="mx-auto max-w-7xl space-y-8">
       <section className="relative overflow-hidden rounded-3xl bg-hero p-8 text-primary-foreground shadow-lift rise md:p-10">
         <div className="absolute -right-16 -top-16 size-64 rounded-full bg-warm opacity-40 blur-3xl" />
-        <p className="relative mb-3 text-sm font-medium opacity-80">Good morning, Lina 👋</p>
-        <h1 className="relative max-w-2xl text-4xl font-semibold leading-tight md:text-5xl">Your marketing is up 18% this week. Let's keep the momentum.</h1>
+        <p className="relative mb-3 text-sm font-medium opacity-80">Hello{name ? `, ${name}` : ""} 👋</p>
+        <h1 className="relative max-w-2xl text-4xl font-semibold leading-tight md:text-5xl">{isLoading ? "Loading your plan…" : m.todays ? `You have ${m.todays} marketing task${m.todays === 1 ? "" : "s"} today.` : "Nothing scheduled today. Plan your next campaign."}</h1>
         <div className="relative mt-7 flex flex-wrap gap-3">
           <Button asChild size="lg" className="rounded-xl bg-accent text-accent-foreground hover:bg-accent/90"><Link to="/studio"><Sparkles className="size-4" /> Plan a campaign</Link></Button>
-          <Button asChild size="lg" variant="ghost" className="rounded-xl text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"><Link to="/insights">View insights <ArrowUpRight className="size-4" /></Link></Button>
+          <Button asChild size="lg" variant="ghost" className="rounded-xl text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"><Link to="/calendar">Open calendar <ArrowUpRight className="size-4" /></Link></Button>
         </div>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {liveStats.map(({ label, value, delta, icon: Icon }, i) => (
+        {m.stats.map(({ label, value, delta, icon: Icon }, i) => (
           <div key={label} className="panel p-5 rise" style={{ animationDelay: `${i * 60}ms` }}>
             <div className="flex items-center justify-between text-sm text-muted-foreground">{label}<Icon className="size-4" /></div>
-            <div className="mt-3 font-display text-3xl font-semibold">{value}</div>
-            <div className="mt-1 text-xs font-semibold text-success">{delta}</div>
+            <div className="mt-3 font-display text-3xl font-semibold">{isLoading ? "…" : value}</div>
+            <div className="mt-1 text-xs font-semibold text-muted-foreground">{isLoading ? "…" : delta}</div>
           </div>
         ))}
       </section>
@@ -70,30 +94,30 @@ function Dashboard() {
       <section className="grid gap-6 lg:grid-cols-3">
         <div className="panel p-6 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Reach this week</h2>
-            <span className="text-xs text-muted-foreground">Sample data</span>
+            <h2 className="text-xl font-semibold">Tasks over the next 7 days</h2>
+            <span className="text-xs text-muted-foreground">From your campaign schedules</span>
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={weekly}>
+              <AreaChart data={m.week}>
                 <defs>
                   <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="var(--chart-2)" stopOpacity={0.45} />
                     <stop offset="100%" stopColor="var(--chart-2)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: "var(--muted-foreground)", fontSize: 12 }} />
+                <XAxis dataKey="day" interval={0} axisLine={false} tickLine={false} tick={{ fill: "var(--muted-foreground)", fontSize: 12 }} />
                 <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12 }} />
-                <Area type="monotone" dataKey="reach" stroke="var(--chart-2)" strokeWidth={2.5} fill="url(#g)" />
+                <Area type="monotone" dataKey="tasks" name="Tasks" stroke="var(--chart-2)" strokeWidth={2.5} fill="url(#g)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
         <div className="panel p-6">
           <h2 className="mb-1 flex items-center gap-2 text-xl font-semibold"><Lightbulb className="size-5 text-accent" /> Ideas for you</h2>
-          <p className="mb-4 text-xs text-muted-foreground">Suggested by your assistant</p>
+          <p className="mb-4 text-xs text-muted-foreground">Based on your campaigns</p>
           <ul className="space-y-3">
-            {ideas.map((t) => (
+            {m.ideas.map((t) => (
               <li key={t} className="rounded-xl bg-secondary p-3.5 text-sm leading-relaxed">{t}</li>
             ))}
           </ul>

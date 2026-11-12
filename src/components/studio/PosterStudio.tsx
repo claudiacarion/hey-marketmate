@@ -1,4 +1,3 @@
-import { loadProfile } from "@/lib/business-profile";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, ImagePlus, Trash2, Loader2, Save, ExternalLink, Sparkles, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
