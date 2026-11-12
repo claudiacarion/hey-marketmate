@@ -35,6 +35,6 @@ describe("poster rendering helpers", () => {
   });
   it("wraps text to the width", () => {
     const ctx = { measureText: (t: string) => ({ width: t.length * 10 }) } as unknown as CanvasRenderingContext2D;
-    expect(wrapLines(ctx, "one two three four", 90)).toEqual(["one two", "three four"]);
+    expect(wrapLines(ctx, "one two three four", 100)).toEqual(["one two", "three four"]);
   });
 });

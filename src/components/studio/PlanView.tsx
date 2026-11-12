@@ -13,7 +13,7 @@ function Block({ icon: Icon, title, children }: { icon: typeof Target; title: st
   );
 }
 
-export function PlanView({ plan, businessName, businessType, brand, campaignId, poster }: { plan: CampaignPlan; businessName: string; businessType: string; brand: { primary: string; accent: string }; campaignId?: string | null; poster?: SavedPoster | null }) {
+export function PlanView({ plan, businessName, businessType, brand, campaignId, poster }: { plan: CampaignPlan; businessName: string; businessType: string; brand: { primary: string; accent: string }; campaignId?: string | null | undefined; poster?: SavedPoster | null | undefined }) {
   return (
     <section id="plan" className="mt-8 space-y-4">
       <div className="rounded-2xl bg-hero p-7 text-primary-foreground shadow-lift">
