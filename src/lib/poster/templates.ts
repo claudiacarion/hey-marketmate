@@ -47,7 +47,7 @@ type Img = (CanvasImageSource & { width: number; height: number }) | null;
 export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent, st: DesignStyle) {
   if (st.layout === "ai") { if (st.aiSpec) { drawAiDesign(canvas, c, st.format, st.aiSpec); return; } st = { ...st, layout: "c-minimal" }; }
   if (isColourStyle(st.layout)) { drawColourStyle(canvas, c, { format: st.format, layout: st.layout, primary: st.primary, accent: st.accent, font: st.font }); return; }
-  if (!isTemplate(st.layout)) { drawPoster(canvas, img, c, { format: st.format, layout: st.layout, primary: st.primary, accent: st.accent }); return; }
+  if (!isTemplate(st.layout)) { drawPoster(canvas, img, c, { format: st.format, layout: st.layout as PosterLayout, primary: st.primary, accent: st.accent }); return; }
   const { w: W, h: H } = FORMATS[st.format];
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext("2d")!; const u = W / 1080; const tall = H / W;
