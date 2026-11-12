@@ -1,6 +1,7 @@
 import { Target, Users, Compass, MessageCircle, Megaphone, Gift, PieChart, TrendingUp, Copy, CalendarDays, ShieldCheck, Image as ImageIcon, Store, Camera, Pin, Sparkles, Rocket, Timer } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { TaskTracker } from "@/components/campaign/TaskTracker";
 import type { CampaignPlan } from "@/lib/campaign-types";
 import { PosterStudio, type SavedPoster } from "@/components/studio/PosterStudio";
 
@@ -47,7 +48,8 @@ export function PlanView({ plan, businessName, businessType, brand, campaignId, 
         <h3 className="pt-4 text-2xl font-semibold">Social media posts</h3>
         <div className="grid gap-4 md:grid-cols-3">{plan.socialPosts.map((p, i) => <PostCard key={i} p={p} />)}</div>
       </>}
-      {!!plan.calendar?.length && <>
+      {!!plan.calendar?.length && campaignId && <TaskTracker campaignId={campaignId} items={plan.calendar} />}
+      {!!plan.calendar?.length && !campaignId && <>
         <h3 className="flex items-center gap-2 pt-4 text-2xl font-semibold"><CalendarDays className="size-5 text-primary" />Posting schedule</h3>
         <div className="panel divide-y">{plan.calendar.map((d, i) => (
           <div key={i} className="grid gap-2 p-4 text-sm sm:grid-cols-[110px_1fr_auto]">
