@@ -1,4 +1,4 @@
-export type BusinessProfile = { name: string; type: string; location: string; audience: string; voice: string };
+export type BusinessProfile = { name: string; type: string; location: string; audience: string; voice: string; primaryColor: string; accentColor: string };
 
 const KEY = "marketmate.business";
 export const businessTypes = ["Restaurant / Café", "Salon / Beauty", "Online shop", "Fitness studio", "Consultant", "Other"];
@@ -8,6 +8,8 @@ export const defaultProfile: BusinessProfile = {
   location: "Stockholm",
   audience: "Young families and remote workers in the neighbourhood who love slow weekend mornings.",
   voice: "Warm, playful, a little cosy",
+  primaryColor: "#1f4f3f",
+  accentColor: "#e8744f",
 };
 
 export function loadProfile(): BusinessProfile {
