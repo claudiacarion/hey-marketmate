@@ -18,6 +18,7 @@ import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedCampaignsRouteImport } from './routes/_authenticated/campaigns'
 import { Route as AuthenticatedInsightsRouteImport } from './routes/_authenticated/insights'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
+import { Route as AuthenticatedCampaignsIdRouteImport } from './routes/_authenticated/campaigns_.$id'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -63,6 +64,12 @@ const AuthenticatedStudioRoute = AuthenticatedStudioRouteImport.update({
   path: '/studio',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCampaignsIdRoute =
+  AuthenticatedCampaignsIdRouteImport.update({
+    id: '/campaigns_/$id',
+    path: '/campaigns/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/campaigns': typeof AuthenticatedCampaignsRoute
   '/insights': typeof AuthenticatedInsightsRoute
   '/studio': typeof AuthenticatedStudioRoute
+  '/campaigns/$id': typeof AuthenticatedCampaignsIdRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -83,6 +91,7 @@ export interface FileRoutesByTo {
   '/insights': typeof AuthenticatedInsightsRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/': typeof AuthenticatedIndexRoute
+  '/campaigns/$id': typeof AuthenticatedCampaignsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,6 +104,7 @@ export interface FileRoutesById {
   '/_authenticated/insights': typeof AuthenticatedInsightsRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/campaigns_/$id': typeof AuthenticatedCampaignsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/campaigns'
     | '/insights'
     | '/studio'
+    | '/campaigns/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/insights'
     | '/studio'
     | '/'
+    | '/campaigns/$id'
   id:
     | '__root__'
     | '/_authenticated'
@@ -128,6 +140,7 @@ export interface FileRouteTypes {
     | '/_authenticated/insights'
     | '/_authenticated/studio'
     | '/_authenticated/'
+    | '/_authenticated/campaigns_/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -201,6 +214,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudioRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/campaigns_/$id': {
+      id: '/_authenticated/campaigns_/$id'
+      path: '/campaigns/$id'
+      fullPath: '/campaigns/$id'
+      preLoaderRoute: typeof AuthenticatedCampaignsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -211,6 +231,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInsightsRoute: typeof AuthenticatedInsightsRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedCampaignsIdRoute: typeof AuthenticatedCampaignsIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -220,6 +241,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInsightsRoute: AuthenticatedInsightsRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedCampaignsIdRoute: AuthenticatedCampaignsIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
