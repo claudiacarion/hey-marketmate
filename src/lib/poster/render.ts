@@ -140,7 +140,7 @@ export function drawPoster(canvas: HTMLCanvasElement, img: (CanvasImageSource & 
     ctx.fillStyle = "#f7f1e8"; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = rgba(st.accent, 0.18); ctx.beginPath(); ctx.arc(W - 60 * u, 120 * u, 260 * u, 0, Math.PI * 2); ctx.fill();
     brand(st.primary, pad + 20 * u);
-    const py = pad + 70 * u, ph = H * 0.5;
+    const py = pad + 70 * u, ph = H * (H / W > 1.2 ? 0.5 : 0.4);
     ctx.save(); ctx.beginPath(); ctx.roundRect(pad, py, tw, ph, 36 * u); ctx.clip(); photo(pad, py, tw, ph); ctx.restore();
     if (c.offer.trim()) { const s = 32 * u; ctx.font = `700 ${s}px ${SANS}`; const bw = ctx.measureText(c.offer.trim().slice(0, 48)).width + 64 * u; pill(ctx, c.offer.trim().slice(0, 48), pad + tw - bw - 30 * u, py + 30 * u, s, st.accent, accentFg, 32 * u, 18 * u); }
     stack(py + ph + 60 * u, H - pad, "rgba(20,20,20,0.78)", st.primary, st.primary, textOn(st.primary), false);

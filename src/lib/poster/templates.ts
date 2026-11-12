@@ -65,7 +65,7 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
     ctx.restore();
   };
   const blobPhoto = (cx: number, cy: number, r: number) => { ctx.save(); ctx.beginPath(); ctx.ellipse(cx, cy, r, r * 1.08, 0, 0, Math.PI * 2); ctx.clip(); photo(cx - r, cy - r * 1.08, r * 2, r * 2.16); ctx.restore(); };
-  const text = (t: string, x: number, y: number, font: string, color: string, align: CanvasTextAlign = "left", ls = 0, maxW = W - 2 * Math.min(x, W - x) - 40 * u) => { ctx.fillStyle = color; ctx.textAlign = align; spaced(ctx, ls); ctx.font = shrinkFont(ctx, t, font, Math.max(40 * u, maxW)); ctx.fillText(t, x, y); spaced(ctx, 0); ctx.textAlign = "left"; };
+  const text = (t: string, x: number, y: number, font: string, color: string, align: CanvasTextAlign = "left", ls = 0, maxW = align === "center" ? 2 * Math.min(x, W - x) - 40 * u : align === "right" ? x - 30 * u : W - x - 30 * u) => { ctx.fillStyle = color; ctx.textAlign = align; spaced(ctx, ls); ctx.font = shrinkFont(ctx, t, font, Math.max(40 * u, maxW)); ctx.fillText(t, x, y); spaced(ctx, 0); ctx.textAlign = "left"; };
   /** Wrapped text that fits inside a circle/badge of width w: up to `lines` lines, shrinking the font. */
   const badgeText = (t: string, cx: number, cy: number, w: number, color: string, lines = 4, max = 24 * u, weight = 800) => {
     const f = fit(ctx, t, (s) => `${weight} ${s}px ${SANS}`, w, lines, max, 13 * u); const lh = f.size * 1.18;
@@ -208,8 +208,10 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
       const wy = cy + r * 1.05; wave(wy + 40 * u, 60 * u, rgba(P, 0.25)); wave(wy + 80 * u, 50 * u, P);
       // leaf
       ctx.fillStyle = A; ctx.save(); ctx.translate(110 * u, 120 * u); ctx.rotate(-0.6); ctx.beginPath(); ctx.ellipse(0, 0, 60 * u, 22 * u, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-      text(name, 180 * u, 130 * u, HF(30 * u, fs === "sans" ? 700 : HEAD_WEIGHT[fs]), P, "left", 0, W * 0.62 - 180 * u);
-      const pad = 90 * u; let y = wy + 150 * u;
+      const pad = 90 * u;
+      // Business name sits on the wave, clear of the photo blob.
+      text(name, W / 2, wy + 112 * u, HF(30 * u, fs === "sans" ? 700 : HEAD_WEIGHT[fs]), soft(pFg, 0.9), "center", 0, W - pad * 2);
+      let y = wy + 150 * u;
       const btnTop = H - pad - 70 * u, offerY = btnTop - 34 * u; const lim = offer ? offerY - 56 * u : btnTop - 30 * u;
       y = block(c.headline, pad, y, W - pad * 2, (s) => HF(s, fs === "serif" ? 600 : HEAD_WEIGHT[fs]), pFg, 80 * u, 40 * u, 3, 1.08, "center", lim - 80 * u);
       y = block(c.supportingCopy, pad + 20 * u, y + 20 * u, W - pad * 2 - 40 * u, (s) => `500 ${s}px ${SANS}`, soft(pFg), 27 * u, 20 * u, 2, 1.4, "center", lim);
