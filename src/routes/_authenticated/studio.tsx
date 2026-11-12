@@ -120,7 +120,7 @@ function Studio() {
             <Sparkles className="mb-3 size-6" />
             <h3 className="text-xl font-semibold">What you'll get</h3>
             <ul className="mt-3 space-y-2 text-sm opacity-90">
-              <li>• A clear strategy & key message</li><li>• Ready-to-post captions and emails</li><li>• Image ideas for each post</li><li>• A posting schedule on your calendar</li>
+              <li>• A clear strategy & key message</li><li>• Ready-to-post captions and emails</li><li>• Image ideas for each post</li><li>• A realistic posting schedule that fits your week</li>
             </ul>
           </div>
           <div className="panel p-5 text-sm text-muted-foreground"><b className="text-foreground">Tip:</b> the more you share about your customers, the better the plan.</div>
