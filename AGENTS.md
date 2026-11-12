@@ -30,7 +30,7 @@ use the editor.
 <!-- LOVABLE:END -->
 
 ## Structure
-- App shell (sidebar + top bar) lives in src/components/app/AppShell.tsx and wraps <Outlet /> in __root; each section is its own route file.
+- App shell (sidebar + top bar) lives in src/components/app/AppShell.tsx and wraps <Outlet /> in src/routes/_authenticated/route.tsx; each section is its own route file.
 - Placeholder figures live in src/lib/sample-data.ts until real data/AI is wired in, so they can be swapped in one place.
 - All app pages live under src/routes/_authenticated/ (client-only gate + AppShell); /auth and /reset-password are the only public pages — keeps every workspace screen behind sign-in.
 - Posters are drawn client-side on <canvas> (src/lib/poster/render.ts); stock photos are curated CC0/CC BY files uploaded as Lovable assets, with credits in src/lib/poster/photo-library.json — no paid image APIs, and licences stay traceable.
