@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PageHeader } from "@/components/app/AppShell";
 import { businessTypes, defaultProfile, loadProfile, saveProfile } from "@/lib/business-profile";
 
-export const Route = createFileRoute("/business")({
+export const Route = createFileRoute("/_authenticated/business")({
   head: () => ({
     meta: [
       { title: "My Business — MarketMate" },
