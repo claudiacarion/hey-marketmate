@@ -133,16 +133,17 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
       const fg = textOn(P === "#ffffff" ? bg : P);
       const m = 40 * u; ctx.strokeStyle = gold; ctx.lineWidth = 2 * u; ctx.strokeRect(m, m, W - m * 2, H - m * 2); ctx.strokeRect(m + 12 * u, m + 12 * u, W - m * 2 - 24 * u, H - m * 2 - 24 * u);
       text(name.toUpperCase(), W / 2, m + 90 * u, `500 ${22 * u}px ${SANS}`, gold, "center", 12 * u);
-      const pw = W * (tall > 1.2 ? 0.56 : 0.36), ph = Math.min(H * 0.42, pw * 1.25), px = (W - pw) / 2, py = m + 130 * u;
+      const pw = W * (tall > 1.2 ? 0.56 : 0.3), ph = Math.min(H * 0.42, pw * 1.25), px = (W - pw) / 2, py = m + (tall > 1.2 ? 130 : 110) * u;
       ctx.save(); ctx.beginPath(); ctx.moveTo(px, py + ph); ctx.lineTo(px, py + pw / 2); ctx.arc(px + pw / 2, py + pw / 2, pw / 2, Math.PI, 0); ctx.lineTo(px + pw, py + ph); ctx.closePath(); ctx.clip(); photo(px, py, pw, ph); ctx.restore();
       ctx.strokeStyle = gold; ctx.beginPath(); ctx.moveTo(px - 14 * u, py + ph + 14 * u); ctx.lineTo(px - 14 * u, py + pw / 2); ctx.arc(px + pw / 2, py + pw / 2, pw / 2 + 14 * u, Math.PI, 0); ctx.lineTo(px + pw + 14 * u, py + ph + 14 * u); ctx.stroke();
       let y = py + ph + 60 * u; const cw = W - 220 * u;
       y = block(c.headline, 110 * u, y, cw, (s) => HF(s, fs === "sans" ? 500 : fs === "retro" ? 400 : 500), fg, 70 * u, 36 * u, 3, 1.1, "center");
       ctx.fillStyle = gold; ctx.save(); ctx.translate(W / 2, y + 30 * u); ctx.rotate(Math.PI / 4); ctx.fillRect(-6 * u, -6 * u, 12 * u, 12 * u); ctx.restore();
       ctx.fillRect(W / 2 - 120 * u, y + 29 * u, 90 * u, 1.5 * u); ctx.fillRect(W / 2 + 30 * u, y + 29 * u, 90 * u, 1.5 * u);
-      y = block(c.supportingCopy, 140 * u, y + 56 * u, W - 280 * u, (s) => `400 ${s}px ${SANS}`, soft(fg, 0.75), 26 * u, 19 * u, 3, 1.5, "center");
-      if (offer) text(offer.toUpperCase(), W / 2, H - m - 130 * u, `600 ${22 * u}px ${SANS}`, gold, "center", 6 * u);
-      button(cta.toUpperCase(), W / 2, H - m - 100 * u, 22 * u, gold, aFg, "center", 0, true);
+      y = block(c.supportingCopy, 140 * u, y + 56 * u, W - 280 * u, (s) => `400 ${s}px ${SANS}`, soft(fg, 0.75), 26 * u, 19 * u, tall > 1.2 ? 3 : 2, 1.5, "center");
+      const ly = Math.max(y + 60 * u, Math.min(H - m - 130 * u, y + 120 * u));
+      if (offer) text(offer.toUpperCase(), W / 2, ly, `600 ${22 * u}px ${SANS}`, gold, "center", 6 * u);
+      button(cta.toUpperCase(), W / 2, ly + 30 * u, 22 * u, gold, aFg, "center", 0, true);
       credit(soft(fg, 0.5)); break;
     }
     case "playful": {
@@ -169,7 +170,7 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
       const cx = W / 2, top = H * 0.08; const ray = Math.max(W, H);
       ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H * 0.55); ctx.clip(); ctx.translate(cx, H * 0.55);
       for (let i = 0; i < 18; i++) { ctx.fillStyle = i % 2 ? rgba(A, 0.35) : "rgba(0,0,0,0)"; ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, ray, Math.PI + (i * Math.PI) / 18, Math.PI + ((i + 1) * Math.PI) / 18); ctx.fill(); } ctx.restore();
-      const r = W * (tall > 1.2 ? 0.25 : 0.17); ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(cx, top + r + 30 * u, r + 18 * u, 0, Math.PI * 2); ctx.fill();
+      const r = W * (tall > 1.2 ? 0.25 : 0.13); ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(cx, top + r + 30 * u, r + 18 * u, 0, Math.PI * 2); ctx.fill();
       blobPhoto(cx, top + r + 30 * u, r);
       const m = 30 * u; ctx.strokeStyle = ink; ctx.lineWidth = 6 * u; ctx.strokeRect(m, m, W - m * 2, H - m * 2);
       for (const [x, y] of [[m, m], [W - m, m], [m, H - m], [W - m, H - m]] as const) { ctx.fillStyle = A; ctx.beginPath(); ctx.arc(x, y, 18 * u, 0, Math.PI * 2); ctx.fill(); }
@@ -186,7 +187,7 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
       const bg = "#f1ebdf"; ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
       const wave = (y0: number, amp: number, col: string) => { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(0, H); ctx.lineTo(0, y0); ctx.bezierCurveTo(W * 0.3, y0 - amp, W * 0.6, y0 + amp, W, y0 - amp * 0.4); ctx.lineTo(W, H); ctx.fill(); };
       ctx.fillStyle = rgba(A, 0.45); ctx.beginPath(); ctx.ellipse(W * 0.85, H * 0.12, 260 * u, 200 * u, 0.4, 0, Math.PI * 2); ctx.fill();
-      const r = W * (tall > 1.2 ? 0.26 : 0.18), cx = W * 0.5, cy = H * 0.07 + r * 1.1;
+      const r = W * (tall > 1.2 ? 0.26 : 0.14), cx = W * 0.5, cy = H * 0.07 + r * 1.1;
       ctx.save(); ctx.beginPath(); ctx.moveTo(cx, cy - r * 1.1); ctx.bezierCurveTo(cx + r * 1.2, cy - r * 1.2, cx + r * 1.2, cy + r, cx + r * 0.2, cy + r * 1.05); ctx.bezierCurveTo(cx - r * 0.8, cy + r * 1.2, cx - r * 1.25, cy + r * 0.2, cx - r * 0.9, cy - r * 0.5); ctx.bezierCurveTo(cx - r * 0.7, cy - r, cx - r * 0.3, cy - r * 1.1, cx, cy - r * 1.1); ctx.clip();
       photo(cx - r * 1.3, cy - r * 1.2, r * 2.6, r * 2.4); ctx.restore();
       const wy = cy + r * 1.05; wave(wy + 40 * u, 60 * u, rgba(P, 0.25)); wave(wy + 80 * u, 50 * u, P);
