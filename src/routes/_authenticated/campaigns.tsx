@@ -27,7 +27,7 @@ function Campaigns() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["campaigns"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("campaigns").select("id,title,status,brief,created_at").order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("campaigns").select("id,title,status,brief,created_at,poster").order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -60,10 +60,11 @@ function Campaigns() {
             return (
               <article key={c.id} className="panel flex flex-col p-6 rise" style={{ animationDelay: `${i * 50}ms` }}>
                 <div className="mb-4 flex items-start justify-between gap-3">
-                  <h3 className="text-lg font-semibold">{c.title}</h3>
+                  <Link to="/campaigns/$id" params={{ id: c.id }} className="text-lg font-semibold hover:underline">{c.title}</Link>
                   <StatusPill status={c.status} />
                 </div>
                 <p className="text-sm text-muted-foreground">{brief.channels?.join(" · ") || "—"}</p>
+                <div className="mt-3 flex items-center gap-2 text-xs">{c.poster ? <span className="rounded-full bg-secondary px-2 py-1 font-medium">Poster saved</span> : null}<Link to="/campaigns/$id" params={{ id: c.id }} className="font-medium text-primary underline">Open plan & poster</Link></div>
                 <div className="mt-auto flex items-center justify-between gap-2 border-t pt-4 mt-6 text-sm">
                   <span className="text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</span>
                   <div className="flex items-center gap-2">

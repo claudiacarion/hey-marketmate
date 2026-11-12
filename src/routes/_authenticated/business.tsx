@@ -43,6 +43,14 @@ function Business() {
         </div>
         <div className="space-y-2"><Label htmlFor="audience">Who are your customers?</Label><Textarea id="audience" rows={3} value={p.audience} onChange={set("audience")} /></div>
         <div className="space-y-2"><Label htmlFor="voice">Brand voice</Label><Input id="voice" value={p.voice} onChange={set("voice")} /></div>
+        <div className="space-y-2">
+          <Label>Brand colours</Label>
+          <p className="text-xs text-muted-foreground">Used on your posters. You can still change them per poster.</p>
+          <div className="flex gap-6">
+            <label className="flex items-center gap-2 text-sm"><input type="color" value={p.primaryColor} onChange={set("primaryColor")} className="size-9 cursor-pointer rounded border" aria-label="Main brand colour" />Main</label>
+            <label className="flex items-center gap-2 text-sm"><input type="color" value={p.accentColor} onChange={set("accentColor")} className="size-9 cursor-pointer rounded border" aria-label="Accent brand colour" />Accent</label>
+          </div>
+        </div>
         <Button type="submit" className="rounded-xl">Save profile</Button>
       </form>
     </div>
