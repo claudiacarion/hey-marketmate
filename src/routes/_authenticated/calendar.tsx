@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/calendar")({
   component: CalendarPage,
 });
 
-type Ev = { key: string; campaignId: string; campaign: string; text: string; channel: string; timing: string; done: boolean };
+type Ev = { key: string; campaignId: string; campaign: string; text: string; channel: string; timing: string; done: boolean; quick: boolean; kind: string; purpose: string };
 const TONES = ["bg-accent/15 text-accent", "bg-primary/10 text-primary", "bg-highlight/40 text-highlight-foreground"];
 const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
@@ -58,11 +58,12 @@ function CalendarPage() {
       const m = sd && /^(\d{4})-(\d{2})-(\d{2})$/.exec(sd);
       const start = m ? new Date(+m[1]!, +m[2]! - 1, +m[3]!) : new Date(c.created_at);
       (plan.calendar ?? []).forEach((item, i) => {
-        const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + ((Number(/\d+/.exec(item.day ?? "")?.[0]) || i + 1) - 1));
+        const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + (dayNumberOf(item.day, i) - 1));
         (byDay[dayKey(d)] ??= []).push({
           key: `${c.id}-${i}`, campaignId: c.id, campaign: c.title,
           text: item.theme || item.action, channel: item.channel, timing: item.timing,
           done: finished.has(taskKey(c.id, i)),
+          quick: isQuickActivity(item.type), kind: ACTIVITY_LABEL[activityType(item.type)], purpose: purposeLabel(item.purpose),
         });
       });
     });
