@@ -1,7 +1,8 @@
 // Canvas poster renderer — draws a real image from a photo + campaign copy.
-export type PosterFormat = "social" | "story" | "print";
+export type PosterFormat = "square" | "social" | "story" | "print";
 export type PosterLayout = "overlay" | "split" | "frame" | "graphic";
 export const FORMATS: Record<PosterFormat, { label: string; hint: string; w: number; h: number }> = {
+  square: { label: "Square", hint: "1080×1080 · Instagram / Facebook square", w: 1080, h: 1080 },
   social: { label: "Social portrait", hint: "1080×1350 · Instagram / Facebook feed", w: 1080, h: 1350 },
   story: { label: "Story", hint: "1080×1920 · Stories & Reels", w: 1080, h: 1920 },
   print: { label: "Print A4", hint: "2480×3508 · 300 dpi poster", w: 2480, h: 3508 },
@@ -33,7 +34,7 @@ export function textOn(hex: string) {
   const [r, g, b] = hexToRgb(hex).map((v) => { const c = v / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }) as [number, number, number];
   return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.4 ? "#141414" : "#ffffff";
 }
-const rgba = (hex: string, a: number) => { const [r, g, b] = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; };
+export const rgba = (hex: string, a: number) => { const [r, g, b] = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; };
 
 /** Split text into lines that fit maxWidth at the current ctx font. */
 export function wrapLines(ctx: Pick<CanvasRenderingContext2D, "measureText">, text: string, maxWidth: number) {
@@ -43,23 +44,23 @@ export function wrapLines(ctx: Pick<CanvasRenderingContext2D, "measureText">, te
   return lines;
 }
 /** Largest font size (step 2px) whose wrapped text fits within maxLines. */
-function fit(ctx: CanvasRenderingContext2D, text: string, font: (s: number) => string, maxW: number, maxLines: number, max: number, min: number) {
+export function fit(ctx: CanvasRenderingContext2D, text: string, font: (s: number) => string, maxW: number, maxLines: number, max: number, min: number) {
   for (let s = max; s >= min; s -= 2) { ctx.font = font(s); const l = wrapLines(ctx, text, maxW); if (l.length <= maxLines) return { size: s, lines: l }; }
   ctx.font = font(min); const l = wrapLines(ctx, text, maxW);
   if (l.length > maxLines) { l.length = maxLines; l[maxLines - 1] = l[maxLines - 1]!.replace(/\s*\S*$/, "") + "…"; }
   return { size: min, lines: l };
 }
-function drawCover(ctx: CanvasRenderingContext2D, img: CanvasImageSource & { width: number; height: number }, x: number, y: number, w: number, h: number) {
+export function drawCover(ctx: CanvasRenderingContext2D, img: CanvasImageSource & { width: number; height: number }, x: number, y: number, w: number, h: number) {
   const s = Math.max(w / img.width, h / img.height); const sw = w / s, sh = h / s;
   ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, x, y, w, h);
 }
-function pill(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, size: number, bg: string, fg: string, padX: number, padY: number) {
+export function pill(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, size: number, bg: string, fg: string, padX: number, padY: number) {
   ctx.font = `700 ${size}px ${SANS}`; const w = ctx.measureText(text).width + padX * 2, h = size + padY * 2;
   ctx.fillStyle = bg; ctx.beginPath(); ctx.roundRect(x, y, w, h, h / 2); ctx.fill();
   ctx.fillStyle = fg; ctx.textBaseline = "middle"; ctx.fillText(text, x + padX, y + h / 2 + size * 0.04); ctx.textBaseline = "alphabetic";
   return { w, h };
 }
-function spaced(ctx: CanvasRenderingContext2D, px: number) { (ctx as unknown as { letterSpacing: string }).letterSpacing = `${px}px`; }
+export function spaced(ctx: CanvasRenderingContext2D, px: number) { (ctx as unknown as { letterSpacing: string }).letterSpacing = `${px}px`; }
 
 export function drawPoster(canvas: HTMLCanvasElement, img: (CanvasImageSource & { width: number; height: number }) | null, c: PosterContent, st: PosterStyle) {
   const { w: W, h: H } = FORMATS[st.format];
