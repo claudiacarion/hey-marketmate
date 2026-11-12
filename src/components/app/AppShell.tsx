@@ -5,8 +5,9 @@ import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { ReactNode } from "react";
-import { LayoutDashboard, Megaphone, Sparkles, CalendarDays, BarChart3, Store, Bell, Search, Plus } from "lucide-react";
+import { LayoutDashboard, Megaphone, Sparkles, CalendarDays, BarChart3, Store, Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/app/NotificationBell";
 
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -51,7 +52,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="flex flex-1 items-center gap-2 rounded-xl border bg-card px-3 py-2 text-sm text-muted-foreground md:max-w-sm">
             <Search className="size-4" /> <span>Search campaigns, posts…</span>
           </div>
-          <Button variant="ghost" size="icon" aria-label="Notifications"><Bell className="size-4" /></Button>
+          <NotificationBell />
           <Button asChild className="rounded-xl"><Link to="/studio"><Plus className="size-4" /> New campaign</Link></Button>
           <UserMenu />
         </header>
