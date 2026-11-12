@@ -52,8 +52,10 @@ export function fit(ctx: CanvasRenderingContext2D, text: string, font: (s: numbe
 }
 /** Shrink the px size in a CSS font string so `text` fits maxW (call with letterSpacing already set). */
 export function shrinkFont(ctx: CanvasRenderingContext2D, text: string, font: string, maxW: number) {
-  ctx.font = font; const w = ctx.measureText(text).width; if (w <= maxW || w <= 0) return font;
-  return font.replace(/([\d.]+)px/, (_m, n: string) => `${(Number(n) * maxW) / w}px`);
+  let f = font;
+  for (let i = 0; i < 6; i++) { ctx.font = f; const w = ctx.measureText(text).width; if (w <= maxW || w <= 0) break;
+    f = f.replace(/([\d.]+)px/, (_m, n: string) => `${(Number(n) * maxW * 0.97) / w}px`); }
+  return f;
 }
 export function drawCover(ctx: CanvasRenderingContext2D, img: CanvasImageSource & { width: number; height: number }, x: number, y: number, w: number, h: number) {
   const s = Math.max(w / img.width, h / img.height); const sw = w / s, sh = h / s;

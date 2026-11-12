@@ -142,7 +142,7 @@ export function drawColourStyle(canvas: HTMLCanvasElement, c: DesignContent, st:
     case "c-editorial": {
       const paper = mix(P, "#f6f2ea", 0.9); const ink = mix(P, "#111111", lum(P) > 0.5 ? 0.8 : 0.3); fill(paper, 0, 0, W, H); grain(ctx, W, H, 0.04);
       const pad = 72 * u, tw = W - pad * 2;
-      const nm = K.measure(name, (s) => `700 ${s}px ${FAMILY.serif}`, tw, 1, 96 * u, 40 * u, 1);
+      const nm = K.measure(name, (s) => `700 ${s}px ${FAMILY.serif}`, tw, name.length > 26 ? 2 : 1, 96 * u, 40 * u, 1);
       fill(ink, pad, pad, tw, 4 * u); K.draw(nm, pad, pad + 26 * u, tw, ink, "center", -nm.size * 0.02);
       let y = pad + 26 * u + nm.h + 24 * u; fill(ink, pad, y, tw, 1.5 * u);
       K.line((offer || "The latest edition").toUpperCase(), pad, y + 36 * u, `700 ${19 * u}px ${SANS}`, ink, "left", 4 * u);
@@ -206,7 +206,7 @@ export function drawColourStyle(canvas: HTMLCanvasElement, c: DesignContent, st:
       fill(P, 0, sy + 3 * sh * 1.5, W, H);
       const pad = 80 * u, tw = W - pad * 2;
       ctx.strokeStyle = ink; ctx.lineWidth = 3 * u; ctx.strokeRect(pad * 0.5, pad * 0.5, W - pad, sy - pad * 0.5 - 30 * u);
-      K.line(`— ${name.toUpperCase()} —`, W / 2, pad + 50 * u, `800 ${24 * u}px ${SANS}`, ink, "center", 6 * u);
+      K.line(`— ${name.toUpperCase()} —`, W / 2, pad + 50 * u, `800 ${24 * u}px ${SANS}`, ink, "center", 6 * u, W - pad * 2);
       const hm = K.measure(head, (s) => `${fs === "retro" ? 400 : HEAD_WEIGHT[fs]} ${s}px ${FAMILY[fs]}`, tw * 0.94, sq ? 3 : 4, (sq ? 104 : 124) * u, 50 * u, 1.02);
       const sm = K.measure(sup, BODY(500), tw * 0.8, sq ? 2 : 3, 29 * u, 21 * u, 1.45);
       const room = sy - 30 * u - (pad + 90 * u); const total = (offer ? 90 * u : 0) + hm.h + 36 * u + sm.h;
@@ -225,7 +225,7 @@ export function drawColourStyle(canvas: HTMLCanvasElement, c: DesignContent, st:
       const g = ctx.createRadialGradient(W / 2, H * 0.4, 0, W / 2, H * 0.4, H * 0.8); g.addColorStop(0, mix(bg, "#ffffff", 0.08)); g.addColorStop(1, bg); fill(g, 0, 0, W, H);
       const m = 54 * u; ctx.strokeStyle = gold; ctx.lineWidth = 1.5 * u; ctx.strokeRect(m, m, W - m * 2, H - m * 2); ctx.lineWidth = 0.8 * u; ctx.strokeRect(m + 14 * u, m + 14 * u, W - m * 2 - 28 * u, H - m * 2 - 28 * u);
       const pad = m + 90 * u, tw = W - pad * 2;
-      K.line(name.toUpperCase(), W / 2, m + 120 * u, `500 ${22 * u}px ${SANS}`, gold, "center", 12 * u);
+      K.line(name.toUpperCase(), W / 2, m + 120 * u, `500 ${22 * u}px ${SANS}`, gold, "center", 12 * u, W - 2 * m - 120 * u);
       const hm = K.measure(head, HF(fs === "sans" ? 300 : 400), tw, sq ? 3 : 4, (sq ? 84 : 98) * u, 42 * u, 1.14);
       const sm = K.measure(sup, BODY(300), tw * 0.8, 3, 27 * u, 20 * u, 1.7);
       const total = hm.h + 90 * u + sm.h; let y = (H - total) / 2;
