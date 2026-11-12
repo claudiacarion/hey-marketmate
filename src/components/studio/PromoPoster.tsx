@@ -57,7 +57,7 @@ export function PromoPoster({ promo, businessName, showQr = true }: { promo: Pro
       const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
       const pw = 210, ph = 297, m = 12; const ratio = c.width / c.height;
       let w = pw - m * 2, h = w / ratio; if (h > ph - m * 2) { h = ph - m * 2; w = h * ratio; }
-      doc.addImage(c.toDataURL("image/png"), "PNG", (pw - w) / 2, (ph - h) / 2, w, h);
+      doc.addImage(c.toDataURL("image/jpeg", 0.92), "JPEG", (pw - w) / 2, (ph - h) / 2, w, h);
       downloadBlob(doc.output("blob"), `${name}.pdf`); toast.success("Print-ready PDF downloaded");
     } catch (e) { console.error(e); toast.error("Couldn't create the PDF. Please try again."); }
     finally { setBusy(null); }
