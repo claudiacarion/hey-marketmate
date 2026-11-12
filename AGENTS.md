@@ -36,3 +36,5 @@ use the editor.
 - Posters are drawn client-side on <canvas> (src/lib/poster/render.ts); stock photos are curated CC0/CC BY files uploaded as Lovable assets, with credits in src/lib/poster/photo-library.json — no paid image APIs, and licences stay traceable.
 - User photo uploads and saved poster PNGs live in the private `posters` bucket under `<user_id>/…`; poster settings are stored in campaigns.poster — keeps files owner-only via storage RLS.
 - Poster templates live in src/lib/poster/templates.ts (drawDesign dispatches templates, falls back to render.ts classic layouts) — old saved posters keep rendering unchanged.
+
+- Colour-only poster styles live in src/lib/poster/colour-styles.ts (layout ids "c-*"); AI designs are a validated spec (src/lib/poster/ai-design.ts, layout "ai", stored as campaigns.poster.aiSpec) from the design-poster Edge Function — text-only Gemini, no image generation.
