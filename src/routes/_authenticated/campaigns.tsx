@@ -61,7 +61,7 @@ function Campaigns() {
               <article key={c.id} className="panel flex flex-col p-6 rise" style={{ animationDelay: `${i * 50}ms` }}>
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <h3 className="text-lg font-semibold">{c.title}</h3>
-                  <StatusPill status={c.status as never} />
+                  <StatusPill status={c.status} />
                 </div>
                 <p className="text-sm text-muted-foreground">{brief.channels?.join(" · ") || "—"}</p>
                 <div className="mt-auto flex items-center justify-between gap-2 border-t pt-4 mt-6 text-sm">
