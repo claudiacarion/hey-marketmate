@@ -41,7 +41,7 @@ function CalendarPage() {
     const byDay: Record<string, Ev[]> = {};
     const toneOf: Record<string, string> = {};
     (data ?? []).forEach((c, ci) => {
-      toneOf[c.id] = TONES[ci % TONES.length];
+      toneOf[c.id] = TONES[ci % TONES.length] ?? "";
       const plan = (c.plan ?? {}) as CampaignPlan;
       const start = new Date(c.created_at);
       (plan.calendar ?? []).forEach((item, i) => {
