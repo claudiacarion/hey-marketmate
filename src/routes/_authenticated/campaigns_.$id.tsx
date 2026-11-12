@@ -38,7 +38,7 @@ function CampaignDetail() {
   return (
     <div className="mx-auto max-w-5xl">
       {back}
-      <PlanView plan={data.plan as unknown as CampaignPlan} businessName={b.name} businessType={b.type}
+      <PlanView plan={data.plan as unknown as CampaignPlan} businessName={b.name} businessType={b.category ?? b.type}
         brand={{ primary: b.primaryColor, accent: b.accentColor }} campaignId={data.id} poster={data.poster as unknown as SavedPoster | null} />
     </div>
   );
