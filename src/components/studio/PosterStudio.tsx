@@ -275,7 +275,7 @@ export function PosterStudio({ promo, businessName, businessType, brand, busines
               <span className="size-6" style={{ background: pl.primary }} /><span className="size-6" style={{ background: pl.accent }} />
             </button>
           ))}
-            <button type="button" className={chip(false)} onClick={() => { setPrimary(brand.primary); setAccent(brand.accent); }}>My brand</button>
+            <button type="button" className={chip(false)} onClick={() => { const p = loadProfile(); setPrimary(p.primaryColor || brand.primary); setAccent(p.accentColor || brand.accent); }}>My brand</button>
           </div>
         </div>
         <div className="flex gap-4">

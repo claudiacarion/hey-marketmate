@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PlanView } from "@/components/studio/PlanView";
 import type { SavedPoster } from "@/components/studio/PosterStudio";
 import type { CampaignPlan } from "@/lib/campaign-types";
-import { normalizeProfile } from "@/lib/business-profile";
+import { normalizeProfile, loadProfile } from "@/lib/business-profile";
 
 export const Route = createFileRoute("/_authenticated/campaigns_/$id")({
   head: () => ({
@@ -39,7 +39,7 @@ function CampaignDetail() {
     <div className="mx-auto max-w-5xl">
       {back}
       <PlanView plan={data.plan as unknown as CampaignPlan} businessName={b.name} businessType={b.category}
-        brand={{ primary: b.primaryColor, accent: b.accentColor }} campaignId={data.id} poster={data.poster as unknown as SavedPoster | null} />
+        brand={{ primary: loadProfile().primaryColor, accent: loadProfile().accentColor }} campaignId={data.id} poster={data.poster as unknown as SavedPoster | null} />
     </div>
   );
 }
