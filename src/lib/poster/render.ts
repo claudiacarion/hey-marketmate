@@ -102,7 +102,6 @@ export function drawPoster(canvas: HTMLCanvasElement, img: (CanvasImageSource & 
     const ph = H * 0.52; photo(0, 0, W, ph);
     ctx.fillStyle = st.primary; ctx.fillRect(0, ph, W, H - ph);
     const fg = textOn(st.primary);
-    ctx.fillStyle = rgba(st.primary, 0.85); ctx.beginPath(); ctx.roundRect(pad - 24 * u, pad - 10 * u, 0, 0, 0); ctx.fill();
     // brand tag on photo
     ctx.font = `700 ${28 * u}px ${SANS}`; spaced(ctx, 6 * u); const bw = ctx.measureText(c.businessName.toUpperCase().slice(0, 40)).width; spaced(ctx, 0);
     ctx.fillStyle = rgba(st.primary, 0.88); ctx.beginPath(); ctx.roundRect(pad - 28 * u, pad - 8 * u, bw + 56 * u, 64 * u, 32 * u); ctx.fill();
