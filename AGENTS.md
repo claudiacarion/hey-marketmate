@@ -28,3 +28,7 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Structure
+- App shell (sidebar + top bar) lives in src/components/app/AppShell.tsx and wraps <Outlet /> in __root; each section is its own route file.
+- Placeholder figures live in src/lib/sample-data.ts until real data/AI is wired in, so they can be swapped in one place.
