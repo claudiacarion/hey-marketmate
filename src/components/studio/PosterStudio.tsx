@@ -4,12 +4,15 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { CampaignPlan } from "@/lib/campaign-types";
-import { drawPoster, ensurePosterFonts, FORMATS, LAYOUTS, type PosterFormat, type PosterLayout } from "@/lib/poster/render";
+import { ensurePosterFonts, FORMATS, LAYOUTS, type PosterFormat, type PosterLayout } from "@/lib/poster/render";
+import { drawDesign, ensureDesignFonts, FONT_STYLES, isTemplate, PALETTES, TEMPLATES, type DesignContent, type FontStyle, type TemplateId } from "@/lib/poster/templates";
 import { creditLine, licenseLabel, requiresCredit, stockPhotos, suggestPhotos, type StockPhoto } from "@/lib/poster/photos";
 
 type Promo = NonNullable<CampaignPlan["promotionalMaterial"]>;
 export type SavedPoster = {
-  format: PosterFormat; layout: PosterLayout; primary: string; accent: string; showCredit: boolean;
+  format: PosterFormat; layout: PosterLayout | TemplateId; primary: string; accent: string; showCredit: boolean;
+  font?: FontStyle | undefined; usePhoto?: boolean | undefined;
+  text?: { headline: string; supportingCopy: string; offer: string; callToAction: string; productName: string } | undefined;
   photo: { kind: "stock"; id: string } | { kind: "upload"; path: string } | null;
   imagePath?: string | undefined; savedAt?: string | undefined;
 };
@@ -30,6 +33,20 @@ async function loadImage(src: string) {
     return await make(URL.createObjectURL(await r.blob()), false);
   } catch { return make(src + (src.includes("?") ? "&" : "?") + "cors=1", true); }
 }
+function TemplateThumb({ id, img, content, format, primary, accent, font, active, onPick }: { id: TemplateId; img: HTMLImageElement | null; content: DesignContent; format: PosterFormat; primary: string; accent: string; font: FontStyle; active: boolean; onPick: () => void }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const t = setTimeout(() => { ensureDesignFonts().then(() => { if (ref.current) drawDesign(ref.current, img, { ...content, credit: undefined }, { format: format === "print" ? "social" : format, layout: id, primary, accent, font }); }); }, 300);
+    return () => clearTimeout(t);
+  }, [id, img, content, format, primary, accent, font]);
+  return (
+    <button type="button" onClick={onPick} aria-pressed={active} className={`group rounded-xl border bg-card p-1.5 text-left transition-colors hover:bg-secondary ${active ? "border-primary ring-2 ring-accent ring-offset-2 ring-offset-background" : ""}`}>
+      <canvas ref={ref} aria-hidden className="block h-auto w-full rounded-lg" />
+      <span className="mt-1.5 block truncate px-0.5 text-[11px] font-semibold">{TEMPLATES[id].label}</span>
+    </button>
+  );
+}
+
 async function signedBlobUrl(path: string) {
   const { data, error } = await supabase.storage.from(BUCKET).download(path);
   if (error || !data) throw error ?? new Error("missing");
@@ -44,7 +61,11 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
   const fileRef = useRef<HTMLInputElement>(null);
   const suggestions = useMemo(() => suggestPhotos(businessType, [promo.headline, promo.offer, promo.supportingCopy, promo.designConcept].join(" ")), [businessType, promo]);
   const [format, setFormat] = useState<PosterFormat>(initial?.format ?? "social");
-  const [layout, setLayout] = useState<PosterLayout>(initial?.layout ?? "overlay");
+  const [layout, setLayout] = useState<PosterLayout | TemplateId>(initial?.layout ?? "minimal");
+  const [font, setFont] = useState<FontStyle>(initial?.font ?? "auto");
+  const [usePhoto, setUsePhoto] = useState(initial?.usePhoto ?? true);
+  const [txt, setTxt] = useState(initial?.text ?? { headline: promo.headline ?? "", supportingCopy: promo.supportingCopy ?? "", offer: promo.offer ?? "", callToAction: promo.callToAction ?? "", productName: "" });
+  const setT = (k: keyof typeof txt, v: string) => setTxt((x) => ({ ...x, [k]: v }));
   const [primary, setPrimary] = useState(initial?.primary ?? brand.primary);
   const [accent, setAccent] = useState(initial?.accent ?? brand.accent);
   const [showCredit, setShowCredit] = useState(initial?.showCredit ?? true);
@@ -55,7 +76,8 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
   const [savedAt, setSavedAt] = useState(initial?.savedAt);
   const [showAll, setShowAll] = useState(false);
 
-  const noPhoto = layout === "graphic";
+  const tpl = isTemplate(layout);
+  const noPhoto = layout === "graphic" || (tpl && !usePhoto);
   const stock = !noPhoto && photo?.kind === "stock" ? stockPhotos.find((p) => p.id === photo.id) ?? null : null;
   const mustCredit = !!stock && requiresCredit(stock);
   const credit = stock && (showCredit || mustCredit) ? creditLine(stock) : undefined;
@@ -90,15 +112,17 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
     return () => { alive = false; };
   }, [photo, uploads]);
 
+  const content = useMemo<DesignContent>(() => ({ businessName, ...txt }), [businessName, txt]);
+  const thumbImg = noPhoto ? null : img;
   // Redraw on any change.
   useEffect(() => {
     let alive = true;
-    ensurePosterFonts().then(() => {
+    Promise.all([ensurePosterFonts(), ensureDesignFonts()]).then(() => {
       if (!alive || !canvasRef.current) return;
-      drawPoster(canvasRef.current, noPhoto ? null : img, { businessName, offer: promo.offer, headline: promo.headline, supportingCopy: promo.supportingCopy, callToAction: promo.callToAction, credit }, { format, layout, primary, accent });
+      drawDesign(canvasRef.current, noPhoto ? null : img, { ...content, credit }, { format, layout, primary, accent, font });
     });
     return () => { alive = false; };
-  }, [img, noPhoto, format, layout, primary, accent, credit, businessName, promo]);
+  }, [img, noPhoto, format, layout, primary, accent, font, credit, content]);
 
   const toBlob = async () => {
     const c = canvasRef.current; if (!c) throw new Error("no canvas");
@@ -106,7 +130,7 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
     if (b) return b;
     return await (await fetch(c.toDataURL("image/png"))).blob();
   };
-  const fileName = `${slug(businessName)}-${slug(promo.headline)}-${format}.png`;
+  const fileName = `${slug(businessName)}-${slug(txt.headline)}-${format}.png`;
 
   const onUpload = async (f: File | undefined) => {
     if (!f) return;
@@ -142,7 +166,7 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
       const { error: upErr } = await supabase.storage.from(BUCKET).upload(imagePath, await toBlob(), { contentType: "image/png", upsert: true });
       if (upErr) throw upErr;
       const at = new Date().toISOString();
-      const poster: SavedPoster = { format, layout, primary, accent, showCredit, photo, imagePath, savedAt: at };
+      const poster: SavedPoster = { format, layout, primary, accent, showCredit, photo, font, usePhoto, text: txt, imagePath, savedAt: at };
       const { error } = await supabase.from("campaigns").update({ poster: poster as never }).eq("id", campaignId);
       if (error) throw error;
       setSavedAt(at); toast.success("Poster saved with this campaign");
@@ -190,14 +214,45 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
           <p className="text-xs text-muted-foreground">{FORMATS[format].hint}</p>
         </div>
         <div className="space-y-2">
-          <p className="font-semibold">Layout</p>
-          <div className="flex flex-wrap gap-2">{(Object.keys(LAYOUTS) as PosterLayout[]).map((l) => <button key={l} type="button" className={chip(layout === l)} onClick={() => setLayout(l)}>{LAYOUTS[l]}</button>)}</div>
+          <p className="font-semibold">Design template</p>
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-3">{(Object.keys(TEMPLATES) as TemplateId[]).map((id) => (
+            <TemplateThumb key={id} id={id} img={usePhoto ? thumbImg ?? img : null} content={content} format={format} primary={primary} accent={accent} font={font} active={layout === id} onPick={() => setLayout(id)} />
+          ))}</div>
+          {tpl && <p className="text-xs text-muted-foreground">{TEMPLATES[layout as TemplateId].blurb}</p>}
+          <details className="text-xs">
+            <summary className="cursor-pointer text-muted-foreground">Classic layouts</summary>
+            <div className="mt-2 flex flex-wrap gap-2">{(Object.keys(LAYOUTS) as PosterLayout[]).map((l) => <button key={l} type="button" className={chip(layout === l)} onClick={() => setLayout(l)}>{LAYOUTS[l]}</button>)}</div>
+          </details>
+        </div>
+        {tpl && <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={usePhoto} onChange={(e) => setUsePhoto(e.target.checked)} className="size-4 accent-primary" />Use a photo (untick for colours only)</label>}
+        {tpl && <div className="space-y-2">
+          <p className="font-semibold">Font style</p>
+          <div className="flex flex-wrap gap-2">{(Object.keys(FONT_STYLES) as FontStyle[]).map((f) => <button key={f} type="button" className={chip(font === f)} onClick={() => setFont(f)}>{FONT_STYLES[f]}</button>)}</div>
+        </div>}
+        <div className="space-y-2">
+          <p className="font-semibold">Colour palette</p>
+          <div className="flex flex-wrap gap-2">{PALETTES.map((pl) => (
+            <button key={pl.name} type="button" title={pl.name} aria-label={pl.name} onClick={() => { setPrimary(pl.primary); setAccent(pl.accent); }} className={`flex overflow-hidden rounded-full border ${primary === pl.primary && accent === pl.accent ? sel : ""}`}>
+              <span className="size-6" style={{ background: pl.primary }} /><span className="size-6" style={{ background: pl.accent }} />
+            </button>
+          ))}
+            <button type="button" className={chip(false)} onClick={() => { setPrimary(brand.primary); setAccent(brand.accent); }}>My brand</button>
+          </div>
         </div>
         <div className="flex gap-4">
           <label className="flex items-center gap-2"><input type="color" value={primary} onChange={(e) => setPrimary(e.target.value)} className="size-8 cursor-pointer rounded border" aria-label="Main colour" />Main</label>
           <label className="flex items-center gap-2"><input type="color" value={accent} onChange={(e) => setAccent(e.target.value)} className="size-8 cursor-pointer rounded border" aria-label="Accent colour" />Accent</label>
         </div>
-        {noPhoto ? <p className="text-xs text-muted-foreground">This design uses only your brand colours, with no photo. Pick a photo layout above to add one.</p> : <div className="space-y-2">
+        <div className="space-y-2">
+          <p className="font-semibold">Poster text</p>
+          {([["headline", "Headline"], ["supportingCopy", "Supporting text"], ["offer", "Offer badge"], ["callToAction", "Call to action"], ["productName", "Product name (Product Spotlight)"]] as const).map(([k, label]) => (
+            <label key={k} className="block space-y-1"><span className="text-xs text-muted-foreground">{label}</span>
+              {k === "supportingCopy" ? <textarea value={txt[k]} onChange={(e) => setT(k, e.target.value)} rows={3} className="w-full rounded-lg border bg-background px-3 py-2 text-sm" />
+                : <input value={txt[k]} onChange={(e) => setT(k, e.target.value)} maxLength={k === "headline" ? 120 : 60} className="w-full rounded-lg border bg-background px-3 py-2 text-sm" />}
+            </label>
+          ))}
+        </div>
+        {noPhoto ? <p className="text-xs text-muted-foreground">This design uses only your brand colours, with no photo. Tick "Use a photo" or pick a classic photo layout to add one.</p> : <div className="space-y-2">
           <div className="flex items-center justify-between">
             <p className="font-semibold">Photo</p>
             <Button size="sm" variant="outline" className="rounded-lg" disabled={!!busy} onClick={() => fileRef.current?.click()}>{busy === "upload" ? <Loader2 className="size-4 animate-spin" /> : <ImagePlus className="size-4" />}Upload your own</Button>
