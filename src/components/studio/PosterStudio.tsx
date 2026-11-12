@@ -15,14 +15,20 @@ export type SavedPoster = {
 };
 const BUCKET = "posters";
 
-function slug(s: string) { return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "poster"; }
+function slug(s: string | null | undefined) { return String(s ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "poster"; }
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob); const a = document.createElement("a");
   a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 30_000);
 }
-function loadImage(src: string) {
-  return new Promise<HTMLImageElement>((res, rej) => { const i = new Image(); i.crossOrigin = "anonymous"; i.onload = () => res(i); i.onerror = () => rej(new Error("image failed")); i.src = src; });
+async function loadImage(src: string) {
+  const make = (u: string, cors: boolean) => new Promise<HTMLImageElement>((res, rej) => { const i = new Image(); if (cors) i.crossOrigin = "anonymous"; i.onload = () => res(i); i.onerror = () => rej(new Error("image failed")); i.src = u; });
+  if (src.startsWith("blob:") || src.startsWith("data:")) return make(src, false);
+  try {
+    const r = await fetch(src, { mode: "cors", cache: "no-store" });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await make(URL.createObjectURL(await r.blob()), false);
+  } catch { return make(src + (src.includes("?") ? "&" : "?") + "cors=1", true); }
 }
 async function signedBlobUrl(path: string) {
   const { data, error } = await supabase.storage.from(BUCKET).download(path);
@@ -93,7 +99,12 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
     return () => { alive = false; };
   }, [img, format, layout, primary, accent, credit, businessName, promo]);
 
-  const toBlob = () => new Promise<Blob>((r, j) => canvasRef.current?.toBlob((b) => (b ? r(b) : j(new Error("empty"))), "image/png") ?? j(new Error("no canvas")));
+  const toBlob = async () => {
+    const c = canvasRef.current; if (!c) throw new Error("no canvas");
+    const b = await new Promise<Blob | null>((r) => { try { c.toBlob(r, "image/png"); } catch (e) { console.error(e); r(null); } });
+    if (b) return b;
+    return await (await fetch(c.toDataURL("image/png"))).blob();
+  };
   const fileName = `${slug(businessName)}-${slug(promo.headline)}-${format}.png`;
 
   const onUpload = async (f: File | undefined) => {
@@ -190,7 +201,7 @@ export function PosterStudio({ promo, businessName, businessType, brand, campaig
           </>}
           <p className="text-xs text-muted-foreground">Suggested free photos</p>
           <div className="grid grid-cols-4 gap-2">{thumbs.map((p) => (
-            <button key={p.id} type="button" title={`${p.title} — ${p.creator}`} onClick={() => setPhoto({ kind: "stock", id: p.id })} className={`aspect-square overflow-hidden rounded-lg ${photo?.kind === "stock" && photo.id === p.id ? sel : ""}`}><img src={p.url} alt={p.title} loading="lazy" className="size-full object-cover" /></button>
+            <button key={p.id} type="button" title={`${p.title} — ${p.creator}`} onClick={() => setPhoto({ kind: "stock", id: p.id })} className={`aspect-square overflow-hidden rounded-lg ${photo?.kind === "stock" && photo.id === p.id ? sel : ""}`}><img src={p.url} alt={p.title} crossOrigin="anonymous" loading="lazy" className="size-full object-cover" /></button>
           ))}</div>
           {suggestions.length > 8 && <button type="button" className="text-xs font-medium text-primary underline" onClick={() => setShowAll((v) => !v)}>{showAll ? "Show fewer" : `Show all ${suggestions.length} photos`}</button>}
         </div>
