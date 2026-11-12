@@ -9,148 +9,148 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as BusinessRouteImport } from './routes/business'
-import { Route as CalendarRouteImport } from './routes/calendar'
-import { Route as CampaignsRouteImport } from './routes/campaigns'
-import { Route as InsightsRouteImport } from './routes/insights'
-import { Route as StudioRouteImport } from './routes/studio'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedBusinessRouteImport } from './routes/_authenticated/business'
+import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
+import { Route as AuthenticatedCampaignsRouteImport } from './routes/_authenticated/campaigns'
+import { Route as AuthenticatedInsightsRouteImport } from './routes/_authenticated/insights'
+import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/_authenticated/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BusinessRoute = BusinessRouteImport.update({
-  id: '/business',
+const AuthenticatedBusinessRoute = AuthenticatedBusinessRouteImport.update({
+  id: '/_authenticated/business',
   path: '/business',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CalendarRoute = CalendarRouteImport.update({
-  id: '/calendar',
+const AuthenticatedCalendarRoute = AuthenticatedCalendarRouteImport.update({
+  id: '/_authenticated/calendar',
   path: '/calendar',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CampaignsRoute = CampaignsRouteImport.update({
-  id: '/campaigns',
+const AuthenticatedCampaignsRoute = AuthenticatedCampaignsRouteImport.update({
+  id: '/_authenticated/campaigns',
   path: '/campaigns',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InsightsRoute = InsightsRouteImport.update({
-  id: '/insights',
+const AuthenticatedInsightsRoute = AuthenticatedInsightsRouteImport.update({
+  id: '/_authenticated/insights',
   path: '/insights',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StudioRoute = StudioRouteImport.update({
-  id: '/studio',
+const AuthenticatedStudioRoute = AuthenticatedStudioRouteImport.update({
+  id: '/_authenticated/studio',
   path: '/studio',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/business': typeof BusinessRoute
-  '/calendar': typeof CalendarRoute
-  '/campaigns': typeof CampaignsRoute
-  '/insights': typeof InsightsRoute
-  '/studio': typeof StudioRoute
+  '/business': typeof AuthenticatedBusinessRoute
+  '/calendar': typeof AuthenticatedCalendarRoute
+  '/campaigns': typeof AuthenticatedCampaignsRoute
+  '/insights': typeof AuthenticatedInsightsRoute
+  '/studio': typeof AuthenticatedStudioRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/business': typeof BusinessRoute
-  '/calendar': typeof CalendarRoute
-  '/campaigns': typeof CampaignsRoute
-  '/insights': typeof InsightsRoute
-  '/studio': typeof StudioRoute
+  '/business': typeof AuthenticatedBusinessRoute
+  '/calendar': typeof AuthenticatedCalendarRoute
+  '/campaigns': typeof AuthenticatedCampaignsRoute
+  '/insights': typeof AuthenticatedInsightsRoute
+  '/studio': typeof AuthenticatedStudioRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/business': typeof BusinessRoute
-  '/calendar': typeof CalendarRoute
-  '/campaigns': typeof CampaignsRoute
-  '/insights': typeof InsightsRoute
-  '/studio': typeof StudioRoute
+  '/_authenticated/business': typeof AuthenticatedBusinessRoute
+  '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
+  '/_authenticated/campaigns': typeof AuthenticatedCampaignsRoute
+  '/_authenticated/insights': typeof AuthenticatedInsightsRoute
+  '/_authenticated/studio': typeof AuthenticatedStudioRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/business' | '/calendar' | '/campaigns' | '/insights' | '/studio'
+    '/business' | '/calendar' | '/campaigns' | '/insights' | '/studio' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/business' | '/calendar' | '/campaigns' | '/insights' | '/studio'
+  to: '/business' | '/calendar' | '/campaigns' | '/insights' | '/studio' | '/'
   id:
     | '__root__'
-    | '/'
-    | '/business'
-    | '/calendar'
-    | '/campaigns'
-    | '/insights'
-    | '/studio'
+    | '/_authenticated/business'
+    | '/_authenticated/calendar'
+    | '/_authenticated/campaigns'
+    | '/_authenticated/insights'
+    | '/_authenticated/studio'
+    | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  BusinessRoute: typeof BusinessRoute
-  CalendarRoute: typeof CalendarRoute
-  CampaignsRoute: typeof CampaignsRoute
-  InsightsRoute: typeof InsightsRoute
-  StudioRoute: typeof StudioRoute
+  AuthenticatedBusinessRoute: typeof AuthenticatedBusinessRoute
+  AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
+  AuthenticatedCampaignsRoute: typeof AuthenticatedCampaignsRoute
+  AuthenticatedInsightsRoute: typeof AuthenticatedInsightsRoute
+  AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/business': {
-      id: '/business'
+    '/_authenticated/business': {
+      id: '/_authenticated/business'
       path: '/business'
       fullPath: '/business'
-      preLoaderRoute: typeof BusinessRouteImport
+      preLoaderRoute: typeof AuthenticatedBusinessRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/calendar': {
-      id: '/calendar'
+    '/_authenticated/calendar': {
+      id: '/_authenticated/calendar'
       path: '/calendar'
       fullPath: '/calendar'
-      preLoaderRoute: typeof CalendarRouteImport
+      preLoaderRoute: typeof AuthenticatedCalendarRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/campaigns': {
-      id: '/campaigns'
+    '/_authenticated/campaigns': {
+      id: '/_authenticated/campaigns'
       path: '/campaigns'
       fullPath: '/campaigns'
-      preLoaderRoute: typeof CampaignsRouteImport
+      preLoaderRoute: typeof AuthenticatedCampaignsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/insights': {
-      id: '/insights'
+    '/_authenticated/insights': {
+      id: '/_authenticated/insights'
       path: '/insights'
       fullPath: '/insights'
-      preLoaderRoute: typeof InsightsRouteImport
+      preLoaderRoute: typeof AuthenticatedInsightsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/studio': {
-      id: '/studio'
+    '/_authenticated/studio': {
+      id: '/_authenticated/studio'
       path: '/studio'
       fullPath: '/studio'
-      preLoaderRoute: typeof StudioRouteImport
+      preLoaderRoute: typeof AuthenticatedStudioRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  BusinessRoute: BusinessRoute,
-  CalendarRoute: CalendarRoute,
-  CampaignsRoute: CampaignsRoute,
-  InsightsRoute: InsightsRoute,
-  StudioRoute: StudioRoute,
+  AuthenticatedBusinessRoute: AuthenticatedBusinessRoute,
+  AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
+  AuthenticatedCampaignsRoute: AuthenticatedCampaignsRoute,
+  AuthenticatedInsightsRoute: AuthenticatedInsightsRoute,
+  AuthenticatedStudioRoute: AuthenticatedStudioRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

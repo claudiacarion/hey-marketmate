@@ -1,4 +1,9 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { ReactNode } from "react";
 import { LayoutDashboard, Megaphone, Sparkles, CalendarDays, BarChart3, Store, Bell, Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -48,7 +53,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           <Button variant="ghost" size="icon" aria-label="Notifications"><Bell className="size-4" /></Button>
           <Button asChild className="rounded-xl"><Link to="/studio"><Plus className="size-4" /> New campaign</Link></Button>
-          <div className="grid size-9 place-items-center rounded-full bg-highlight text-sm font-semibold text-highlight-foreground">LB</div>
+          <UserMenu />
         </header>
         <nav className="flex gap-1 overflow-x-auto border-b px-4 py-2 lg:hidden">
           {nav.map(({ to, label }) => (
@@ -82,4 +87,37 @@ export function StatusPill({ status }: { status: string }) {
     Completed: "bg-primary/10 text-primary",
   };
   return <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${map[status] ?? map["Draft"]}`}>{status}</span>;
+}
+
+function UserMenu() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [email, setEmail] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setEmail(data.user?.email ?? "");
+      setName((data.user?.user_metadata?.full_name as string | undefined) ?? "");
+    });
+  }, []);
+  const initials = (name || email || "?").split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("");
+  async function signOut() {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  }
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger aria-label="Account menu" className="grid size-9 place-items-center rounded-full bg-highlight text-sm font-semibold text-highlight-foreground">{initials}</DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuLabel className="font-normal">
+          {name && <div className="text-sm font-semibold">{name}</div>}
+          <div className="truncate text-xs text-muted-foreground">{email}</div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={signOut}><LogOut className="size-4" /> Sign out</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
