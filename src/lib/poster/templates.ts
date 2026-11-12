@@ -146,7 +146,7 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
       const bg = "#14120f", gold = A; ctx.fillStyle = P === "#ffffff" ? bg : P; ctx.fillRect(0, 0, W, H);
       const fg = textOn(P === "#ffffff" ? bg : P);
       const m = 40 * u; ctx.strokeStyle = gold; ctx.lineWidth = 2 * u; ctx.strokeRect(m, m, W - m * 2, H - m * 2); ctx.strokeRect(m + 12 * u, m + 12 * u, W - m * 2 - 24 * u, H - m * 2 - 24 * u);
-      text(name.toUpperCase(), W / 2, m + 90 * u, `500 ${22 * u}px ${SANS}`, gold, "center", 12 * u);
+      text(name.toUpperCase(), W / 2, m + 90 * u, `500 ${22 * u}px ${SANS}`, gold, "center", 12 * u, W - 2 * m - 100 * u);
       const pw = W * (tall > 1.2 ? 0.56 : 0.3), ph = Math.min(H * 0.42, pw * 1.25), px = (W - pw) / 2, py = m + (tall > 1.2 ? 130 : 110) * u;
       ctx.save(); ctx.beginPath(); ctx.moveTo(px, py + ph); ctx.lineTo(px, py + pw / 2); ctx.arc(px + pw / 2, py + pw / 2, pw / 2, Math.PI, 0); ctx.lineTo(px + pw, py + ph); ctx.closePath(); ctx.clip(); photo(px, py, pw, ph); ctx.restore();
       ctx.strokeStyle = gold; ctx.beginPath(); ctx.moveTo(px - 14 * u, py + ph + 14 * u); ctx.lineTo(px - 14 * u, py + pw / 2); ctx.arc(px + pw / 2, py + pw / 2, pw / 2 + 14 * u, Math.PI, 0); ctx.lineTo(px + pw + 14 * u, py + ph + 14 * u); ctx.stroke();
@@ -226,7 +226,7 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
       ctx.fillStyle = "rgba(0,0,0,0.25)"; ctx.beginPath(); ctx.roundRect(cx + 14 * u, cy + 24 * u, cardW, cardH, 36 * u); ctx.fill();
       ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.roundRect(cx - 14 * u, cy - 14 * u, cardW + 28 * u, cardH + 28 * u, 44 * u); ctx.fill();
       photo(cx, cy, cardW, cardH, 32 * u);
-      text(name.toUpperCase(), W / 2, 84 * u, `700 ${22 * u}px ${SANS}`, soft(fg, 0.85), "center", 8 * u);
+      text(name.toUpperCase(), W / 2, 84 * u, `700 ${22 * u}px ${SANS}`, soft(fg, 0.85), "center", 8 * u, offer ? W * 0.5 : W - pad * 2);
       if (offer) { const R = 96 * u, ox = cx + cardW + 4 * u, oy = cy + 20 * u; ctx.fillStyle = A; ctx.beginPath(); ctx.arc(ox, oy, R, 0, Math.PI * 2); ctx.fill(); badgeText(offer.toUpperCase(), ox, oy, R * 1.45, aFg, 4); }
       let y = cy + cardH + 50 * u;
       if (prod) { text(prod.toUpperCase(), W / 2, y + 26 * u, `700 ${24 * u}px ${SANS}`, A === P ? fg : A, "center", 5 * u, W - pad * 2); y += 50 * u; }
