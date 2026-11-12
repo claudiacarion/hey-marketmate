@@ -137,11 +137,11 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
       ctx.save(); ctx.beginPath(); ctx.moveTo(px, py + ph); ctx.lineTo(px, py + pw / 2); ctx.arc(px + pw / 2, py + pw / 2, pw / 2, Math.PI, 0); ctx.lineTo(px + pw, py + ph); ctx.closePath(); ctx.clip(); photo(px, py, pw, ph); ctx.restore();
       ctx.strokeStyle = gold; ctx.beginPath(); ctx.moveTo(px - 14 * u, py + ph + 14 * u); ctx.lineTo(px - 14 * u, py + pw / 2); ctx.arc(px + pw / 2, py + pw / 2, pw / 2 + 14 * u, Math.PI, 0); ctx.lineTo(px + pw + 14 * u, py + ph + 14 * u); ctx.stroke();
       let y = py + ph + 60 * u; const cw = W - 220 * u;
-      y = block(c.headline, 110 * u, y, cw, (s) => HF(s, fs === "sans" ? 500 : fs === "retro" ? 400 : 500), fg, 70 * u, 36 * u, 3, 1.1, "center");
+      y = block(c.headline, 110 * u, y, cw, (s) => HF(s, fs === "sans" ? 500 : fs === "retro" ? 400 : 500), fg, (tall > 1.2 ? 70 : 56) * u, 34 * u, tall > 1.2 ? 3 : 2, 1.1, "center");
       ctx.fillStyle = gold; ctx.save(); ctx.translate(W / 2, y + 30 * u); ctx.rotate(Math.PI / 4); ctx.fillRect(-6 * u, -6 * u, 12 * u, 12 * u); ctx.restore();
       ctx.fillRect(W / 2 - 120 * u, y + 29 * u, 90 * u, 1.5 * u); ctx.fillRect(W / 2 + 30 * u, y + 29 * u, 90 * u, 1.5 * u);
       y = block(c.supportingCopy, 140 * u, y + 56 * u, W - 280 * u, (s) => `400 ${s}px ${SANS}`, soft(fg, 0.75), 26 * u, 19 * u, tall > 1.2 ? 3 : 2, 1.5, "center");
-      const ly = Math.max(y + 60 * u, Math.min(H - m - 130 * u, y + 120 * u));
+      const ly = Math.min(H - m - 120 * u, y + (tall > 1.2 ? 110 : 56) * u);
       if (offer) text(offer.toUpperCase(), W / 2, ly, `600 ${22 * u}px ${SANS}`, gold, "center", 6 * u);
       button(cta.toUpperCase(), W / 2, ly + 30 * u, 22 * u, gold, aFg, "center", 0, true);
       credit(soft(fg, 0.5)); break;
@@ -197,7 +197,7 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
       const pad = 90 * u; let y = wy + 150 * u;
       y = block(c.headline, pad, y, W - pad * 2, (s) => HF(s, fs === "serif" ? 600 : HEAD_WEIGHT[fs]), pFg, 80 * u, 40 * u, 3, 1.08, "center");
       y = block(c.supportingCopy, pad + 20 * u, y + 20 * u, W - pad * 2 - 40 * u, (s) => `500 ${s}px ${SANS}`, soft(pFg), 27 * u, 20 * u, 2, 1.4, "center");
-      if (offer) text(`~ ${offer} ~`, W / 2, Math.min(H - pad - 110 * u, y + 60 * u), `italic 500 ${30 * u}px ${FAMILY.serif}`, A, "center");
+      if (offer) text(`~ ${offer} ~`, W / 2, Math.min(H - pad - 110 * u, y + 78 * u), `italic 500 ${30 * u}px ${FAMILY.serif}`, A, "center");
       button(cta, W / 2, H - pad - 70 * u, 28 * u, A, aFg, "center");
       credit(soft(pFg, 0.55)); break;
     }

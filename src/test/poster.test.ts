@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { rankCategories, requiresCredit, creditLine, stockPhotos } from "@/lib/poster/photos";
 import { textOn, wrapLines, FORMATS } from "@/lib/poster/render";
+import { TEMPLATES, isTemplate } from "@/lib/poster/templates";
 
 describe("poster photos", () => {
   it("CC BY photos require a credit, CC0 does not", () => {
@@ -36,5 +37,18 @@ describe("poster rendering helpers", () => {
   it("wraps text to the width", () => {
     const ctx = { measureText: (t: string) => ({ width: t.length * 10 }) } as unknown as CanvasRenderingContext2D;
     expect(wrapLines(ctx, "one two three four", 100)).toEqual(["one two", "three four"]);
+  });
+});
+
+describe("poster design templates", () => {
+  it("offers 8 templates including Product Spotlight", () => {
+    expect(Object.keys(TEMPLATES)).toHaveLength(8);
+    expect(TEMPLATES.spotlight.label).toBe("Product Spotlight");
+  });
+  it("square format is 1080x1080", () => { expect([FORMATS.square.w, FORMATS.square.h]).toEqual([1080, 1080]); });
+  it("classic saved layouts are not treated as templates", () => {
+    expect(isTemplate("overlay")).toBe(false);
+    expect(isTemplate("graphic")).toBe(false);
+    expect(isTemplate("retro")).toBe(true);
   });
 });
