@@ -1,7 +1,7 @@
 // "Design with AI": Gemini (via the design-poster Edge Function) returns a design spec;
 // this file validates it and draws it on <canvas>. Colour + typography only — no images or illustrations.
 import { FORMATS, rgba, textOn, type PosterFormat } from "./render";
-import { FAMILY, grain, mix, SANS, textKit } from "./colour-styles";
+import { FAMILY, grain, SANS, textKit } from "./colour-styles";
 import type { DesignContent } from "./templates";
 
 type Align = "left" | "center" | "right";
@@ -92,5 +92,4 @@ export function drawAiDesign(canvas: HTMLCanvasElement, c: DesignContent, format
   const cta = c.callToAction.trim().slice(0, 40);
   if (cta) { const cy = Math.min(H - margin - ctaH, Math.max(y + 50 * u, s.cta.y * H)); const ax = s.cta.align === "center" ? W / 2 : s.cta.align === "right" ? W - s.cta.x * W : s.cta.x * W;
     K.button(cta, ax, cy, 28 * u, s.cta.style === "outline" || s.cta.style === "underline" ? s.cta.color : s.cta.bg, s.cta.fg, s.cta.style, s.cta.align); }
-  void mix;
 }

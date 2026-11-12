@@ -1,5 +1,7 @@
 // Poster Design Studio templates — 8 distinct designs drawn on <canvas>.
 // Each works with a photo (stock or uploaded) or with no photo (colour only).
+import { drawColourStyle, isColourStyle, type ColourStyleId } from "./colour-styles";
+import { drawAiDesign, type AiDesignSpec } from "./ai-design";
 import { drawCover, drawPoster, fit, FORMATS, rgba, spaced, textOn, wrapLines, type PosterContent, type PosterFormat, type PosterLayout } from "./render";
 
 export type TemplateId = "minimal" | "editorial" | "bold" | "luxury" | "playful" | "retro" | "organic" | "spotlight";
@@ -27,7 +29,7 @@ export const PALETTES: { name: string; primary: string; accent: string }[] = [
 ];
 
 export type DesignContent = PosterContent & { productName?: string | undefined };
-export type DesignStyle = { format: PosterFormat; layout: PosterLayout | TemplateId; primary: string; accent: string; font?: FontStyle | undefined };
+export type DesignStyle = { format: PosterFormat; layout: PosterLayout | TemplateId | ColourStyleId | "ai"; primary: string; accent: string; font?: FontStyle | undefined; aiSpec?: AiDesignSpec | null | undefined };
 export const isTemplate = (l: string): l is TemplateId => l in TEMPLATES;
 
 const SANS = '"Plus Jakarta Sans", system-ui, sans-serif';
@@ -43,6 +45,8 @@ type Img = (CanvasImageSource & { width: number; height: number }) | null;
 
 /** Draw any design: one of the 8 templates, or a classic layout. */
 export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent, st: DesignStyle) {
+  if (st.layout === "ai") { if (st.aiSpec) { drawAiDesign(canvas, c, st.format, st.aiSpec); return; } st = { ...st, layout: "c-minimal" }; }
+  if (isColourStyle(st.layout)) { drawColourStyle(canvas, c, { format: st.format, layout: st.layout, primary: st.primary, accent: st.accent, font: st.font }); return; }
   if (!isTemplate(st.layout)) { drawPoster(canvas, img, c, { format: st.format, layout: st.layout, primary: st.primary, accent: st.accent }); return; }
   const { w: W, h: H } = FORMATS[st.format];
   canvas.width = W; canvas.height = H;
