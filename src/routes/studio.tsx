@@ -35,7 +35,7 @@ const channels = [
 ];
 
 function Studio() {
-  const [goal, setGoal] = useState(goals[0]);
+  const [goal, setGoal] = useState<string>(goals[0] ?? "");
   const [picked, setPicked] = useState<string[]>(["instagram", "email"]);
   const toggle = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
   const [budget, setBudget] = useState("");
