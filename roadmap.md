@@ -6,5 +6,6 @@
 - [x] Poster template gallery (8 templates, palettes, fonts, text editing, square size)
 - [x] 8 colour-only poster styles + Design with AI (frontend)
 - [x] Campaign task ticks: counter, filters, and crossed-out tasks on the campaign page and Calendar
-- [ ] Claudia redeploys generate-campaign + design-poster (with backup models), then verify AI designs live
+- [x] Realistic campaign pacing: spaced feed posts, mixed activity types, purpose labels, cadence summary
+- [ ] Claudia deploys generate-campaign-index_v6.ts (new pacing rules) + design-poster-index_v3.ts, then verify live
 - [ ] Google provider setup in Supabase + Google Cloud — manual, by Claudia
