@@ -7,3 +7,8 @@ describe("business profile", () => {
   it("no Etsy panel otherwise", () => expect(isEtsySeller({ category: "Food & Hospitality", salesChannels: ["Physical shop"] })).toBe(false));
   it("old saved type maps to new category", () => expect(normalizeProfile({ type: "Salon / Beauty" }).category).toBe("Beauty & Personal Care"));
 });
+
+import { loadProfile as lp, saveProfile as sp, setProfileUser } from "@/lib/business-profile";
+describe("per-account profile", () => {
+  it("new account gets an empty profile", () => { setProfileUser("a"); sp({ ...lp(), name: "Shop A" }); setProfileUser("b"); expect(lp().name).toBe(""); expect(lp().category).toBe(""); });
+});
