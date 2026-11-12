@@ -21,6 +21,8 @@ const KEYWORDS: Record<PhotoCategory, string[]> = {
 };
 const TYPE_TO_CATEGORY: Record<string, PhotoCategory> = {
   "Restaurant / Café": "restaurant", "Salon / Beauty": "salon", "Online shop": "shop", "Fitness studio": "fitness", Consultant: "consultant",
+  "Food & Hospitality": "restaurant", "Beauty & Personal Care": "salon", "Retail & Online Shops": "shop", "Handmade & Creative Businesses": "shop",
+  "Professional Services": "consultant", "Health, Fitness & Wellness": "fitness", "Education & Digital Products": "consultant",
 };
 
 /** Categories ranked by relevance to the business type and campaign wording. */
@@ -29,7 +31,7 @@ export function rankCategories(businessType: string, text: string): PhotoCategor
   const scores = (Object.keys(KEYWORDS) as PhotoCategory[]).map((cat) => {
     let s = KEYWORDS[cat].reduce((n, k) => n + (t.includes(k) ? 2 : 0), 0);
     if (cat === base) s += 3;
-    if (businessType === "Restaurant / Café" && cat === "cafe") s += 2;
+    if ((businessType === "Restaurant / Café" || businessType === "Food & Hospitality") && cat === "cafe") s += 2;
     if (cat === "general") s += 0.5;
     return { cat, s };
   });
