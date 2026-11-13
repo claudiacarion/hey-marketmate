@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
-type Note = { id: string; body: string; created_at: string; updated_at: string };
+type Note = { id: string; body: string; created_at: string; updated_at: string; is_completed: boolean };
 const fmt = (s: string) => new Date(s).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 
 export function CampaignNotes({ campaignId }: { campaignId: string }) {
