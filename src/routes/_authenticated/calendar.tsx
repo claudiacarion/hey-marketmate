@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/app/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import type { CampaignPlan } from "@/lib/campaign-types";
-import { doneKeys, progress, taskKey, type TaskFilter } from "@/lib/task-progress";
+import { calendarDay, doneDates, progress, taskKey, type TaskFilter } from "@/lib/task-progress";
 import { assignCampaignColours, campaignDot, campaignStyle } from "@/lib/campaign-colours";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ACTIVITY_LABEL, activityType, isQuickActivity, purposeLabel } from "@/lib/schedule";
 
@@ -26,8 +27,9 @@ export const Route = createFileRoute("/_authenticated/calendar")({
   component: CalendarPage,
 });
 
-type Ev = { key: string; campaignId: string; campaign: string; text: string; channel: string; timing: string; done: boolean; quick: boolean; kind: string; purpose: string };
+type Ev = { scheduled: Date; completedAt: string | null; key: string; campaignId: string; campaign: string; text: string; channel: string; timing: string; done: boolean; quick: boolean; kind: string; purpose: string };
 const FILTERS: { id: TaskFilter; label: string }[] = [{ id: "all", label: "All" }, { id: "todo", label: "To do" }, { id: "done", label: "Completed" }];
+const fmtDay = (d: Date) => d.toLocaleDateString(undefined, { day: "numeric", month: "long" });
 const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
 function CalendarPage() {
@@ -44,12 +46,12 @@ function CalendarPage() {
     },
   });
 
-  const { data: finished = new Set<string>() } = useQuery({
+  const { data: finished = new Map<string, string | null>() } = useQuery({
     queryKey: ["campaign-tasks", "all"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("campaign_tasks").select("campaign_id,task_index").eq("completed", true);
+      const { data, error } = await supabase.from("campaign_tasks").select("campaign_id,task_index,completed_at").eq("completed", true);
       if (error) throw error;
-      return doneKeys(data);
+      return doneDates(data);
     },
   });
 
@@ -67,9 +69,10 @@ function CalendarPage() {
         if (isDone) doneSet.add(total);
         total++;
         if ((status === "done" && !isDone) || (status === "todo" && isDone)) return;
-        const d = dates[i]!;
+        const completedAt = finished.get(taskKey(c.id, i)) ?? null;
+        const d = isDone ? calendarDay(dates[i]!, completedAt) : dates[i]!;
         (byDay[dayKey(d)] ??= []).push({
-          key: `${c.id}-${i}`, campaignId: c.id, campaign: c.title,
+          scheduled: dates[i]!, completedAt, key: `${c.id}-${i}`, campaignId: c.id, campaign: c.title,
           text: item.theme || item.action, channel: item.channel, timing: item.timing,
           done: isDone,
           quick: isQuickActivity(item.type), kind: ACTIVITY_LABEL[activityType(item.type)], purpose: purposeLabel(item.purpose),
@@ -139,13 +142,31 @@ function CalendarPage() {
                   <div key={dayKey(d)} className={`min-h-28 border-b border-r p-2 ${inMonth ? "" : "bg-muted/40"}`}>
                     <div className={`mb-1 inline-grid size-6 place-items-center rounded-full text-xs ${isToday ? "bg-accent font-bold text-accent-foreground" : "text-muted-foreground"}`}>{d.getDate()}</div>
                     {byDay[dayKey(d)]?.map((e) => (
+                      e.done ? (
+                        <Popover key={e.key}>
+                          <PopoverTrigger asChild>
+                            <button type="button" style={campaignStyle(slots[e.campaignId] ?? 0)} className="mb-1 block w-full truncate rounded-md px-2 py-1 text-left text-xs font-medium opacity-60 line-through hover:opacity-80">
+                              <span className="mr-1 inline-block size-2 rounded-full align-middle" style={campaignDot(slots[e.campaignId] ?? 0)} />✓ {e.channel ? `${e.channel}: ` : ""}{e.text}
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-64 space-y-1 text-sm">
+                            <p className="font-semibold">{e.text}</p>
+                            <p className="text-xs text-muted-foreground">{e.campaign}</p>
+                            <p>Originally scheduled: <b>{fmtDay(e.scheduled)}</b></p>
+                            {e.completedAt && <p>Completed: <b>{fmtDay(new Date(e.completedAt))}</b></p>}
+                            <p className="text-success">Status: Completed</p>
+                            <Link to="/campaigns/$id" params={{ id: e.campaignId }} className="inline-block pt-1 text-xs font-medium text-primary underline">Open campaign</Link>
+                          </PopoverContent>
+                        </Popover>
+                      ) : (
                       <Link key={e.key} to="/campaigns/$id" params={{ id: e.campaignId }}
-                        title={`${e.campaign} · ${e.kind}${e.purpose ? ` · ${e.purpose}` : ""} · ${e.channel}${e.timing ? ` · ${e.timing}` : ""}${e.done ? " · completed" : ""}\n${e.text}`}
-                        style={e.done ? undefined : campaignStyle(slots[e.campaignId] ?? 0)}
-                        className={`mb-1 block truncate rounded-md px-2 py-1 text-xs font-medium hover:opacity-80 ${e.done ? "bg-muted text-muted-foreground line-through decoration-muted-foreground/70" : e.quick ? "border border-dashed border-current/40" : ""}`}>
+                        title={`${e.campaign} · ${e.kind}${e.purpose ? ` · ${e.purpose}` : ""} · ${e.channel}${e.timing ? ` · ${e.timing}` : ""}${e.done ? `\nScheduled: ${fmtDay(e.scheduled)}${e.completedAt ? `\nCompleted: ${fmtDay(new Date(e.completedAt))}` : " · completed"}` : ""}\n${e.text}`}
+                        style={campaignStyle(slots[e.campaignId] ?? 0)}
+                        className={`mb-1 block truncate rounded-md px-2 py-1 text-xs font-medium hover:opacity-80 ${e.done ? "opacity-60 line-through" : e.quick ? "border border-dashed border-current/40" : ""}`}>
                         <span className="mr-1 inline-block size-2 rounded-full align-middle" style={campaignDot(slots[e.campaignId] ?? 0)} />
-                        {e.channel ? `${e.channel}: ` : ""}{e.text}
+                        {e.done && "✓ "}{e.channel ? `${e.channel}: ` : ""}{e.text}
                       </Link>
+                      )
                     ))}
                   </div>
                 );

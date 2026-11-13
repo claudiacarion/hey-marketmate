@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { TitleEditor } from "@/components/campaign/TitleEditor";
 import { StartDateEditor } from "@/components/campaign/StartDateEditor";
 import { PlanView } from "@/components/studio/PlanView";
 import type { SavedPoster } from "@/components/studio/PosterStudio";
@@ -41,7 +42,7 @@ function CampaignDetail() {
       {back}
       <StartDateEditor campaignId={data.id} brief={data.brief} createdAt={data.created_at} calendar={(data.plan as unknown as CampaignPlan)?.calendar} />
       <PlanView plan={{ ...(data.plan as unknown as CampaignPlan), title: data.title }} businessName={b.name} businessType={b.category}
-        brand={{ primary: loadProfile().primaryColor, accent: loadProfile().accentColor }} campaignId={data.id} brief={data.brief} createdAt={data.created_at} poster={data.poster as unknown as SavedPoster | null} />
+        brand={{ primary: loadProfile().primaryColor, accent: loadProfile().accentColor }} titleAction={<TitleEditor campaignId={data.id} title={data.title} />} campaignId={data.id} brief={data.brief} createdAt={data.created_at} poster={data.poster as unknown as SavedPoster | null} />
     </div>
   );
 }

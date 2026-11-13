@@ -15,12 +15,12 @@ export function TaskTracker({ campaignId, items, plan, dates }: { campaignId: st
   const qc = useQueryClient();
   const key = ["campaign-tasks", campaignId];
   const [filter, setFilter] = useState<TaskFilter>("all");
-  const { data: done = new Set<number>() } = useQuery({
+  const { data: doneAt = new Map<number, string | null>() } = useQuery({
     queryKey: key,
     queryFn: async () => {
-      const { data, error } = await supabase.from("campaign_tasks").select("task_index").eq("campaign_id", campaignId).eq("completed", true);
+      const { data, error } = await supabase.from("campaign_tasks").select("task_index,completed_at").eq("campaign_id", campaignId).eq("completed", true);
       if (error) throw error;
-      return new Set(data.map((r) => r.task_index));
+      return new Map(data.map((r) => [r.task_index, r.completed_at]));
     },
   });
   const toggle = useMutation({
@@ -32,8 +32,8 @@ export function TaskTracker({ campaignId, items, plan, dates }: { campaignId: st
     },
     onMutate: async ({ index, completed }) => {
       await qc.cancelQueries({ queryKey: key });
-      const prev = qc.getQueryData<Set<number>>(key);
-      const next = new Set(prev); if (completed) next.add(index); else next.delete(index);
+      const prev = qc.getQueryData<Map<number, string | null>>(key);
+      const next = new Map(prev); if (completed) next.set(index, new Date().toISOString()); else next.delete(index);
       qc.setQueryData(key, next);
       return { prev };
     },
@@ -41,6 +41,8 @@ export function TaskTracker({ campaignId, items, plan, dates }: { campaignId: st
     onSettled: () => { qc.invalidateQueries({ queryKey: ["campaign-tasks"] }); },
     onSuccess: (_d, { completed }) => { if (completed) toast.success("Task completed — nice work!"); },
   });
+  const done = useMemo(() => new Set(doneAt.keys()), [doneAt]);
+  const fmt = (x: Date) => x.toLocaleDateString(undefined, { day: "numeric", month: "long" });
   const p = progress(items.length, done);
   const shown = useMemo(() => filterTasks(items.length, done, filter), [items.length, done, filter]);
 
@@ -79,7 +81,7 @@ export function TaskTracker({ campaignId, items, plan, dates }: { campaignId: st
                 {isDone && <Check className="size-4" />}
               </button>
               <div className={`font-semibold ${isDone ? "text-muted-foreground" : "text-primary"}`}>{d.day}{dates?.[i] && <div className="text-xs font-normal text-muted-foreground">{dates[i]!.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}</div>}</div>
-              <div className={isDone ? "text-muted-foreground line-through decoration-muted-foreground/50" : ""}><b>{d.theme}</b><p className="text-muted-foreground">{d.action}</p></div>
+              <div className={isDone ? "text-muted-foreground line-through decoration-muted-foreground/50" : ""}><b>{d.theme}</b><p className="text-muted-foreground">{d.action}</p></div>{isDone && <p className="mt-1 text-xs text-success sm:col-start-3">Completed{doneAt.get(i) ? ` ${fmt(new Date(doneAt.get(i)!))}` : ""}{dates?.[i] ? ` · originally scheduled ${fmt(dates[i]!)}` : ""}</p>}
               <div className="text-xs text-muted-foreground sm:text-right"><span className="rounded-full bg-secondary px-2 py-1 font-medium text-foreground">{d.channel}</span><div className="mt-1">{d.timing}</div><div className="mt-1 flex flex-wrap justify-end gap-1"><span className="rounded-full bg-primary/10 px-2 py-1 font-medium text-primary">{ACTIVITY_LABEL[activityType(d.type)]}</span>{purposeLabel(d.purpose) && <span className="rounded-full bg-secondary px-2 py-1">{purposeLabel(d.purpose)}</span>}</div>{(d.impact || d.effort) && <div className="mt-1">Impact {d.impact ?? "–"} · Effort {d.effort ?? "–"}</div>}</div>
             </div>
           );
