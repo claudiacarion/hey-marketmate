@@ -98,8 +98,9 @@ export function CampaignNotes({ campaignId }: { campaignId: string }) {
                      <div className="min-w-0">
                        <p className={`whitespace-pre-line break-words ${n.is_completed ? "text-muted-foreground line-through" : ""}`}>{n.body}</p>
                       <p className="mt-1 text-xs text-muted-foreground">Added {fmt(n.created_at)}{new Date(n.updated_at).getTime() - new Date(n.created_at).getTime() > 1000 ? ` · Edited ${fmt(n.updated_at)}` : ""}</p>
-                    </div>
-                    <div className="flex shrink-0">
+                     </div>
+                     </div>
+                     <div className="flex shrink-0">
                       <Button size="icon" variant="ghost" aria-label="Edit note" onClick={() => { setEditId(n.id); setEditText(n.body); }}><Pencil className="size-4" /></Button>
                       <Button size="icon" variant="ghost" aria-label="Delete note" disabled={del.isPending} onClick={() => { if (confirm("Delete this note?")) del.mutate(n.id); }}><Trash2 className="size-4" /></Button>
                     </div>
