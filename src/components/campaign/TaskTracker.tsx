@@ -11,7 +11,7 @@ import { filterTasks, progress, type TaskFilter } from "@/lib/task-progress";
 type Item = NonNullable<CampaignPlan["calendar"]>[number];
 const FILTERS: { id: TaskFilter; label: string }[] = [{ id: "all", label: "All" }, { id: "todo", label: "To do" }, { id: "done", label: "Completed" }];
 
-export function TaskTracker({ campaignId, items, plan }: { campaignId: string; items: Item[]; plan: CampaignPlan }) {
+export function TaskTracker({ campaignId, items, plan, dates }: { campaignId: string; items: Item[]; plan: CampaignPlan; dates?: Date[] | undefined }) {
   const qc = useQueryClient();
   const key = ["campaign-tasks", campaignId];
   const [filter, setFilter] = useState<TaskFilter>("all");
@@ -78,7 +78,7 @@ export function TaskTracker({ campaignId, items, plan }: { campaignId: string; i
                 className={`grid size-6 place-items-center rounded-md border-2 transition-colors ${isDone ? "border-success bg-success text-primary-foreground" : "border-input hover:border-primary"}`}>
                 {isDone && <Check className="size-4" />}
               </button>
-              <div className={`font-semibold ${isDone ? "text-muted-foreground" : "text-primary"}`}>{d.day}</div>
+              <div className={`font-semibold ${isDone ? "text-muted-foreground" : "text-primary"}`}>{d.day}{dates?.[i] && <div className="text-xs font-normal text-muted-foreground">{dates[i]!.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}</div>}</div>
               <div className={isDone ? "text-muted-foreground line-through decoration-muted-foreground/50" : ""}><b>{d.theme}</b><p className="text-muted-foreground">{d.action}</p></div>
               <div className="text-xs text-muted-foreground sm:text-right"><span className="rounded-full bg-secondary px-2 py-1 font-medium text-foreground">{d.channel}</span><div className="mt-1">{d.timing}</div><div className="mt-1 flex flex-wrap justify-end gap-1"><span className="rounded-full bg-primary/10 px-2 py-1 font-medium text-primary">{ACTIVITY_LABEL[activityType(d.type)]}</span>{purposeLabel(d.purpose) && <span className="rounded-full bg-secondary px-2 py-1">{purposeLabel(d.purpose)}</span>}</div>{(d.impact || d.effort) && <div className="mt-1">Impact {d.impact ?? "–"} · Effort {d.effort ?? "–"}</div>}</div>
             </div>

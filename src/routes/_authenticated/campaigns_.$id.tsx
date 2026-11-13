@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { StartDateEditor } from "@/components/campaign/StartDateEditor";
 import { PlanView } from "@/components/studio/PlanView";
 import type { SavedPoster } from "@/components/studio/PosterStudio";
 import type { CampaignPlan } from "@/lib/campaign-types";
@@ -26,7 +27,7 @@ function CampaignDetail() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["campaign", id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("campaigns").select("id,title,business,plan,poster").eq("id", id).maybeSingle();
+      const { data, error } = await supabase.from("campaigns").select("id,title,business,brief,plan,poster,created_at").eq("id", id).maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -38,8 +39,9 @@ function CampaignDetail() {
   return (
     <div className="mx-auto max-w-5xl">
       {back}
+      <StartDateEditor campaignId={data.id} brief={data.brief} createdAt={data.created_at} calendar={(data.plan as unknown as CampaignPlan)?.calendar} />
       <PlanView plan={{ ...(data.plan as unknown as CampaignPlan), title: data.title }} businessName={b.name} businessType={b.category}
-        brand={{ primary: loadProfile().primaryColor, accent: loadProfile().accentColor }} campaignId={data.id} poster={data.poster as unknown as SavedPoster | null} />
+        brand={{ primary: loadProfile().primaryColor, accent: loadProfile().accentColor }} campaignId={data.id} brief={data.brief} createdAt={data.created_at} poster={data.poster as unknown as SavedPoster | null} />
     </div>
   );
 }

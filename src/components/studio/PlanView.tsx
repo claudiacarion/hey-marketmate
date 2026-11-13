@@ -1,3 +1,4 @@
+import { taskDatesFor } from "@/lib/task-dates";
 import { Target, Users, Compass, MessageCircle, Megaphone, Gift, PieChart, TrendingUp, Copy, CalendarDays, ShieldCheck, Image as ImageIcon, Store, Camera, Pin, Sparkles, Rocket, Timer } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ function Block({ icon: Icon, title, children }: { icon: typeof Target; title: st
   );
 }
 
-export function PlanView({ plan, businessName, businessType, brand, campaignId, poster }: { plan: CampaignPlan; businessName: string; businessType: string; brand: { primary: string; accent: string }; campaignId?: string | null | undefined; poster?: SavedPoster | null | undefined }) {
+export function PlanView({ plan, businessName, businessType, brand, campaignId, poster, brief, createdAt }: { plan: CampaignPlan; businessName: string; businessType: string; brand: { primary: string; accent: string }; campaignId?: string | null | undefined; poster?: SavedPoster | null | undefined; brief?: unknown; createdAt?: string }) {
   return (
     <section id="plan" className="mt-8 space-y-4">
       <div className="rounded-2xl bg-hero p-7 text-primary-foreground shadow-lift">
@@ -52,7 +53,7 @@ export function PlanView({ plan, businessName, businessType, brand, campaignId, 
         <h3 className="pt-4 text-2xl font-semibold">Social media posts</h3>
         <div className="grid gap-4 md:grid-cols-3">{plan.socialPosts.map((p, i) => <PostCard key={i} p={p} />)}</div>
       </>}
-      {!!plan.calendar?.length && campaignId && <TaskTracker campaignId={campaignId} items={plan.calendar} plan={plan} />}
+      {!!plan.calendar?.length && campaignId && <TaskTracker campaignId={campaignId} items={plan.calendar} plan={plan} dates={createdAt ? taskDatesFor(brief, plan.calendar, createdAt) : undefined} />}
       {!!plan.calendar?.length && !campaignId && <>
         <h3 className="flex items-center gap-2 pt-4 text-2xl font-semibold"><CalendarDays className="size-5 text-primary" />Posting schedule</h3>
         <CadenceNote plan={plan} items={plan.calendar} />

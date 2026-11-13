@@ -10,7 +10,7 @@ import type { CampaignPlan } from "@/lib/campaign-types";
 import { doneKeys, progress, taskKey, type TaskFilter } from "@/lib/task-progress";
 import { assignCampaignColours, campaignDot, campaignStyle } from "@/lib/campaign-colours";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ACTIVITY_LABEL, activityType, dayNumberOf, isQuickActivity, purposeLabel } from "@/lib/schedule";
+import { ACTIVITY_LABEL, activityType, isQuickActivity, purposeLabel } from "@/lib/schedule";
 
 export const Route = createFileRoute("/_authenticated/calendar")({
   head: () => ({
