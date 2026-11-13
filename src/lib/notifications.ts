@@ -1,5 +1,6 @@
 import type { CampaignPlan } from "@/lib/campaign-types";
 import { dayNumberOf } from "@/lib/schedule";
+import { taskDatesFor } from "@/lib/task-dates";
 
 export type CampaignRow = { id: string; title: string; status: string; created_at: string; poster: unknown; plan: CampaignPlan | null; brief?: unknown };
 export type AppNotification = { id: string; kind: "post" | "draft" | "poster" | "ready"; title: string; body: string; campaignId: string; at: string };
@@ -14,13 +15,11 @@ export function buildNotifications(rows: CampaignRow[], now = new Date()): AppNo
   for (const c of rows) {
     const created = new Date(c.created_at);
     const offset = Math.round((today - startOfDay(created)) / DAY);
-    const sd = (c.brief as { startDate?: string } | null | undefined)?.startDate;
-    const m = sd ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(sd) : null;
-    const startOff = m ? Math.round((today - new Date(+m[1]!, +m[2]! - 1, +m[3]!).getTime()) / DAY) : offset;
-    if (c.status !== "Completed" && startOff >= 0) {
+    if (c.status !== "Completed") {
+      const dates = taskDatesFor(c.brief, c.plan?.calendar, c.created_at);
       (c.plan?.calendar ?? []).forEach((item, i) => {
         const n = dayNumberOf(item.day, i) - 1;
-        if (n === startOff) out.push({ id: `post:${c.id}:${n}`, kind: "post", title: `Today: ${item.theme}`, body: `${item.channel} · ${item.timing} — ${item.action}`, campaignId: c.id, at: new Date(today).toISOString() });
+        if (dates[i]!.getTime() === today) out.push({ id: `post:${c.id}:${n}`, kind: "post", title: `Today: ${item.theme}`, body: `${item.channel} · ${item.timing} — ${item.action}`, campaignId: c.id, at: new Date(today).toISOString() });
       });
     }
     if (offset === 0) out.push({ id: `ready:${c.id}`, kind: "ready", title: "Campaign plan ready", body: c.title, campaignId: c.id, at: c.created_at });

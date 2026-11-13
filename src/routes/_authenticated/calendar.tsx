@@ -1,3 +1,4 @@
+import { taskDatesFor } from "@/lib/task-dates";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -60,15 +61,13 @@ function CalendarPage() {
     (data ?? []).forEach((c) => {
       if (campaignFilter !== "all" && c.id !== campaignFilter) return;
       const plan = (c.plan ?? {}) as CampaignPlan;
-      const sd = (c.brief as { startDate?: string } | null)?.startDate;
-      const m = sd && /^(\d{4})-(\d{2})-(\d{2})$/.exec(sd);
-      const start = m ? new Date(+m[1]!, +m[2]! - 1, +m[3]!) : new Date(c.created_at);
+      const dates = taskDatesFor(c.brief, plan.calendar, c.created_at);
       (plan.calendar ?? []).forEach((item, i) => {
         const isDone = finished.has(taskKey(c.id, i));
         if (isDone) doneSet.add(total);
         total++;
         if ((status === "done" && !isDone) || (status === "todo" && isDone)) return;
-        const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + (dayNumberOf(item.day, i) - 1));
+        const d = dates[i]!;
         (byDay[dayKey(d)] ??= []).push({
           key: `${c.id}-${i}`, campaignId: c.id, campaign: c.title,
           text: item.theme || item.action, channel: item.channel, timing: item.timing,
