@@ -38,6 +38,7 @@ const channels = [
 ];
 
 function Studio() {
+  const [name, setName] = useState("");
   const [goal, setGoal] = useState<string>(goals[0] ?? "");
   const [picked, setPicked] = useState<string[]>(["instagram", "email"]);
   const toggle = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
@@ -58,11 +59,13 @@ function Studio() {
   const label = [profile.category, profile.subcategory || profile.otherDescription].filter(Boolean).join(" · ");
 
   const run = async () => {
+    const title = name.trim().replace(/\s+/g, " ");
+    if (!title) { const m = "Please give your campaign a name first."; setError(m); toast.error(m); document.getElementById("cname")?.focus(); return; }
     setLoading(true); setError(null);
     try {
       const names = channels.filter((c) => picked.includes(c.id)).map((c) => c.label);
       const business = { name: profile.name, category: profile.category, subcategory: profile.subcategory, otherDescription: profile.otherDescription, salesChannels: profile.salesChannels, location: profile.location, audience: profile.audience, voice: profile.voice, ...(isEtsySeller(profile) ? { etsyDetails: profile.etsyDetails } : {}) };
-      const { data, error: fnError } = await supabase.functions.invoke<{ plan?: CampaignPlan; error?: string }>("generate-campaign", { body: { business, brief: { goal, channels: names, budget, timing: `${duration} days from ${startDate}`, startDate, durationDays: duration, notes } } });
+      const { data, error: fnError } = await supabase.functions.invoke<{ plan?: CampaignPlan; error?: string }>("generate-campaign", { body: { business, brief: { campaignName: title, goal, channels: names, budget, timing: `${duration} days from ${startDate}`, startDate, durationDays: duration, notes: `Campaign name (chosen by the owner, keep it as the title): ${title}${notes ? `\n${notes}` : ""}` } } });
       let msg: string | null = null;
       if (fnError) {
         msg = "The campaign service couldn't be reached. Please try again.";
@@ -74,8 +77,9 @@ function Studio() {
       else if (!data?.plan) msg = "The AI returned an unexpected answer. Please try again.";
       if (msg) { setError(msg); toast.error(msg); }
       else if (data?.plan) {
-        setPlan(data.plan); setCampaignId(null);
-        const { data: saved, error: saveErr } = await supabase.from("campaigns").insert({ title: `${goal} — ${profile.name || "My business"}`, business: business as never, brief: { goal, channels: names, budget, timing: `${duration} days from ${startDate}`, startDate, durationDays: duration, notes } as never, plan: data.plan as never }).select("id").single();
+        const finalPlan = { ...data.plan, title };
+        setPlan(finalPlan); setCampaignId(null);
+        const { data: saved, error: saveErr } = await supabase.from("campaigns").insert({ title, business: business as never, brief: { campaignName: title, goal, channels: names, budget, timing: `${duration} days from ${startDate}`, startDate, durationDays: duration, notes } as never, plan: finalPlan as never }).select("id").single();
         if (saved) setCampaignId(saved.id);
         if (saveErr) toast.error("Plan created, but it couldn't be saved to your campaigns."); else toast.success("Saved to Campaigns");
         setTimeout(() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth" }), 50); }
@@ -92,24 +96,29 @@ function Studio() {
       <PageHeader eyebrow="Content Studio" title="Plan a new campaign" description="Tell your assistant what you want to achieve. It will draft the plan, posts and schedule for you." />
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="panel space-y-7 p-7">
+          <div className="space-y-2">
+            <Label htmlFor="cname">1. What would you like to call this campaign?</Label>
+            <Input id="cname" required maxLength={80} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Christmas Collection Launch, Summer Sale 2027, New Customer Campaign..." />
+            <p className="text-xs text-muted-foreground">Give your campaign a name that helps you recognise it later. ({name.trim().length}/80)</p>
+          </div>
           <div className="space-y-3">
-            <Label>1. What's the goal?</Label>
+            <Label>2. What's the goal?</Label>
             <div className="flex flex-wrap gap-2">{goals.map((g) => <button type="button" key={g} onClick={() => setGoal(g)} className={chip(goal === g)}>{g}</button>)}</div>
           </div>
           <div className="space-y-3">
-            <Label>2. Where should it run?</Label>
+            <Label>3. Where should it run?</Label>
             <div className="flex flex-wrap gap-2">{channels.map(({ id, label, icon: Icon }) => <button type="button" key={id} onClick={() => toggle(id)} className={`${chip(picked.includes(id))} flex items-center gap-2`}><Icon className="size-4" />{label}</button>)}</div>
           </div>
-          <div className="space-y-2"><Label htmlFor="budget">3. Budget (optional)</Label><Input id="budget" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="e.g. 200 €" /></div>
+          <div className="space-y-2"><Label htmlFor="budget">4. Budget (optional)</Label><Input id="budget" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="e.g. 200 €" /></div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2"><Label htmlFor="start">Start date</Label><Input id="start" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} /></div>
             <div className="space-y-2"><Label>Length</Label><div className="flex flex-wrap gap-2">{[[7, "7 days"], [14, "2 weeks"], [28, "4 weeks"]].map(([n, l]) => <button type="button" key={n} onClick={() => setDuration(Number(n))} className={chip(duration === n)}>{l}</button>)}</div></div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="brief">4. Anything else?</Label>
+            <Label htmlFor="brief">5. Anything else?</Label>
             <Textarea id="brief" rows={5} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="We're launching a new pumpkin spice brunch menu on weekends and want families to try it…" />
           </div>
-          <Button size="lg" className="w-full rounded-xl bg-accent text-accent-foreground hover:bg-accent/90" disabled={loading} onClick={run}>
+          <Button size="lg" className="w-full rounded-xl bg-accent text-accent-foreground hover:bg-accent/90" disabled={loading || !name.trim()} onClick={run}>
             {loading ? <><Loader2 className="size-4 animate-spin" /> Crafting your campaign…</> : <><Sparkles className="size-4" /> Generate campaign plan</>}
           </Button>
           <p className="text-center text-xs text-muted-foreground">Planning for <b className="text-foreground">{profile.name}</b> · {label}. Edit in My Business.</p>
