@@ -68,7 +68,7 @@ export function PlanView({ plan, businessName, businessType, brand, campaignId, 
       <EtsySections plan={plan} />
       {plan.promotionalMaterial && <>
         <h3 className="pt-4 text-2xl font-semibold">Promotional poster</h3>
-        <PosterStudio promo={plan.promotionalMaterial} businessName={businessName} businessType={businessType} brand={brand} campaignId={campaignId} initial={poster} />
+        <PosterStudio key={poster?.savedAt ?? "new"} promo={plan.promotionalMaterial} businessName={businessName} businessType={businessType} brand={brand} campaignId={campaignId} initial={poster} />
         <Block icon={ImageIcon} title="Designer's notes">{plan.promotionalMaterial.designConcept}</Block>
       </>}
     </section>
