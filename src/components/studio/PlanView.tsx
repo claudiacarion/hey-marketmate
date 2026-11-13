@@ -2,6 +2,7 @@ import { Target, Users, Compass, MessageCircle, Megaphone, Gift, PieChart, Trend
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { TaskTracker } from "@/components/campaign/TaskTracker";
+import { CampaignNotes } from "@/components/campaign/CampaignNotes";
 import { CadenceNote } from "@/components/campaign/CadenceNote";
 import { ACTIVITY_LABEL, activityType, purposeLabel } from "@/lib/schedule";
 import type { CampaignPlan } from "@/lib/campaign-types";
@@ -45,6 +46,7 @@ export function PlanView({ plan, businessName, businessType, brand, campaignId, 
           <ul className="space-y-2">{plan.successMetrics.map((m, i) => <li key={i} className="flex justify-between gap-3"><span>{m.metric}</span><span className="text-right font-semibold">{m.target}</span></li>)}</ul>
         </Block>
       </div>
+      {campaignId && <CampaignNotes campaignId={campaignId} />}
       {plan.qualityReview && <Review r={plan.qualityReview} />}
       {!!plan.socialPosts?.length && <>
         <h3 className="pt-4 text-2xl font-semibold">Social media posts</h3>
