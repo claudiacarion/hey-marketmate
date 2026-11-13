@@ -7,5 +7,6 @@
 - [x] 8 colour-only poster styles + Design with AI (frontend)
 - [x] Campaign task ticks: counter, filters, and crossed-out tasks on the campaign page and Calendar
 - [x] Realistic campaign pacing: spaced feed posts, mixed activity types, purpose labels, cadence summary
+- [x] Calendar campaign selector, status filter, campaign colours + legend, progress
 - [ ] Claudia deploys generate-campaign-index_v6.ts (new pacing rules) + design-poster-index_v3.ts, then verify live
 - [ ] Google provider setup in Supabase + Google Cloud — manual, by Claudia

@@ -119,3 +119,17 @@
   animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* Campaign colour palette (soft backgrounds, readable dark text) */
+:root {
+  --camp-1-bg: oklch(0.93 0.04 250); --camp-1-fg: oklch(0.38 0.11 250);
+  --camp-2-bg: oklch(0.93 0.04 300); --camp-2-fg: oklch(0.40 0.12 300);
+  --camp-3-bg: oklch(0.93 0.05 155); --camp-3-fg: oklch(0.38 0.09 155);
+  --camp-4-bg: oklch(0.93 0.05 65);  --camp-4-fg: oklch(0.42 0.10 55);
+  --camp-5-bg: oklch(0.93 0.04 10);  --camp-5-fg: oklch(0.42 0.13 15);
+  --camp-6-bg: oklch(0.93 0.04 200); --camp-6-fg: oklch(0.38 0.08 205);
+  --camp-7-bg: oklch(0.94 0.06 95);  --camp-7-fg: oklch(0.40 0.08 95);
+  --camp-8-bg: oklch(0.93 0.04 340); --camp-8-fg: oklch(0.40 0.12 345);
+  --camp-9-bg: oklch(0.93 0.03 275); --camp-9-fg: oklch(0.36 0.10 275);
+  --camp-10-bg: oklch(0.93 0.04 120); --camp-10-fg: oklch(0.38 0.08 125);
+}
