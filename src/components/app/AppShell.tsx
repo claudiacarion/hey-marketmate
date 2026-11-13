@@ -5,7 +5,7 @@ import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { ReactNode } from "react";
-import { LayoutDashboard, Megaphone, Sparkles, CalendarDays, BarChart3, Store, Search, Plus } from "lucide-react";
+import { LayoutDashboard, Megaphone, Sparkles, CalendarDays, BarChart3, Store, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/app/NotificationBell";
 
@@ -45,15 +45,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex items-center gap-4 border-b bg-background/85 px-6 py-4 backdrop-blur lg:px-10">
-          <div className="flex items-center gap-2 lg:hidden">
+        <header className="sticky top-0 z-10 flex items-center gap-2 border-b bg-background/85 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4 backdrop-blur lg:px-10">
+          <div className="flex shrink-0 items-center gap-2 lg:hidden">
             <span className="grid size-8 place-items-center rounded-lg bg-warm font-display font-bold text-accent-foreground">M</span>
           </div>
-          <div className="flex flex-1 items-center gap-2 rounded-xl border bg-card px-3 py-2 text-sm text-muted-foreground md:max-w-sm">
-            <Search className="size-4" /> <span>Search campaigns, posts…</span>
-          </div>
+          <div className="flex-1" />
           <NotificationBell />
-          <Button asChild className="rounded-xl"><Link to="/studio"><Plus className="size-4" /> New campaign</Link></Button>
+          <Button asChild className="shrink-0 rounded-xl max-sm:size-9 max-sm:px-0"><Link to="/studio" aria-label="New campaign"><Plus className="size-4" /><span className="hidden sm:inline">New campaign</span></Link></Button>
           <UserMenu />
         </header>
         <nav className="flex gap-1 overflow-x-auto border-b px-4 py-2 lg:hidden">
@@ -61,7 +59,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link key={to} to={to} className="whitespace-nowrap rounded-lg px-3 py-1.5 text-sm text-muted-foreground" activeProps={{ className: "bg-secondary text-foreground" }} activeOptions={{ exact: to === "/" }}>{label}</Link>
           ))}
         </nav>
-        <main className="flex-1 px-6 py-8 lg:px-10">{children}</main>
+        <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-10">{children}</main>
       </div>
     </div>
   );
@@ -72,7 +70,7 @@ export function PageHeader({ eyebrow, title, description, action }: { eyebrow: s
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4 rise">
       <div>
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-accent">{eyebrow}</p>
-        <h1 className="text-4xl font-semibold">{title}</h1>
+        <h1 className="text-3xl font-semibold sm:text-4xl">{title}</h1>
         <p className="mt-2 max-w-xl text-muted-foreground">{description}</p>
       </div>
       {action}
