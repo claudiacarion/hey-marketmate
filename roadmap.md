@@ -9,5 +9,6 @@
 - [x] Realistic campaign pacing: spaced feed posts, mixed activity types, purpose labels, cadence summary
 - [x] Calendar campaign selector, status filter, campaign colours + legend, progress
 - [x] Campaign notes (collapsible, per campaign, owner-only)
+- [x] Campaign name as first Studio question, used as the campaign title everywhere
 - [ ] Claudia deploys generate-campaign-index_v6.ts (new pacing rules) + design-poster-index_v3.ts, then verify live
 - [ ] Google provider setup in Supabase + Google Cloud — manual, by Claudia
