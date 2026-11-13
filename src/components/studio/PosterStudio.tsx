@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, ImagePlus, Trash2, Loader2, Save, ExternalLink, Sparkles, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { CampaignPlan } from "@/lib/campaign-types";
@@ -184,6 +185,7 @@ export function PosterStudio({ promo, businessName, businessType, brand, busines
     finally { setBusy(null); }
   };
 
+  const qc = useQueryClient();
   const save = async () => {
     if (!campaignId) { toast.error("This campaign hasn't been saved yet."); return; }
     setBusy("save");
@@ -196,7 +198,10 @@ export function PosterStudio({ promo, businessName, businessType, brand, busines
       const poster: SavedPoster = { format, layout, primary, accent, showCredit, photo, font, usePhoto, aiSpec: layout === "ai" ? aiSpec : null, text: txt, imagePath, savedAt: at };
       const { error } = await supabase.from("campaigns").update({ poster: poster as never }).eq("id", campaignId);
       if (error) throw error;
-      setSavedAt(at); toast.success("Poster saved with this campaign");
+      setSavedAt(at);
+      qc.setQueryData(["campaign", campaignId], (old: unknown) => old && typeof old === "object" ? { ...(old as object), poster } : old);
+      qc.invalidateQueries({ queryKey: ["campaigns"] });
+      toast.success("Poster saved with this campaign");
     } catch (e) { console.error(e); toast.error("Couldn't save the poster. Please try again."); }
     finally { setBusy(null); }
   };
