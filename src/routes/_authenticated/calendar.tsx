@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { CampaignPlan } from "@/lib/campaign-types";
 import { calendarDay, doneDates, progress, taskKey, type TaskFilter } from "@/lib/task-progress";
 import { assignCampaignColours, campaignDot, campaignStyle } from "@/lib/campaign-colours";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ACTIVITY_LABEL, activityType, isQuickActivity, purposeLabel } from "@/lib/schedule";
 
@@ -141,6 +142,23 @@ function CalendarPage() {
                   <div key={dayKey(d)} className={`min-h-28 border-b border-r p-2 ${inMonth ? "" : "bg-muted/40"}`}>
                     <div className={`mb-1 inline-grid size-6 place-items-center rounded-full text-xs ${isToday ? "bg-accent font-bold text-accent-foreground" : "text-muted-foreground"}`}>{d.getDate()}</div>
                     {byDay[dayKey(d)]?.map((e) => (
+                      e.done ? (
+                        <Popover key={e.key}>
+                          <PopoverTrigger asChild>
+                            <button type="button" style={campaignStyle(slots[e.campaignId] ?? 0)} className="mb-1 block w-full truncate rounded-md px-2 py-1 text-left text-xs font-medium opacity-60 line-through hover:opacity-80">
+                              <span className="mr-1 inline-block size-2 rounded-full align-middle" style={campaignDot(slots[e.campaignId] ?? 0)} />✓ {e.channel ? `${e.channel}: ` : ""}{e.text}
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-64 space-y-1 text-sm">
+                            <p className="font-semibold">{e.text}</p>
+                            <p className="text-xs text-muted-foreground">{e.campaign}</p>
+                            <p>Originally scheduled: <b>{fmtDay(e.scheduled)}</b></p>
+                            {e.completedAt && <p>Completed: <b>{fmtDay(new Date(e.completedAt))}</b></p>}
+                            <p className="text-success">Status: Completed</p>
+                            <Link to="/campaigns/$id" params={{ id: e.campaignId }} className="inline-block pt-1 text-xs font-medium text-primary underline">Open campaign</Link>
+                          </PopoverContent>
+                        </Popover>
+                      ) : (
                       <Link key={e.key} to="/campaigns/$id" params={{ id: e.campaignId }}
                         title={`${e.campaign} · ${e.kind}${e.purpose ? ` · ${e.purpose}` : ""} · ${e.channel}${e.timing ? ` · ${e.timing}` : ""}${e.done ? `\nScheduled: ${fmtDay(e.scheduled)}${e.completedAt ? `\nCompleted: ${fmtDay(new Date(e.completedAt))}` : " · completed"}` : ""}\n${e.text}`}
                         style={campaignStyle(slots[e.campaignId] ?? 0)}
@@ -148,7 +166,7 @@ function CalendarPage() {
                         <span className="mr-1 inline-block size-2 rounded-full align-middle" style={campaignDot(slots[e.campaignId] ?? 0)} />
                         {e.done && "✓ "}{e.channel ? `${e.channel}: ` : ""}{e.text}
                       </Link>
-                    ))}{byDay[dayKey(d)]?.filter((e) => e.done).length ? null : null}{false && ((
+                      )
                     ))}
                   </div>
                 );

@@ -10,3 +10,9 @@ describe("calendar placement", () => {
     expect(calendarDay(sched, null)).toEqual(sched);
   });
 });
+import { cleanTitle } from "@/components/campaign/TitleEditor";
+describe("campaign title", () => {
+  it("trims spaces", () => expect(cleanTitle("  Spring  Sale ")).toBe("Spring Sale"));
+  it("blank becomes empty (blocked)", () => expect(cleanTitle("   ")).toBe(""));
+  it("caps at 80 chars", () => expect(cleanTitle("a".repeat(100)).length).toBe(80));
+});
