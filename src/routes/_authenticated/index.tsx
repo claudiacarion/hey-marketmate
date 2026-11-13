@@ -1,3 +1,4 @@
+import { taskDatesFor } from "@/lib/task-dates";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, Sparkles, Megaphone, Lightbulb } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
@@ -28,10 +29,9 @@ const DAY = 86_400_000;
 const sod = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 type Row = { id: string; title: string; status: string; brief: unknown; plan: unknown; poster: unknown; created_at: string };
 function taskDates(c: Row) {
-  const sd = (c.brief as { startDate?: string } | null)?.startDate;
-  const m = sd ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(sd) : null;
-  const start = m ? new Date(+m[1]!, +m[2]! - 1, +m[3]!) : sod(new Date(c.created_at));
-  return (((c.plan ?? {}) as CampaignPlan).calendar ?? []).map((it, i) => ({ ...it, date: new Date(start.getTime() + ((Number(/\d+/.exec(it.day ?? "")?.[0]) || i + 1) - 1) * DAY) }));
+  const cal = ((c.plan ?? {}) as CampaignPlan).calendar ?? [];
+  const dates = taskDatesFor(c.brief, cal, c.created_at);
+  return cal.map((it, i) => ({ ...it, date: dates[i]! }));
 }
 
 function Dashboard() {
