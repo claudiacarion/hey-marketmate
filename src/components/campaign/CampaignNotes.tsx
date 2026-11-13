@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
-type Note = { id: string; body: string; created_at: string; updated_at: string };
+type Note = { id: string; body: string; created_at: string; updated_at: string; is_completed: boolean };
 const fmt = (s: string) => new Date(s).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 
 export function CampaignNotes({ campaignId }: { campaignId: string }) {
@@ -19,7 +19,7 @@ export function CampaignNotes({ campaignId }: { campaignId: string }) {
   const { data: notes = [], isLoading, error, refetch } = useQuery({
     queryKey: key,
     queryFn: async () => {
-      const { data, error } = await supabase.from("campaign_notes").select("id,body,created_at,updated_at").eq("campaign_id", campaignId).order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("campaign_notes").select("id,body,created_at,updated_at,is_completed").eq("campaign_id", campaignId).order("created_at", { ascending: false });
       if (error) throw error;
       return data as Note[];
     },
@@ -33,6 +33,11 @@ export function CampaignNotes({ campaignId }: { campaignId: string }) {
   const update = useMutation({
     mutationFn: async ({ id, body }: { id: string; body: string }) => { const { error } = await supabase.from("campaign_notes").update({ body }).eq("id", id); if (error) throw error; },
     onSuccess: () => { setEditId(null); toast.success("Note updated"); done(); },
+    onError: () => toast.error("Couldn't update the note."),
+  });
+  const toggle = useMutation({
+    mutationFn: async ({ id, is_completed }: { id: string; is_completed: boolean }) => { const { error } = await supabase.from("campaign_notes").update({ is_completed }).eq("id", id); if (error) throw error; },
+    onSuccess: done,
     onError: () => toast.error("Couldn't update the note."),
   });
   const del = useMutation({
@@ -80,12 +85,22 @@ export function CampaignNotes({ campaignId }: { campaignId: string }) {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="whitespace-pre-line break-words">{n.body}</p>
+                   <div className="flex items-start justify-between gap-2">
+                     <div className="flex min-w-0 items-start gap-2">
+                       <input
+                         type="checkbox"
+                         checked={n.is_completed}
+                         disabled={toggle.isPending}
+                         aria-label="Mark note as completed"
+                         onChange={(e) => toggle.mutate({ id: n.id, is_completed: e.target.checked })}
+                         className="mt-1 size-4 shrink-0 accent-primary"
+                       />
+                     <div className="min-w-0">
+                       <p className={`whitespace-pre-line break-words ${n.is_completed ? "text-muted-foreground line-through" : ""}`}>{n.body}</p>
                       <p className="mt-1 text-xs text-muted-foreground">Added {fmt(n.created_at)}{new Date(n.updated_at).getTime() - new Date(n.created_at).getTime() > 1000 ? ` · Edited ${fmt(n.updated_at)}` : ""}</p>
-                    </div>
-                    <div className="flex shrink-0">
+                     </div>
+                     </div>
+                     <div className="flex shrink-0">
                       <Button size="icon" variant="ghost" aria-label="Edit note" onClick={() => { setEditId(n.id); setEditText(n.body); }}><Pencil className="size-4" /></Button>
                       <Button size="icon" variant="ghost" aria-label="Delete note" disabled={del.isPending} onClick={() => { if (confirm("Delete this note?")) del.mutate(n.id); }}><Trash2 className="size-4" /></Button>
                     </div>

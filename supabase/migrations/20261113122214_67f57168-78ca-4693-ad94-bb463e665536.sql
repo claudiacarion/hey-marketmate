@@ -1,0 +1,1 @@
+ALTER TABLE public.campaign_notes ADD COLUMN is_completed boolean NOT NULL DEFAULT false;
