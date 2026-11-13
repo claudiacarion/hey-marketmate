@@ -9,7 +9,7 @@ describe("rescheduling", () => {
     const b = rescheduleBrief(brief, cal, "2026-11-01T00:00:00Z", "2026-12-08", new Set());
     expect(b.taskDates).toEqual(["2026-12-08", "2026-12-10", "2026-12-12", "2026-12-15", "2026-12-17"]);
     expect(b.startDate).toBe("2026-12-08");
-    expect(b.goal).toBe("x");
+    expect(b["goal"]).toBe("x");
   });
   it("keeps completed tasks on their original dates", () => {
     const b = rescheduleBrief(brief, cal, "2026-11-01T00:00:00Z", "2026-12-08", new Set([0, 1]));
