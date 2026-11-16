@@ -19,5 +19,9 @@ export type CampaignPlan = {
   pinterestPins?: { title: string; description: string; visualConcept: string; boardIdea: string }[];
   seasonalCampaigns?: { occasion: string; timing: string; idea: string }[];
   productLaunch?: { teaser: string; announcement: string; launchPlan: string; followUp: string };
+  emailMessages?: { subject: string; previewText: string; body: string; callToAction: string }[];
+  smsMessages?: { text: string; purpose?: string }[];
+  googlePosts?: { postType: string; text: string; callToAction: string }[];
+  briefCheck?: { passed: boolean; checks: { item: string; status: "ok" | "flag"; note: string }[]; missing: string[]; assumptions: string[] };
   soloSellerTips?: { priorities: { task: string; impact: string; effort: string; why: string }[]; reusableContent: string[]; weeklyTimeEstimate: string };
 };
