@@ -10,5 +10,6 @@
 - [x] Calendar campaign selector, status filter, campaign colours + legend, progress
 - [x] Campaign notes (collapsible, per campaign, owner-only)
 - [x] Campaign name as first Studio question, used as the campaign title everywhere
-- [ ] Claudia deploys generate-campaign-index_v6.ts (new pacing rules) + design-poster-index_v3.ts, then verify live
+- [x] Channel-specific content, 1-day campaigns, brief accuracy check (app)
+- [ ] Claudia deploys generate-campaign-index_v7.ts + design-poster-index_v3.ts, then verify live
 - [ ] Google provider setup in Supabase + Google Cloud — manual, by Claudia

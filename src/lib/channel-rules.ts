@@ -55,8 +55,8 @@ export function enforceBrief(plan: CampaignPlan, channels: unknown, durationDays
     return kept;
   };
   p.recommendedChannels = keep(p.recommendedChannels, (c) => c.channel, "channel recommendation(s)") ?? [];
-  p.socialPosts = keep(p.socialPosts, (x) => x.platform, "social post(s)");
-  let cal = keep(p.calendar, (x) => x.channel, "schedule item(s)");
+  if (p.socialPosts) p.socialPosts = keep(p.socialPosts, (x) => x.platform, "social post(s)") ?? [];
+  let cal = p.calendar ? keep(p.calendar, (x) => x.channel, "schedule item(s)") : undefined;
   if (cal) {
     const D = Math.max(1, durationDays || 7);
     const before = cal.length;
