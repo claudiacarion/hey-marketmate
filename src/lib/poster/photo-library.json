@@ -1,7 +1,7 @@
 [
  {
   "id": "stock-cafe-1",
-  "url": "/__l5e/assets-v1/de863203-394d-462d-8cde-791be303ac98/stock-cafe-1.jpg",
+  "url": "/poster-photos/stock-cafe-1.jpg",
   "category": "cafe",
   "title": "latte coffee with heart decor - Credit to https://myfriendscoffee.com/",
   "creator": "John Beans",
@@ -14,7 +14,7 @@
  },
  {
   "id": "stock-cafe-2",
-  "url": "/__l5e/assets-v1/bfde445f-2af4-4ea2-96c2-6cad33cd3219/stock-cafe-2.jpg",
+  "url": "/poster-photos/stock-cafe-2.jpg",
   "category": "cafe",
   "title": "A cup of Latte coffee in a black cup placed on the table. There’s a heart formed in the foam.",
   "creator": "Sumi Subedi",
@@ -27,7 +27,7 @@
  },
  {
   "id": "stock-cafe-3",
-  "url": "/__l5e/assets-v1/9b63d058-6abf-4d74-92fc-267cbcd08b41/stock-cafe-3.jpg",
+  "url": "/poster-photos/stock-cafe-3.jpg",
   "category": "cafe",
   "title": "Iced Latte Coffee",
   "creator": "Enaan Farhan",
@@ -40,7 +40,7 @@
  },
  {
   "id": "stock-cafe-4",
-  "url": "/__l5e/assets-v1/89b050a1-55a2-4959-bc31-1c3b5195a755/stock-cafe-4.jpg",
+  "url": "/poster-photos/stock-cafe-4.jpg",
   "category": "cafe",
   "title": "Perfection.",
   "creator": "mustafa.alami",
@@ -53,7 +53,7 @@
  },
  {
   "id": "stock-cafe-5",
-  "url": "/__l5e/assets-v1/ea465058-0a69-401e-85b8-a57431d3e690/stock-cafe-5.jpg",
+  "url": "/poster-photos/stock-cafe-5.jpg",
   "category": "cafe",
   "title": "Coffee time at Market Lane with a latte",
   "creator": "ultrakml",
@@ -66,7 +66,7 @@
  },
  {
   "id": "stock-restaurant-1",
-  "url": "/__l5e/assets-v1/08e3f3ce-1a1c-4e4f-bb04-4ee35a2257f9/stock-restaurant-1.jpg",
+  "url": "/poster-photos/stock-restaurant-1.jpg",
   "category": "restaurant",
   "title": "Healthy food",
   "creator": "Cara St.Hilaire",
@@ -79,7 +79,7 @@
  },
  {
   "id": "stock-restaurant-2",
-  "url": "/__l5e/assets-v1/b99e06bd-5ada-40e4-bb32-03bd1e974eaa/stock-restaurant-2.jpg",
+  "url": "/poster-photos/stock-restaurant-2.jpg",
   "category": "restaurant",
   "title": "Party Of Six",
   "creator": "Ian Sane",
@@ -92,7 +92,7 @@
  },
  {
   "id": "stock-restaurant-3",
-  "url": "/__l5e/assets-v1/7ae744c4-89dc-41cc-8e1d-4290cad2d28d/stock-restaurant-3.jpg",
+  "url": "/poster-photos/stock-restaurant-3.jpg",
   "category": "restaurant",
   "title": "sri lanka food in usa",
   "creator": "r-z",
@@ -105,7 +105,7 @@
  },
  {
   "id": "stock-restaurant-4",
-  "url": "/__l5e/assets-v1/b1c309a9-c9d8-4ad3-8792-552ae9cc9ea5/stock-restaurant-4.jpg",
+  "url": "/poster-photos/stock-restaurant-4.jpg",
   "category": "restaurant",
   "title": "Vietnamese Food",
   "creator": "Rex Roof",
@@ -118,7 +118,7 @@
  },
  {
   "id": "stock-restaurant-5",
-  "url": "/__l5e/assets-v1/ac24833f-d0c0-4ddb-af96-af12a830dfc6/stock-restaurant-5.jpg",
+  "url": "/poster-photos/stock-restaurant-5.jpg",
   "category": "restaurant",
   "title": "Brunch",
   "creator": "Librarian Avenger",
@@ -131,7 +131,7 @@
  },
  {
   "id": "stock-salon-1",
-  "url": "/__l5e/assets-v1/98fe2a72-fb9d-458d-afbf-47c5267b4b6b/stock-salon-1.jpg",
+  "url": "/poster-photos/stock-salon-1.jpg",
   "category": "salon",
   "title": "Braided Hair",
   "creator": "Candace McDaniel",
@@ -144,7 +144,7 @@
  },
  {
   "id": "stock-salon-2",
-  "url": "/__l5e/assets-v1/b3c31fa6-3c2a-4914-993b-b39ce78fcee0/stock-salon-2.jpg",
+  "url": "/poster-photos/stock-salon-2.jpg",
   "category": "salon",
   "title": "Woman Hair",
   "creator": "Magdalena",
@@ -157,7 +157,7 @@
  },
  {
   "id": "stock-salon-3",
-  "url": "/__l5e/assets-v1/cf77ffe6-7df2-4aa7-927f-c2e263085bc0/stock-salon-3.jpg",
+  "url": "/poster-photos/stock-salon-3.jpg",
   "category": "salon",
   "title": "Braided Hair",
   "creator": "Candace McDaniel",
@@ -170,7 +170,7 @@
  },
  {
   "id": "stock-fitness-1",
-  "url": "/__l5e/assets-v1/b3d04e46-43f0-434d-9807-0bdd2a951e81/stock-fitness-1.jpg",
+  "url": "/poster-photos/stock-fitness-1.jpg",
   "category": "fitness",
   "title": "Rockclimbing Fitness",
   "creator": "vincenzo di giorgi",
@@ -183,7 +183,7 @@
  },
  {
   "id": "stock-fitness-2",
-  "url": "/__l5e/assets-v1/9958e05b-4c6f-4d56-8c5d-523efa5c63be/stock-fitness-2.jpg",
+  "url": "/poster-photos/stock-fitness-2.jpg",
   "category": "fitness",
   "title": "Female Fitness",
   "creator": "Matt Moloney",
@@ -196,7 +196,7 @@
  },
  {
   "id": "stock-shop-1",
-  "url": "/__l5e/assets-v1/de92cf6f-db41-467f-a4f3-6375669f7357/stock-shop-1.jpg",
+  "url": "/poster-photos/stock-shop-1.jpg",
   "category": "shop",
   "title": "Book Shop",
   "creator": "Tuur Tisseghem",
@@ -209,7 +209,7 @@
  },
  {
   "id": "stock-shop-2",
-  "url": "/__l5e/assets-v1/5e21edfd-aae2-4989-b072-418a90ac9de1/stock-shop-2.jpg",
+  "url": "/poster-photos/stock-shop-2.jpg",
   "category": "shop",
   "title": "Shopping Mall",
   "creator": "Burst",
@@ -222,7 +222,7 @@
  },
  {
   "id": "stock-shop-3",
-  "url": "/__l5e/assets-v1/1361a71b-2bbf-4281-8e03-8b5bbbca9765/stock-shop-3.jpg",
+  "url": "/poster-photos/stock-shop-3.jpg",
   "category": "shop",
   "title": "Store Shop",
   "creator": "Redd Angelo",
@@ -235,7 +235,7 @@
  },
  {
   "id": "stock-shop-4",
-  "url": "/__l5e/assets-v1/67bd301f-683c-4b4f-9696-287c1198dd0c/stock-shop-4.jpg",
+  "url": "/poster-photos/stock-shop-4.jpg",
   "category": "shop",
   "title": "Fashion Clothing",
   "creator": "Kristin Hardwick",
@@ -248,7 +248,7 @@
  },
  {
   "id": "stock-shop-5",
-  "url": "/__l5e/assets-v1/e6ce7b30-8ef5-47ad-bda5-cb2d15500cd9/stock-shop-5.jpg",
+  "url": "/poster-photos/stock-shop-5.jpg",
   "category": "shop",
   "title": "Glass Store",
   "creator": "Mike Wilson",
@@ -261,7 +261,7 @@
  },
  {
   "id": "stock-general-1",
-  "url": "/__l5e/assets-v1/7b8aa000-dae4-4ef3-99cd-3c413f5867e5/stock-general-1.jpg",
+  "url": "/poster-photos/stock-general-1.jpg",
   "category": "general",
   "title": "Coffee Cafe",
   "creator": "Jeff Sheldon",
@@ -274,7 +274,7 @@
  },
  {
   "id": "stock-general-3",
-  "url": "/__l5e/assets-v1/52d0cbbe-9140-4d86-b71b-52ca424dce8b/stock-general-3.jpg",
+  "url": "/poster-photos/stock-general-3.jpg",
   "category": "general",
   "title": "Man Guy",
   "creator": "Nigel Tadyanehondo",
@@ -287,7 +287,7 @@
  },
  {
   "id": "stock-general-4",
-  "url": "/__l5e/assets-v1/36f4d28a-c6bc-492a-bec1-f8e2eb891e54/stock-general-4.jpg",
+  "url": "/poster-photos/stock-general-4.jpg",
   "category": "general",
   "title": "Architecture Building",
   "creator": "Clem Onojeghuo",
@@ -300,7 +300,7 @@
  },
  {
   "id": "stock-general-5",
-  "url": "/__l5e/assets-v1/09d13d7c-776b-4121-a7ab-0b19114175fb/stock-general-5.jpg",
+  "url": "/poster-photos/stock-general-5.jpg",
   "category": "general",
   "title": "Plants Nature",
   "creator": "Verena Yunita Yapi",
@@ -313,7 +313,7 @@
  },
  {
   "id": "stock-salon-4",
-  "url": "/__l5e/assets-v1/c9918e30-f8f0-4bca-aab7-5ee8e5434113/stock-salon-4.jpg",
+  "url": "/poster-photos/stock-salon-4.jpg",
   "category": "salon",
   "title": "Barber Cutting",
   "creator": "Nick Demou",
@@ -326,7 +326,7 @@
  },
  {
   "id": "stock-salon-5",
-  "url": "/__l5e/assets-v1/0c4ad760-66d7-41ee-855b-2b30b0ecaf90/stock-salon-5.jpg",
+  "url": "/poster-photos/stock-salon-5.jpg",
   "category": "salon",
   "title": "Barber Window",
   "creator": "Robin Vanden Berghe",
@@ -339,7 +339,7 @@
  },
  {
   "id": "stock-salon-6",
-  "url": "/__l5e/assets-v1/2fb89a73-f84e-46d3-a91b-e32201111493/stock-salon-6.jpg",
+  "url": "/poster-photos/stock-salon-6.jpg",
   "category": "salon",
   "title": "Scissors Comb",
   "creator": "Candace McDaniel",
@@ -352,7 +352,7 @@
  },
  {
   "id": "stock-consultant-1",
-  "url": "/__l5e/assets-v1/472b20f8-f774-4e0a-8c16-a3e88420e8df/stock-consultant-1.jpg",
+  "url": "/poster-photos/stock-consultant-1.jpg",
   "category": "consultant",
   "title": "Business Document",
   "creator": "Daria Nepriakhina",
@@ -365,7 +365,7 @@
  },
  {
   "id": "stock-fitness-x3",
-  "url": "/__l5e/assets-v1/2492aa9e-f18c-4e2c-a2f1-89cefbf421a0/stock-fitness-x3.jpg",
+  "url": "/poster-photos/stock-fitness-x3.jpg",
   "category": "fitness",
   "title": "Male Fitness",
   "creator": "Direct Media",
@@ -378,7 +378,7 @@
  },
  {
   "id": "stock-consultant-x2",
-  "url": "/__l5e/assets-v1/323d8889-7157-4b99-a1d2-cf75a78fa6e7/stock-consultant-x2.jpg",
+  "url": "/poster-photos/stock-consultant-x2.jpg",
   "category": "consultant",
   "title": "Office Work",
   "creator": "energepic.com",
@@ -391,7 +391,7 @@
  },
  {
   "id": "stock-consultant-x3",
-  "url": "/__l5e/assets-v1/ece1d10a-68fe-47eb-9446-253c0b0a9cd9/stock-consultant-x3.jpg",
+  "url": "/poster-photos/stock-consultant-x3.jpg",
   "category": "consultant",
   "title": "Office Work",
   "creator": "energepic.com",
@@ -404,7 +404,7 @@
  },
  {
   "id": "stock-consultant-x4",
-  "url": "/__l5e/assets-v1/92228b76-90d6-4e3d-ba67-291a8186cf4c/stock-consultant-x4.jpg",
+  "url": "/poster-photos/stock-consultant-x4.jpg",
   "category": "consultant",
   "title": "Office Desk",
   "creator": "Rob Bye",
@@ -417,7 +417,7 @@
  },
  {
   "id": "stock-handmade-1",
-  "url": "/__l5e/assets-v1/b639212b-136d-43a9-b5a1-31af748d3bf6/stock-handmade-1.jpg",
+  "url": "/poster-photos/stock-handmade-1.jpg",
   "category": "handmade",
   "title": "The Wheel (135616779)",
   "creator": "Stephanie Pakrul",
@@ -430,7 +430,7 @@
  },
  {
   "id": "stock-handmade-2",
-  "url": "/__l5e/assets-v1/8e967cd0-853d-490d-b1eb-24b79ef55898/stock-handmade-2.jpg",
+  "url": "/poster-photos/stock-handmade-2.jpg",
   "category": "handmade",
   "title": "Lapis Earrings ~ Handmade Designer Earrings ~ Fine Fashion Jewelry Designs (7921784974)",
   "creator": "Naomi King from San Francisco, USA",
@@ -443,7 +443,7 @@
  },
  {
   "id": "stock-handmade-3",
-  "url": "/__l5e/assets-v1/e310cdba-ba4c-442b-9da9-f62c53d7f945/stock-handmade-3.jpg",
+  "url": "/poster-photos/stock-handmade-3.jpg",
   "category": "handmade",
   "title": "Knitting half brioche stitch in merino yarn, Tuntorp, Brastad",
   "creator": "W.carter",
@@ -456,7 +456,7 @@
  },
  {
   "id": "stock-education-1",
-  "url": "/__l5e/assets-v1/13049377-4d06-4e6d-a665-3964b0d2a729/stock-education-1.jpg",
+  "url": "/poster-photos/stock-education-1.jpg",
   "category": "education",
   "title": "Woman working on a laptop in the kitchen. Top view",
   "creator": "Shixart1985",
@@ -469,7 +469,7 @@
  },
  {
   "id": "stock-education-2",
-  "url": "/__l5e/assets-v1/f0f52403-a768-4390-a67f-87abd8d6f978/stock-education-2.jpg",
+  "url": "/poster-photos/stock-education-2.jpg",
   "category": "education",
   "title": "Middle-aged woman working on laptop at home",
   "creator": "Shixart1985",
@@ -482,7 +482,7 @@
  },
  {
   "id": "stock-education-3",
-  "url": "/__l5e/assets-v1/c6575c94-3dd0-4e0b-be10-c7a6433f9ddf/stock-education-3.jpg",
+  "url": "/poster-photos/stock-education-3.jpg",
   "category": "education",
   "title": "Young woman working on laptop and writing at home",
   "creator": "Shixart1985",
@@ -495,7 +495,7 @@
  },
  {
   "id": "stock-home-1",
-  "url": "/__l5e/assets-v1/17d77f00-b1df-442d-9d5a-30636264abc9/stock-home-1.jpg",
+  "url": "/poster-photos/stock-home-1.jpg",
   "category": "home",
   "title": "Gardener hands planting a flower in the ground",
   "creator": "Shixart1985",
@@ -508,7 +508,7 @@
  },
  {
   "id": "stock-home-2",
-  "url": "/__l5e/assets-v1/e8464c67-32d6-41bb-9447-217c300e47ef/stock-home-2.jpg",
+  "url": "/poster-photos/stock-home-2.jpg",
   "category": "home",
   "title": "Cleaning sponge",
   "creator": "Jiafei Slay Queen",
@@ -521,7 +521,7 @@
  },
  {
   "id": "stock-home-3",
-  "url": "/__l5e/assets-v1/41bccd27-f41e-483a-a365-8dd50705716f/stock-home-3.jpg",
+  "url": "/poster-photos/stock-home-3.jpg",
   "category": "home",
   "title": "Plumber at work (retouched)",
   "creator": "photo taken by flickr user rick",
@@ -534,7 +534,7 @@
  },
  {
   "id": "stock-events-1",
-  "url": "/__l5e/assets-v1/a47626a2-07f1-4f39-8c42-79edab831fd2/stock-events-1.jpg",
+  "url": "/poster-photos/stock-events-1.jpg",
   "category": "events",
   "title": "Wedding Banquet setting",
   "creator": "Tracy Hunter",
@@ -547,7 +547,7 @@
  },
  {
   "id": "stock-events-2",
-  "url": "/__l5e/assets-v1/017bc8eb-1864-4639-82fa-9e21d95ae0fc/stock-events-2.jpg",
+  "url": "/poster-photos/stock-events-2.jpg",
   "category": "events",
   "title": "Live band performance at an outdoor concert with lights and energetic crowd during nightti",
   "creator": "Shixart1985",
@@ -560,7 +560,7 @@
  },
  {
   "id": "stock-events-3",
-  "url": "/__l5e/assets-v1/f94f0a21-6fd5-4a1b-a0f6-be3bcd1e7b68/stock-events-3.jpg",
+  "url": "/poster-photos/stock-events-3.jpg",
   "category": "events",
   "title": "Birthday party decoration",
   "creator": "Abinayasekar357",
