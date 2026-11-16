@@ -108,6 +108,10 @@ const TOTAL_FEED_CAP: Record<number, number> = { 7: 6, 14: 12, 28: 20 };
  * Returns a message per rule the plan breaks; empty means the pacing is fine.
  */
 export function scheduleIssues(items: CalItem[], durationDays: number): string[] {
+  if (durationDays === 1) {
+    const feed = items.filter((it) => activityType(it.type) === "feed_post").length;
+    return feed > 3 ? [`${feed} main feed posts in one day — keep a one-day campaign to 1-2 posts per channel.`] : [];
+  }
   const D = [7, 14, 28].includes(durationDays) ? durationDays : 7;
   const cap = FEED_CAP[D] ?? 4;
   const totalCap = TOTAL_FEED_CAP[D] ?? 6;

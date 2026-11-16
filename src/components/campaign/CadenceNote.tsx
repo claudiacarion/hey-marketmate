@@ -13,7 +13,7 @@ export function CadenceNote({ plan, items }: { plan: CampaignPlan; items: CalIte
         <span className="font-semibold">{c.byType.map((b) => `${b.n} ${b.label.toLowerCase()}${b.n > 1 ? "s" : ""}`).join(" · ")}</span>
       </div>
       <p className="text-sm text-muted-foreground">
-        Spread over {c.daysUsed} of {c.span} days — the other days carry no work.
+        {c.span <= 1 ? "Everything happens on the campaign day." : `Spread over ${c.daysUsed} of ${c.span} days — the other days carry no work.`}
       </p>
       {plan.timeCommitment && (
         <p className="flex items-start gap-2 text-sm"><Clock className="mt-0.5 size-4 shrink-0 text-accent" />{plan.timeCommitment}</p>
