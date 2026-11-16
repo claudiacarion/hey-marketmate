@@ -11,6 +11,8 @@ import { PageHeader } from "@/components/app/AppShell";
 import type { CampaignPlan } from "@/lib/campaign-types";
 import { defaultProfile, isEtsySeller, loadProfile } from "@/lib/business-profile";
 import { PlanView } from "@/components/studio/PlanView";
+import { enforceBrief } from "@/lib/channel-rules";
+import { toLocalISO } from "@/lib/task-dates";
 
 export const Route = createFileRoute("/_authenticated/studio")({
   head: () => ({
@@ -61,11 +63,12 @@ function Studio() {
   const run = async () => {
     const title = name.trim().replace(/\s+/g, " ");
     if (!title) { const m = "Please give your campaign a name first."; setError(m); toast.error(m); document.getElementById("cname")?.focus(); return; }
+    if (!picked.length) { const m = "Please select at least one channel."; setError(m); toast.error(m); return; }
     setLoading(true); setError(null);
     try {
       const names = channels.filter((c) => picked.includes(c.id)).map((c) => c.label);
       const business = { name: profile.name, category: profile.category, subcategory: profile.subcategory, otherDescription: profile.otherDescription, salesChannels: profile.salesChannels, location: profile.location, audience: profile.audience, voice: profile.voice, ...(isEtsySeller(profile) ? { etsyDetails: profile.etsyDetails } : {}) };
-      const { data, error: fnError } = await supabase.functions.invoke<{ plan?: CampaignPlan; error?: string }>("generate-campaign", { body: { business, brief: { campaignName: title, goal, channels: names, budget, timing: `${duration} days from ${startDate}`, startDate, durationDays: duration, notes: `Campaign name (chosen by the owner, keep it as the title): ${title}${notes ? `\n${notes}` : ""}` } } });
+      const { data, error: fnError } = await supabase.functions.invoke<{ plan?: CampaignPlan; error?: string }>("generate-campaign", { body: { business, brief: { campaignName: title, goal, channels: names, budget, timing: `${duration === 1 ? "1 day" : `${duration} days`} from ${startDate}`, startDate, durationDays: duration, createdDate: toLocalISO(new Date()), notes: `Campaign name (chosen by the owner, keep it as the title): ${title}${notes ? `\n${notes}` : ""}` } } });
       let msg: string | null = null;
       if (fnError) {
         msg = "The campaign service couldn't be reached. Please try again.";
@@ -77,9 +80,11 @@ function Studio() {
       else if (!data?.plan) msg = "The AI returned an unexpected answer. Please try again.";
       if (msg) { setError(msg); toast.error(msg); }
       else if (data?.plan) {
-        const finalPlan = { ...data.plan, title };
+        const { plan: checked, removed } = enforceBrief(data.plan, names, duration);
+        const bc = checked.briefCheck ?? { passed: true, checks: [], missing: [], assumptions: [] };
+        const finalPlan = { ...checked, title, briefCheck: removed.length ? { ...bc, passed: false, checks: [...bc.checks, { item: "Selected channels", status: "flag" as const, note: `Removed ${removed.join(", ")}.` }] } : bc };
         setPlan(finalPlan); setCampaignId(null);
-        const { data: saved, error: saveErr } = await supabase.from("campaigns").insert({ title, business: business as never, brief: { campaignName: title, goal, channels: names, budget, timing: `${duration} days from ${startDate}`, startDate, durationDays: duration, notes } as never, plan: finalPlan as never }).select("id").single();
+        const { data: saved, error: saveErr } = await supabase.from("campaigns").insert({ title, business: business as never, brief: { campaignName: title, goal, channels: names, budget, timing: `${duration === 1 ? "1 day" : `${duration} days`} from ${startDate}`, startDate, durationDays: duration, notes } as never, plan: finalPlan as never }).select("id").single();
         if (saved) setCampaignId(saved.id);
         if (saveErr) toast.error("Plan created, but it couldn't be saved to your campaigns."); else toast.success("Saved to Campaigns");
         setTimeout(() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth" }), 50); }
@@ -109,16 +114,17 @@ function Studio() {
             <Label>3. Where should it run?</Label>
             <div className="flex flex-wrap gap-2">{channels.map(({ id, label, icon: Icon }) => <button type="button" key={id} onClick={() => toggle(id)} className={`${chip(picked.includes(id))} flex items-center gap-2`}><Icon className="size-4" />{label}</button>)}</div>
           </div>
+          {!picked.length && <p className="-mt-4 text-xs text-destructive">Please select at least one channel.</p>}
           <div className="space-y-2"><Label htmlFor="budget">4. Budget (optional)</Label><Input id="budget" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="e.g. 200 €" /></div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2"><Label htmlFor="start">Start date</Label><Input id="start" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} /></div>
-            <div className="space-y-2"><Label>Length</Label><div className="flex flex-wrap gap-2">{[[7, "7 days"], [14, "2 weeks"], [28, "4 weeks"]].map(([n, l]) => <button type="button" key={n} onClick={() => setDuration(Number(n))} className={chip(duration === n)}>{l}</button>)}</div></div>
+            <div className="space-y-2"><Label>Length</Label><div className="flex flex-wrap gap-2">{[[1, "1 day"], [7, "7 days"], [14, "2 weeks"], [28, "4 weeks"]].map(([n, l]) => <button type="button" key={n} onClick={() => setDuration(Number(n))} className={chip(duration === n)}>{l}</button>)}</div></div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="brief">5. Anything else?</Label>
             <Textarea id="brief" rows={5} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="We're launching a new pumpkin spice brunch menu on weekends and want families to try it…" />
           </div>
-          <Button size="lg" className="w-full rounded-xl bg-accent text-accent-foreground hover:bg-accent/90" disabled={loading || !name.trim()} onClick={run}>
+          <Button size="lg" className="w-full rounded-xl bg-accent text-accent-foreground hover:bg-accent/90" disabled={loading || !name.trim() || !picked.length} onClick={run}>
             {loading ? <><Loader2 className="size-4 animate-spin" /> Crafting your campaign…</> : <><Sparkles className="size-4" /> Generate campaign plan</>}
           </Button>
           <p className="text-center text-xs text-muted-foreground">Planning for <b className="text-foreground">{profile.name}</b> · {label}. Edit in My Business.</p>

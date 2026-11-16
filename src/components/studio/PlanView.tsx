@@ -1,5 +1,5 @@
 import { taskDatesFor } from "@/lib/task-dates";
-import { Target, Users, Compass, MessageCircle, Megaphone, Gift, PieChart, TrendingUp, Copy, CalendarDays, ShieldCheck, Image as ImageIcon, Store, Camera, Pin, Sparkles, Rocket, Timer } from "lucide-react";
+import { Target, Users, Compass, MessageCircle, Megaphone, Gift, PieChart, TrendingUp, Copy, CalendarDays, ShieldCheck, Image as ImageIcon, Store, Camera, Pin, Sparkles, Rocket, Timer, Mail, MessageSquare, MapPin, CheckCircle2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { TaskTracker } from "@/components/campaign/TaskTracker";
@@ -7,6 +7,7 @@ import { CampaignNotes } from "@/components/campaign/CampaignNotes";
 import { CadenceNote } from "@/components/campaign/CadenceNote";
 import { ACTIVITY_LABEL, activityType, purposeLabel } from "@/lib/schedule";
 import type { CampaignPlan } from "@/lib/campaign-types";
+import { smsSegments } from "@/lib/channel-rules";
 import { PosterStudio, type SavedPoster } from "@/components/studio/PosterStudio";
 
 function Block({ icon: Icon, title, children }: { icon: typeof Target; title: string; children: React.ReactNode }) {
@@ -47,12 +48,14 @@ export function PlanView({ plan, businessName, businessType, brand, campaignId, 
           <ul className="space-y-2">{plan.successMetrics.map((m, i) => <li key={i} className="flex justify-between gap-3"><span>{m.metric}</span><span className="text-right font-semibold">{m.target}</span></li>)}</ul>
         </Block>
       </div>
+      {plan.briefCheck && <BriefCheck c={plan.briefCheck} />}
       {campaignId && <CampaignNotes campaignId={campaignId} />}
       {plan.qualityReview && <Review r={plan.qualityReview} />}
       {!!plan.socialPosts?.length && <>
         <h3 className="pt-4 text-2xl font-semibold">Social media posts</h3>
         <div className="grid gap-4 md:grid-cols-3">{plan.socialPosts.map((p, i) => <PostCard key={i} p={p} />)}</div>
       </>}
+      <ChannelSections plan={plan} />
       {!!plan.calendar?.length && campaignId && <TaskTracker campaignId={campaignId} items={plan.calendar} plan={plan} dates={createdAt ? taskDatesFor(brief, plan.calendar, createdAt) : undefined} />}
       {!!plan.calendar?.length && !campaignId && <>
         <h3 className="flex items-center gap-2 pt-4 text-2xl font-semibold"><CalendarDays className="size-5 text-primary" />Posting schedule</h3>
@@ -159,6 +162,64 @@ function EtsySections({ plan }: { plan: CampaignPlan }) {
         <ul className="divide-y">{solo.priorities.map((t, i) => <li key={i} className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:justify-between"><div><b>{t.task}</b><p className="text-muted-foreground">{t.why}</p></div><div className="flex shrink-0 gap-1.5 text-xs"><span className="rounded-full bg-primary/10 px-2 py-1 font-medium text-primary">Impact {t.impact}</span><span className="rounded-full bg-secondary px-2 py-1 font-medium">Effort {t.effort}</span></div></li>)}</ul>
         {!!solo.reusableContent?.length && <p className="mt-4 text-muted-foreground"><b className="text-foreground">Reuse these:</b> {solo.reusableContent.join(" · ")}</p>}
       </div>
+    </>}
+  </>;
+}
+
+function BriefCheck({ c }: { c: NonNullable<CampaignPlan["briefCheck"]> }) {
+  const flags = c.checks.filter((x) => x.status === "flag");
+  const ok = c.passed && !flags.length && !c.missing.length;
+  return (
+    <div className="panel p-6 text-sm">
+      <div className="flex items-center gap-2 font-semibold">
+        {ok ? <CheckCircle2 className="size-5 text-primary" /> : <AlertTriangle className="size-5 text-accent" />}
+        {ok ? "Brief details checked" : "Brief details checked — please review"}
+      </div>
+      {!!c.checks.length && <ul className="mt-3 grid gap-1.5 sm:grid-cols-2">{c.checks.map((x, i) => (
+        <li key={i} className="flex items-start gap-2">{x.status === "ok" ? <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" /> : <AlertTriangle className="mt-0.5 size-4 shrink-0 text-accent" />}<span><b>{x.item}</b>{x.note && <span className="text-muted-foreground"> — {x.note}</span>}</span></li>
+      ))}</ul>}
+      {!!c.missing.length && <p className="mt-3"><b>Missing information:</b> <span className="text-muted-foreground">{c.missing.join(" · ")}</span></p>}
+      {!!c.assumptions.length && <p className="mt-2"><b>Assumptions to review:</b> <span className="text-muted-foreground">{c.assumptions.join(" · ")}</span></p>}
+    </div>
+  );
+}
+
+function ChannelSections({ plan }: { plan: CampaignPlan }) {
+  const e = plan.emailMessages ?? [], m = plan.smsMessages ?? [], g = plan.googlePosts ?? [];
+  if (!e.length && !m.length && !g.length) return null;
+  return <>
+    {!!e.length && <>
+      <h3 className="flex items-center gap-2 pt-4 text-2xl font-semibold"><Mail className="size-5 text-primary" />Emails</h3>
+      <div className="grid gap-4 md:grid-cols-2">{e.map((x, i) => (
+        <div key={i} className="panel flex flex-col p-5 text-sm">
+          <div className="mb-2 flex items-start justify-between gap-2"><div><div className="text-xs uppercase tracking-wide text-muted-foreground">Subject</div><b className="text-base">{x.subject}</b></div><Button size="sm" variant="ghost" onClick={() => copyText(`Subject: ${x.subject}\nPreview: ${x.previewText}\n\n${x.body}\n\n${x.callToAction}`, "Email")}><Copy className="size-4" />Copy</Button></div>
+          {x.previewText && <p className="text-xs text-muted-foreground">Preview: {x.previewText}</p>}
+          <p className="mt-3 whitespace-pre-line leading-relaxed">{x.body}</p>
+          <p className="mt-3 font-semibold text-primary">→ {x.callToAction}</p>
+        </div>
+      ))}</div>
+    </>}
+    {!!m.length && <>
+      <h3 className="flex items-center gap-2 pt-4 text-2xl font-semibold"><MessageSquare className="size-5 text-primary" />SMS messages</h3>
+      <div className="grid gap-4 md:grid-cols-2">{m.map((x, i) => {
+        const len = [...x.text].length, seg = smsSegments(x.text);
+        return (
+          <div key={i} className="panel p-5 text-sm">
+            <p className="leading-relaxed">{x.text}</p>
+            <div className="mt-3 flex items-center justify-between gap-2 text-xs text-muted-foreground"><span>{len} characters{seg > 1 ? ` · may send as ${seg} SMS segments` : " · 1 SMS"}</span><Button size="sm" variant="ghost" onClick={() => copyText(x.text, "SMS")}><Copy className="size-4" />Copy</Button></div>
+          </div>
+        );
+      })}</div>
+    </>}
+    {!!g.length && <>
+      <h3 className="flex items-center gap-2 pt-4 text-2xl font-semibold"><MapPin className="size-5 text-primary" />Google Business Profile posts</h3>
+      <div className="grid gap-4 md:grid-cols-2">{g.map((x, i) => (
+        <div key={i} className="panel p-5 text-sm">
+          <div className="mb-2 flex items-center justify-between"><span className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold">{x.postType}</span><Button size="sm" variant="ghost" onClick={() => copyText(`${x.text}\n\n${x.callToAction}`, "Post")}><Copy className="size-4" />Copy</Button></div>
+          <p className="whitespace-pre-line leading-relaxed">{x.text}</p>
+          <p className="mt-3 font-semibold text-primary">→ {x.callToAction}</p>
+        </div>
+      ))}</div>
     </>}
   </>;
 }
