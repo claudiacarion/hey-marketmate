@@ -1,9 +1,9 @@
 import type { CampaignPlan } from "@/lib/campaign-types";
 import { dayNumberOf } from "@/lib/schedule";
-import { taskDatesFor } from "@/lib/task-dates";
+import { campaignStart, taskDatesFor } from "@/lib/task-dates";
 
 export type CampaignRow = { id: string; title: string; status: string; created_at: string; poster: unknown; plan: CampaignPlan | null; brief?: unknown };
-export type AppNotification = { id: string; kind: "post" | "draft" | "poster" | "ready"; title: string; body: string; campaignId: string; at: string };
+export type AppNotification = { id: string; kind: "post" | "draft" | "poster" | "ready" | "launch"; title: string; body: string; campaignId: string; at: string };
 
 const DAY = 86_400_000;
 const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
@@ -23,7 +23,10 @@ export function buildNotifications(rows: CampaignRow[], now = new Date()): AppNo
       });
     }
     if (offset === 0) out.push({ id: `ready:${c.id}`, kind: "ready", title: "Campaign plan ready", body: c.title, campaignId: c.id, at: c.created_at });
-    if (c.status === "Draft" && offset >= 2) out.push({ id: `draft:${c.id}`, kind: "draft", title: "Still a draft", body: `“${c.title}” hasn't been scheduled yet.`, campaignId: c.id, at: new Date(created.getTime() + 2 * DAY).toISOString() });
+    const untilStart = Math.round((campaignStart(c.brief, c.created_at).getTime() - today) / DAY);
+    const launch = c.status === "Draft" && untilStart <= 1;
+    if (launch) out.push({ id: `launch:${c.id}:${untilStart <= 0 ? "now" : "soon"}`, kind: "launch", title: untilStart <= 0 ? "Start date reached" : "Starts tomorrow", body: `Review and launch “${c.title}”.`, campaignId: c.id, at: new Date(today).toISOString() });
+    if (!launch && c.status === "Draft" && offset >= 2) out.push({ id: `draft:${c.id}`, kind: "draft", title: "Still a draft", body: `“${c.title}” hasn't been scheduled yet.`, campaignId: c.id, at: new Date(created.getTime() + 2 * DAY).toISOString() });
     if (!c.poster && offset <= 7) out.push({ id: `poster:${c.id}`, kind: "poster", title: "Add a poster", body: `Create a photo poster for “${c.title}”.`, campaignId: c.id, at: c.created_at });
   }
   return out.sort((a, b) => b.at.localeCompare(a.at));
