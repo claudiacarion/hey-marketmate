@@ -86,27 +86,27 @@ function AuthPage() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <section className="relative hidden flex-col justify-between overflow-hidden bg-hero p-12 text-hero-foreground lg:flex">
+      <section className="relative hidden flex-col justify-between overflow-hidden bg-hero p-12 text-primary-foreground lg:flex">
         <div className="flex items-center gap-2.5">
-          <span className="grid size-10 place-items-center rounded-xl bg-warm font-display text-lg font-bold text-foreground">M</span>
+          <span className="grid size-10 place-items-center rounded-xl bg-warm font-display text-lg font-bold text-accent-foreground">M</span>
           <span className="font-display text-2xl font-semibold">MarketMate</span>
         </div>
         <div className="max-w-md rise">
           <h1 className="font-display text-5xl font-semibold leading-tight">Marketing that runs while you run your business.</h1>
-          <p className="mt-4 text-hero-muted">Your AI strategist plans campaigns, writes posts and designs posters — tailored to your shop, salon, studio or café.</p>
+          <p className="mt-4 text-primary-foreground/80">Your AI strategist plans campaigns, writes posts and designs posters — tailored to your shop, salon, studio or café.</p>
           <ul className="mt-8 space-y-3 text-sm">
-            <li className="flex items-center gap-3"><Sparkles className="size-4 text-hero-accent" /> Campaign strategies in seconds</li>
-            <li className="flex items-center gap-3"><Megaphone className="size-4 text-hero-accent" /> Ready-to-post social content</li>
-            <li className="flex items-center gap-3"><CalendarDays className="size-4 text-hero-accent" /> A clear 7-day plan to follow</li>
+            <li className="flex items-center gap-3"><Sparkles className="size-4 text-accent" /> Campaign strategies in seconds</li>
+            <li className="flex items-center gap-3"><Megaphone className="size-4 text-accent" /> Ready-to-post social content</li>
+            <li className="flex items-center gap-3"><CalendarDays className="size-4 text-accent" /> A clear 7-day plan to follow</li>
           </ul>
         </div>
-        <p className="text-xs text-hero-muted">© MarketMate</p>
+        <p className="text-xs text-primary-foreground/60">© MarketMate</p>
       </section>
 
       <section className="flex items-center justify-center bg-background px-6 py-12">
         <div className="w-full max-w-sm rise">
           <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-            <span className="grid size-9 place-items-center rounded-xl bg-warm font-display font-bold text-foreground">M</span>
+            <span className="grid size-9 place-items-center rounded-xl bg-warm font-display font-bold text-accent-foreground">M</span>
             <span className="font-display text-xl font-semibold">MarketMate</span>
           </div>
           {sent ? (

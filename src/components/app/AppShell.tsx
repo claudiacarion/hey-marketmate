@@ -24,7 +24,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col bg-sidebar p-5 text-sidebar-foreground lg:flex">
         <Link to="/" className="mb-10 flex items-center gap-2.5 px-2">
-          <span className="grid size-9 place-items-center rounded-xl bg-warm font-display text-lg font-bold text-foreground">M</span>
+          <span className="grid size-9 place-items-center rounded-xl bg-warm font-display text-lg font-bold text-accent-foreground">M</span>
           <span className="font-display text-xl font-semibold">MarketMate</span>
         </Link>
         <nav className="flex flex-col gap-1">
@@ -47,7 +47,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-10 flex items-center gap-2 border-b bg-background/85 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4 backdrop-blur lg:px-10">
           <div className="flex shrink-0 items-center gap-2 lg:hidden">
-            <span className="grid size-8 place-items-center rounded-lg bg-warm font-display font-bold text-foreground">M</span>
+            <span className="grid size-8 place-items-center rounded-lg bg-warm font-display font-bold text-accent-foreground">M</span>
           </div>
           <div className="flex-1" />
           <NotificationBell />
