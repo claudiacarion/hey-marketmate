@@ -1,13 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { Bell, CalendarDays, CheckCheck, FileClock, Rocket, Image, Sparkles } from "lucide-react";
+import { Bell, CalendarDays, CheckCheck, FileClock, Image, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { buildNotifications, type CampaignRow } from "@/lib/notifications";
 
-const icons = { post: CalendarDays, draft: FileClock, poster: Image, ready: Sparkles, launch: Rocket };
+const icons = { post: CalendarDays, draft: FileClock, poster: Image, ready: Sparkles };
 const KEY = "mm-read-notifications";
 
 export function NotificationBell() {
