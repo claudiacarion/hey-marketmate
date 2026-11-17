@@ -30,7 +30,7 @@ export function TitleEditor({ campaignId, title }: { campaignId: string; title: 
   });
   return (
     <>
-      <Button type="button" size="icon" variant="ghost" aria-label="Edit campaign name" className="mt-1 shrink-0 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+      <Button type="button" size="icon" variant="ghost" aria-label="Edit campaign name" className="mt-1 shrink-0 text-hero-foreground hover:bg-hero-foreground/10 hover:text-hero-foreground"
         onClick={() => { setValue(title); setOpen(true); }}><Pencil className="size-4" /></Button>
       <Dialog open={open} onOpenChange={(o) => !save.isPending && setOpen(o)}>
         <DialogContent>

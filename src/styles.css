@@ -21,6 +21,9 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-hero-foreground: var(--hero-foreground);
+  --color-hero-muted: var(--hero-muted);
+  --color-hero-accent: var(--hero-accent);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -61,12 +64,15 @@
   --popover-foreground: #1e2238;
   --primary: #e06d53;
   --primary-foreground: #1e2238;
+  --hero-foreground: #f8f9fc;
+  --hero-muted: #f4f5fa;
+  --hero-accent: #efa78f;
   --secondary: #eceef7;
   --secondary-foreground: #363d60;
   --muted: #eff0f6;
   --muted-foreground: #626980;
   --accent: #b74732;
-  --accent-foreground: #1e2238;
+  --accent-foreground: #ffffff;
   --highlight: #fae3db;
   --highlight-foreground: #963e2e;
   --success: oklch(0.6 0.13 155);

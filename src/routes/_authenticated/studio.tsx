@@ -131,10 +131,10 @@ function Studio() {
           {error && <div role="alert" className="flex items-start gap-2 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"><AlertCircle className="mt-0.5 size-4 shrink-0" />{error}</div>}
         </div>
         <aside className="space-y-4">
-          <div className="rounded-2xl bg-hero p-6 text-primary-foreground shadow-lift">
+          <div className="rounded-2xl bg-hero p-6 text-hero-foreground shadow-lift">
             <Sparkles className="mb-3 size-6" />
             <h3 className="text-xl font-semibold">What you'll get</h3>
-            <ul className="mt-3 space-y-2 text-sm opacity-90">
+            <ul className="mt-3 space-y-2 text-sm text-hero-muted">
               <li>• A clear strategy & key message</li><li>• Ready-to-post captions and emails</li><li>• Image ideas for each post</li><li>• A realistic posting schedule that fits your week</li>
             </ul>
           </div>
