@@ -23,9 +23,9 @@ export function PlanView({ plan, businessName, businessType, brand, campaignId, 
   return (
     <section id="plan" className="mt-8 space-y-4">
       <div className="rounded-2xl bg-hero p-7 text-hero-foreground shadow-lift">
-        <p className="text-xs uppercase tracking-widest opacity-80">Your campaign plan</p>
+        <p className="text-xs uppercase tracking-widest text-hero-muted">Your campaign plan</p>
         <div className="mt-1 flex items-start gap-2"><h2 className="min-w-0 break-words text-3xl font-semibold">{plan.title}</h2>{titleAction}</div>
-        <p className="mt-3 text-lg opacity-95">“{plan.coreMessage}”</p>
+        <p className="mt-3 text-lg text-hero-muted">“{plan.coreMessage}”</p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <Block icon={Target} title="Objective">{plan.objective}</Block>

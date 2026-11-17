@@ -73,7 +73,7 @@ function Dashboard() {
     <div className="mx-auto max-w-7xl space-y-8">
       <section className="relative overflow-hidden rounded-3xl bg-hero p-8 text-hero-foreground shadow-lift rise md:p-10">
         <div className="absolute -right-16 -top-16 size-64 rounded-full bg-warm opacity-40 blur-3xl" />
-        <p className="relative mb-3 text-sm font-medium opacity-80">Hello{name ? `, ${name}` : ""} 👋</p>
+        <p className="relative mb-3 text-sm font-medium text-hero-muted">Hello{name ? `, ${name}` : ""} 👋</p>
         <h1 className="relative max-w-2xl text-4xl font-semibold leading-tight md:text-5xl">{isLoading ? "Loading your plan…" : m.todays ? `You have ${m.todays} marketing task${m.todays === 1 ? "" : "s"} today.` : "Nothing scheduled today. Plan your next campaign."}</h1>
         <div className="relative mt-7 flex flex-wrap gap-3">
           <Button asChild size="lg" className="rounded-xl bg-accent text-accent-foreground hover:bg-accent/90"><Link to="/studio"><Sparkles className="size-4" /> Plan a campaign</Link></Button>

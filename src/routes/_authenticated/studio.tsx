@@ -134,7 +134,7 @@ function Studio() {
           <div className="rounded-2xl bg-hero p-6 text-hero-foreground shadow-lift">
             <Sparkles className="mb-3 size-6" />
             <h3 className="text-xl font-semibold">What you'll get</h3>
-            <ul className="mt-3 space-y-2 text-sm opacity-90">
+            <ul className="mt-3 space-y-2 text-sm text-hero-muted">
               <li>• A clear strategy & key message</li><li>• Ready-to-post captions and emails</li><li>• Image ideas for each post</li><li>• A realistic posting schedule that fits your week</li>
             </ul>
           </div>
