@@ -22,7 +22,7 @@ function Block({ icon: Icon, title, children }: { icon: typeof Target; title: st
 export function PlanView({ plan, businessName, businessType, brand, campaignId, poster, brief, createdAt, titleAction }: { titleAction?: React.ReactNode; plan: CampaignPlan; businessName: string; businessType: string; brand: { primary: string; accent: string }; campaignId?: string | null | undefined; poster?: SavedPoster | null | undefined; brief?: unknown; createdAt?: string }) {
   return (
     <section id="plan" className="mt-8 space-y-4">
-      <div className="rounded-2xl bg-hero p-7 text-primary-foreground shadow-lift">
+      <div className="rounded-2xl bg-hero p-7 text-hero-foreground shadow-lift">
         <p className="text-xs uppercase tracking-widest opacity-80">Your campaign plan</p>
         <div className="mt-1 flex items-start gap-2"><h2 className="min-w-0 break-words text-3xl font-semibold">{plan.title}</h2>{titleAction}</div>
         <p className="mt-3 text-lg opacity-95">“{plan.coreMessage}”</p>
