@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { rankCategories, requiresCredit, creditLine, stockPhotos } from "@/lib/poster/photos";
 import { textOn, wrapLines, FORMATS } from "@/lib/poster/render";
-import { TEMPLATES, isTemplate } from "@/lib/poster/templates";
+import { TEMPLATES, isTemplate, currentLayout } from "@/lib/poster/templates";
 
 describe("poster photos", () => {
   it("CC BY photos require a credit, CC0 does not", () => {
@@ -41,15 +41,25 @@ describe("poster rendering helpers", () => {
 });
 
 describe("poster design templates", () => {
-  it("offers 8 templates including Product Spotlight", () => {
-    expect(Object.keys(TEMPLATES)).toHaveLength(8);
+  it("offers 9 templates including Full Photo and Product Spotlight", () => {
+    expect(Object.keys(TEMPLATES)).toHaveLength(9);
     expect(TEMPLATES.spotlight.label).toBe("Product Spotlight");
+    expect(TEMPLATES.fullphoto.label).toBe("Full Photo");
+    expect(isTemplate("fullphoto")).toBe(true);
   });
   it("square format is 1080x1080", () => { expect([FORMATS.square.w, FORMATS.square.h]).toEqual([1080, 1080]); });
   it("classic saved layouts are not treated as templates", () => {
     expect(isTemplate("overlay")).toBe(false);
     expect(isTemplate("graphic")).toBe(false);
     expect(isTemplate("retro")).toBe(true);
+  });
+  it("opens a poster saved with a removed classic layout in the closest design", () => {
+    expect(currentLayout("overlay")).toBe("fullphoto");
+    expect(currentLayout("split")).toBe("editorial");
+    expect(currentLayout("frame")).toBe("minimal");
+    expect(currentLayout("graphic")).toBe("c-minimal");
+    expect(currentLayout("bold")).toBe("bold");
+    expect(currentLayout("ai")).toBe("ai");
   });
 });
 

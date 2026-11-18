@@ -5,8 +5,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import type { CampaignPlan } from "@/lib/campaign-types";
-import { ensurePosterFonts, FORMATS, LAYOUTS, type PosterFormat, type PosterLayout } from "@/lib/poster/render";
-import { drawDesign, ensureDesignFonts, FONT_STYLES, isTemplate, PALETTES, TEMPLATES, type DesignContent, type FontStyle, type TemplateId } from "@/lib/poster/templates";
+import { ensurePosterFonts, FORMATS, type PosterFormat, type PosterLayout } from "@/lib/poster/render";
+import { drawDesign, ensureDesignFonts, FONT_STYLES, isTemplate, PALETTES, TEMPLATES, currentLayout, type DesignContent, type FontStyle, type TemplateId } from "@/lib/poster/templates";
 import { COLOUR_STYLES, isColourStyle, type ColourStyleId } from "@/lib/poster/colour-styles";
 import { loadProfile } from "@/lib/business-profile";
 import { sanitizeSpec, type AiDesignSpec } from "@/lib/poster/ai-design";
@@ -65,7 +65,7 @@ export function PosterStudio({ promo, businessName, businessType, brand, busines
   const fileRef = useRef<HTMLInputElement>(null);
   const suggestions = useMemo(() => suggestPhotos(businessType, [promo.headline, promo.offer, promo.supportingCopy, promo.designConcept].join(" ")), [businessType, promo]);
   const [format, setFormat] = useState<PosterFormat>(initial?.format ?? "social");
-  const [layout, setLayout] = useState<SavedPoster["layout"]>(initial?.layout ?? "minimal");
+  const [layout, setLayout] = useState<SavedPoster["layout"]>(() => currentLayout(initial?.layout ?? "minimal"));
   const [font, setFont] = useState<FontStyle>(initial?.font ?? "auto");
   const [usePhoto, setUsePhoto] = useState(initial?.usePhoto ?? true);
   const [txt, setTxt] = useState(initial?.text ?? { headline: promo.headline ?? "", supportingCopy: promo.supportingCopy ?? "", offer: promo.offer ?? "", callToAction: promo.callToAction ?? "", productName: "" });
@@ -264,10 +264,6 @@ export function PosterStudio({ promo, businessName, businessType, brand, busines
             {layout === "ai" && aiSpec && <p className="text-xs text-muted-foreground"><b className="text-foreground">{aiSpec.name}</b>{aiSpec.rationale ? ` — ${aiSpec.rationale}` : ""}</p>}
           </div>}
           {tpl && <p className="text-xs text-muted-foreground">{TEMPLATES[layout as TemplateId].blurb}</p>}
-          <details className="text-xs">
-            <summary className="cursor-pointer text-muted-foreground">Classic layouts</summary>
-            <div className="mt-2 flex flex-wrap gap-2">{(Object.keys(LAYOUTS) as PosterLayout[]).map((l) => <button key={l} type="button" className={chip(layout === l)} onClick={() => setLayout(l)}>{LAYOUTS[l]}</button>)}</div>
-          </details>
         </div>
         {(tpl || isColourStyle(layout)) && <div className="space-y-2">
           <p className="font-semibold">Font style</p>

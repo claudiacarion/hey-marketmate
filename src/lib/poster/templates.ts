@@ -2,11 +2,12 @@
 // Each works with a photo (stock or uploaded) or with no photo (colour only).
 import { drawColourStyle, isColourStyle, type ColourStyleId } from "./colour-styles";
 import { drawAiDesign, type AiDesignSpec } from "./ai-design";
-import { drawCover, drawPoster, fit, shrinkFont, FORMATS, rgba, spaced, textOn, type PosterContent, type PosterFormat, type PosterLayout } from "./render";
+import { drawCover, drawPoster, fit, pill, shrinkFont, FORMATS, rgba, spaced, textOn, type PosterContent, type PosterFormat, type PosterLayout } from "./render";
 
-export type TemplateId = "minimal" | "editorial" | "bold" | "luxury" | "playful" | "retro" | "organic" | "spotlight";
+export type TemplateId = "fullphoto" | "minimal" | "editorial" | "bold" | "luxury" | "playful" | "retro" | "organic" | "spotlight";
 export type FontStyle = "auto" | "serif" | "sans" | "retro";
 export const TEMPLATES: Record<TemplateId, { label: string; blurb: string; font: Exclude<FontStyle, "auto"> }> = {
+  fullphoto: { label: "Full Photo", blurb: "Photo fills the poster", font: "serif" },
   minimal: { label: "Minimalist", blurb: "Clean, lots of space", font: "sans" },
   editorial: { label: "Editorial", blurb: "Magazine-style", font: "serif" },
   bold: { label: "Bold & Modern", blurb: "Big type, strong shapes", font: "sans" },
@@ -32,6 +33,13 @@ export type DesignContent = PosterContent & { productName?: string | undefined }
 export type DesignStyle = { format: PosterFormat; layout: PosterLayout | TemplateId | ColourStyleId | "ai"; primary: string; accent: string; font?: FontStyle | undefined; aiSpec?: AiDesignSpec | null | undefined };
 export const isTemplate = (l: string): l is TemplateId => l in TEMPLATES;
 
+/** Layouts that used to sit in the "Classic layouts" list. They are no longer offered in the
+ *  studio; posters saved with one open in the closest design that is still available. */
+const LEGACY_LAYOUTS: Record<string, TemplateId | ColourStyleId> = { overlay: "fullphoto", split: "editorial", frame: "minimal", graphic: "c-minimal" };
+/** Map a stored layout onto the design the studio offers for it today. */
+export const currentLayout = (l: string): TemplateId | ColourStyleId | "ai" =>
+  LEGACY_LAYOUTS[l] ?? (l as TemplateId | ColourStyleId | "ai");
+
 const SANS = '"Plus Jakarta Sans", system-ui, sans-serif';
 const FAMILY = { serif: '"Fraunces", Georgia, serif', sans: SANS, retro: '"Abril Fatface", "Fraunces", Georgia, serif' };
 const HEAD_WEIGHT = { serif: 700, sans: 800, retro: 400 };
@@ -43,7 +51,7 @@ export async function ensureDesignFonts() {
 
 type Img = (CanvasImageSource & { width: number; height: number }) | null;
 
-/** Draw any design: one of the 8 templates, or a classic layout. */
+/** Draw any design: one of the 9 templates, or a legacy classic layout. */
 export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent, st: DesignStyle) {
   if (st.layout === "ai") { if (st.aiSpec) { drawAiDesign(canvas, c, st.format, st.aiSpec); return; } st = { ...st, layout: "c-minimal" }; }
   if (isColourStyle(st.layout)) { drawColourStyle(canvas, c, { format: st.format, layout: st.layout, primary: st.primary, accent: st.accent, font: st.font }); return; }
@@ -93,6 +101,44 @@ export function drawDesign(canvas: HTMLCanvasElement, img: Img, c: DesignContent
   const prod = (c.productName ?? "").trim().slice(0, 50);
 
   switch (st.layout) {
+    case "fullphoto": {
+      const pad = 80 * u;
+      photo(0, 0, W, H);
+      // Darken the bottom for the copy and the very top for the brand line.
+      const g = ctx.createLinearGradient(0, H * 0.25, 0, H);
+      g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(0.55, "rgba(0,0,0,0.55)"); g.addColorStop(1, "rgba(0,0,0,0.88)");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      const tint = ctx.createLinearGradient(0, 0, 0, 260 * u);
+      tint.addColorStop(0, rgba(P, 0.75)); tint.addColorStop(1, rgba(P, 0));
+      ctx.fillStyle = tint; ctx.fillRect(0, 0, W, 260 * u);
+      const scrim = ctx.createLinearGradient(0, 0, 0, 210 * u);
+      scrim.addColorStop(0, "rgba(0,0,0,0.45)"); scrim.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = scrim; ctx.fillRect(0, 0, W, 210 * u);
+      text(name.toUpperCase(), pad, pad + 20 * u, `700 ${28 * u}px ${SANS}`, "#ffffff", "left", 6 * u, W - pad * 2);
+      ctx.fillStyle = A; ctx.fillRect(pad, pad + 48 * u, 90 * u, 8 * u);
+
+      const ctaSize = 30 * u, ctaH = ctaSize * 2.4, btnBottom = H - pad - 24 * u;
+      const offerH = offer ? 68 * u + 34 * u : 0;
+      const lim = btnBottom - (cta ? ctaH + 44 * u : 0) - offerH;
+      const bandTop = H * (tall > 1.3 ? 0.26 : 0.3);
+      const hw = W - pad * 2;
+      const hMax = (tall > 1.2 ? 104 : 96) * u, cMax = 34 * u, hLines = tall > 1.2 ? 4 : 3;
+      let hf = fit(ctx, c.headline, (z) => HF(z), hw, hLines, hMax, 38 * u);
+      let cf = fit(ctx, c.supportingCopy, (z) => `500 ${z}px ${SANS}`, hw, 3, cMax, 18 * u);
+      let total = offerH + hf.lines.length * hf.size * 1.06 + 40 * u + cf.lines.length * cf.size * 1.4;
+      // Shrink until the whole stack fits between the band top and the button.
+      for (let k = 0.94; total > lim - bandTop && k >= 0.45; k -= 0.06) {
+        hf = fit(ctx, c.headline, (z) => HF(z), hw, hLines, hMax * k, 26 * u);
+        cf = fit(ctx, c.supportingCopy, (z) => `500 ${z}px ${SANS}`, hw, 3, cMax * k, 15 * u);
+        total = offerH + hf.lines.length * hf.size * 1.06 + 40 * u + cf.lines.length * cf.size * 1.4;
+      }
+      let y = Math.max(bandTop, lim - total);
+      if (offer) { const h = pill(ctx, offer.toUpperCase(), pad, y, 32 * u, A, aFg, 32 * u, 18 * u).h; y += h + 34 * u; }
+      y = block(c.headline, pad, y, hw, (z) => HF(z), "#ffffff", hMax, 26 * u, hLines, 1.06, "left", lim);
+      block(c.supportingCopy, pad, y + 40 * u, hw, (z) => `500 ${z}px ${SANS}`, "rgba(255,255,255,0.9)", cMax, 15 * u, 3, 1.4, "left", lim);
+      if (cta) button(cta, pad, btnBottom - ctaH, ctaSize, "#ffffff", "#141414");
+      credit("rgba(255,255,255,0.75)"); break;
+    }
     case "minimal": {
       const bg = "#fbfaf7"; ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
       const pad = 90 * u, ph = H * (tall > 1.2 ? 0.46 : 0.36);

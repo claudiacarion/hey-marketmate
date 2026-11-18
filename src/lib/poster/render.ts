@@ -1,5 +1,6 @@
 // Canvas poster renderer — draws a real image from a photo + campaign copy.
 export type PosterFormat = "square" | "social" | "story" | "print";
+/** Legacy layout ids. They are no longer offered in the studio, but posters saved with one still render. */
 export type PosterLayout = "overlay" | "split" | "frame" | "graphic";
 export const FORMATS: Record<PosterFormat, { label: string; hint: string; w: number; h: number }> = {
   square: { label: "Square", hint: "1080×1080 · Instagram / Facebook square", w: 1080, h: 1080 },
@@ -7,8 +8,6 @@ export const FORMATS: Record<PosterFormat, { label: string; hint: string; w: num
   story: { label: "Story", hint: "1080×1920 · Stories & Reels", w: 1080, h: 1920 },
   print: { label: "Print A4", hint: "2480×3508 · 300 dpi poster", w: 2480, h: 3508 },
 };
-export const LAYOUTS: Record<PosterLayout, string> = { overlay: "Full photo", split: "Photo + colour panel", frame: "Framed photo", graphic: "Colour design (no photo)" };
-
 export type PosterContent = { businessName: string; offer: string; headline: string; supportingCopy: string; callToAction: string; credit?: string | undefined };
 export type PosterStyle = { format: PosterFormat; layout: PosterLayout; primary: string; accent: string };
 
